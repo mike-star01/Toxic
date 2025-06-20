@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Situationship } from '../types';
 import { useAppContext } from '../App';
-import Svg, { SvgXml, G, Ellipse, Rect, Polyline } from 'react-native-svg';
+import Svg, { SvgXml, G, Ellipse, Rect, Polyline, Path, Text as SvgText } from 'react-native-svg';
 import { Asset } from 'expo-asset';
 import SkeletonRisingSvg from '../assets/SkeletonRising.svg';
 import LightningBGSvg from '../assets/LightningBG.svg';
@@ -105,6 +105,9 @@ const AnimatedG = Animated.createAnimatedComponent(G);
 
 // Animated SVG groups for Reanimated
 const ReanimatedG = Animated.createAnimatedComponent(G);
+
+const GRAVE_WIDTH = (width - 48) / 2;
+const GRAVE_HEIGHT = 200;
 
 export default function GraveyardScreen() {
   const { situationships, setSituationships, darkMode, deleteSoul, updateSoul, restoreSoul } = useAppContext();
@@ -251,74 +254,46 @@ export default function GraveyardScreen() {
     const cardColor = situationship.color || '#2a2a2a';
     const isAnimating = reviveAnimId === situationship.id;
     return (
-      <TouchableOpacity style={styles.graveCard} onPress={() => openEditModal(situationship)}>
-        <LinearGradient
-          colors={[cardColor, '#1a1a1a']}
-          style={styles.graveGradient}
-        >
-          <View style={styles.graveHeader}>
-            <Text style={styles.graveName}>{situationship.name}</Text>
-            <Text style={styles.causeIcon}>
-              {getCauseOfDeathIcon(situationship.causeOfDeath)}
-            </Text>
-            <TouchableOpacity onPress={() => handleDelete(situationship.id)} style={{ marginLeft: 8 }}>
-              <Ionicons name="trash" size={20} color="#FF5555" />
+      <TouchableOpacity onPress={() => openEditModal(situationship)} activeOpacity={0.85} style={{ width: GRAVE_WIDTH, height: GRAVE_HEIGHT, marginBottom: 16, alignItems: 'center', position: 'relative' }}>
+        <Svg width={GRAVE_WIDTH} height={GRAVE_HEIGHT} style={{ position: 'absolute', top: 0, left: 0 }}>
+          <Path
+            d={`M10,60 Q10,10 ${GRAVE_WIDTH/2},10 Q${GRAVE_WIDTH-10},10 ${GRAVE_WIDTH-10},60 L${GRAVE_WIDTH-10},${GRAVE_HEIGHT-10} Q${GRAVE_WIDTH-10},${GRAVE_HEIGHT} 10,${GRAVE_HEIGHT-10} Q10,${GRAVE_HEIGHT-10} 10,${GRAVE_HEIGHT-10} Z`}
+            fill={cardColor}
+            stroke="#222"
+            strokeWidth={3}
+          />
+        </Svg>
+        <View style={{ flex: 1, width: '100%', height: '100%', padding: 16, justifyContent: 'space-between', zIndex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, justifyContent: 'center' }}>
+            <Text style={[styles.causeIcon, { fontSize: 16, marginRight: 1 }]}>{getCauseOfDeathIcon(situationship.causeOfDeath)}</Text>
+            <Text style={[styles.graveName, { fontSize: 14, textAlign: 'center', flexShrink: 1, maxWidth: '65%', marginHorizontal: 1 }]} numberOfLines={1}>{situationship.name}</Text>
+            <TouchableOpacity onPress={() => handleDelete(situationship.id)} style={{ marginLeft: 1, padding: 0 }}>
+              <Ionicons name="trash" size={16} color="#FF5555" />
             </TouchableOpacity>
           </View>
-          {/* Skeleton + Lightning Animation */}
           {isAnimating && (
             <View style={{ alignItems: 'center', marginBottom: 8 }}>
-              <Animated.Text
-                style={{
-                  fontSize: 40,
-                  transform: [{ translateY: reviveAnim }],
-                  zIndex: 2,
-                }}
-              >
-                💀
-              </Animated.Text>
-              <Animated.Text
-                style={{
-                  position: 'absolute',
-                  fontSize: 48,
-                  color: '#FFD700',
-                  opacity: lightningAnim,
-                  zIndex: 3,
-                  top: -10,
-                }}
-              >
-                ⚡
-              </Animated.Text>
+              <Animated.Text style={{ fontSize: 40, transform: [{ translateY: reviveAnim }], zIndex: 2 }}>💀</Animated.Text>
+              <Animated.Text style={{ position: 'absolute', fontSize: 48, color: '#FFD700', opacity: lightningAnim, zIndex: 3, top: -10 }}>⚡</Animated.Text>
             </View>
           )}
           <View style={styles.graveDetails}>
-            <Text style={styles.epitaph} numberOfLines={2}>
-              {situationship.epitaph || 'RIP'}
-            </Text>
+            <Text style={styles.epitaph} numberOfLines={2}>{situationship.epitaph || 'RIP'}</Text>
             <View style={styles.statsRow}>
-              <Text style={styles.stat}>
-                📅 {situationship.emotionalLog.numberOfDates} dates
-              </Text>
-              <Text style={styles.stat}>
-                💬 {situationship.emotionalLog.talkedForWeeks} weeks
-              </Text>
+              <Text style={styles.stat}>📅 {situationship.emotionalLog.numberOfDates} dates</Text>
+              <Text style={styles.stat}>💬 {situationship.emotionalLog.talkedForWeeks} weeks</Text>
             </View>
             {situationship.isRevived && (
               <View style={styles.revivedBadge}>
-                <Text style={styles.revivedText}>
-                  👻 Back From The Dead ({situationship.reviveCount}x)
-                </Text>
+                <Text style={styles.revivedText}>👻 Back From The Dead ({situationship.reviveCount}x)</Text>
               </View>
             )}
           </View>
-          <TouchableOpacity
-            style={styles.reviveButton}
-            onPress={() => handleRevive(situationship.id)}
-          >
+          <TouchableOpacity style={styles.reviveButton} onPress={() => handleRevive(situationship.id)}>
             <Ionicons name="flash" size={20} color="#FFD700" />
             <Text style={styles.reviveText}>Revive</Text>
           </TouchableOpacity>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -645,12 +620,6 @@ export default function GraveyardScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: darkMode ? '#0a0a0a' : '#f5f5f5' }]}>
       <FullScreenReviveModal />
-      <TouchableOpacity
-        style={{ alignSelf: 'center', margin: 12, backgroundColor: '#FFD700', borderRadius: 20, paddingHorizontal: 20, paddingVertical: 8 }}
-        onPress={() => setShowDeletedModal(true)}
-      >
-        <Text style={{ color: '#222', fontWeight: 'bold' }}>Show Deleted Souls</Text>
-      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: darkMode ? '#fff' : '#000' }]}>🪦 Situationship Graveyard</Text>
@@ -675,6 +644,14 @@ export default function GraveyardScreen() {
           </View>
         )}
       </ScrollView>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 24, alignItems: 'center', zIndex: 10 }}>
+        <TouchableOpacity
+          style={{ backgroundColor: '#FFD700', borderRadius: 20, paddingHorizontal: 20, paddingVertical: 8 }}
+          onPress={() => setShowDeletedModal(true)}
+        >
+          <Text style={{ color: '#222', fontWeight: 'bold' }}>Show Deleted Souls</Text>
+        </TouchableOpacity>
+      </View>
       <EditModal />
       <DeletedSoulsModal />
     </SafeAreaView>

@@ -13,9 +13,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppContext } from '../App';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 export default function SettingsScreen() {
-  const { darkMode, setDarkMode, clearGraveyard } = useAppContext();
+  const { darkMode, setDarkMode, clearGraveyard, situationships } = useAppContext();
   const [notifications, setNotifications] = useState(true);
   const [autoBackup, setAutoBackup] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -23,15 +25,26 @@ export default function SettingsScreen() {
   // New state for info modals
   const [infoModal, setInfoModal] = useState<{visible: boolean, title: string, content: React.ReactNode}>({visible: false, title: '', content: null});
 
-  const handleExportData = () => {
-    Alert.alert(
-      '📤 Export Data',
-      'Export your graveyard data to share with friends or backup?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Export', onPress: () => Alert.alert('Success', 'Data exported!') }
-      ]
-    );
+  const handleExportData = async () => {
+    try {
+      // Format the graveyard data as a readable string
+      const dataString = situationships.length === 0
+        ? 'No graves in your graveyard yet.'
+        : situationships.map(s => `Name: ${s.name}\nCause of Death: ${s.causeOfDeath}\nEpitaph: ${s.epitaph || ''}\nRevived: ${s.isRevived ? 'Yes' : 'No'}\n---`).join('\n\n');
+
+      // Write the data to a temporary file
+      const fileUri = FileSystem.cacheDirectory + 'graveyard.txt';
+      await FileSystem.writeAsStringAsync(fileUri, dataString);
+
+      // Share the file
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'text/plain',
+        dialogTitle: 'Share Your Graveyard',
+        UTI: 'public.text',
+      });
+    } catch (error) {
+      // Optionally handle user cancel or error
+    }
   };
 
   const handleClearGraveyard = () => {
