@@ -12,17 +12,20 @@ import {
   TextInput,
   Animated,
   Easing,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Situationship } from '../types';
 import { useAppContext } from '../App';
-import Svg, { SvgXml, G, Ellipse, Rect, Polyline } from 'react-native-svg';
+import Svg, { SvgXml, G, Ellipse, Rect, Polyline, Path, Defs, LinearGradient as SvgLinearGradient, Stop, Filter } from 'react-native-svg';
 import { Asset } from 'expo-asset';
 import SkeletonRisingSvg from '../assets/SkeletonRising.svg';
 import LightningBGSvg from '../assets/LightningBG.svg';
 import { View as RNView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 const { width } = Dimensions.get('window');
 
@@ -106,6 +109,12 @@ const AnimatedG = Animated.createAnimatedComponent(G);
 // Animated SVG groups for Reanimated
 const ReanimatedG = Animated.createAnimatedComponent(G);
 
+type TabParamList = {
+  Graveyard: undefined;
+  'Add Grave': undefined;
+  Settings: undefined;
+};
+
 export default function GraveyardScreen() {
   const { situationships, setSituationships, darkMode, deleteSoul, updateSoul, restoreSoul } = useAppContext();
   const [editingSoul, setEditingSoul] = useState<Situationship | null>(null);
@@ -117,6 +126,7 @@ export default function GraveyardScreen() {
   const lightningAnim = useRef(new Animated.Value(0)).current; // opacity for lightning
   const fullScreenAnim = useRef(new Animated.Value(1)).current; // Y offset for full screen
   const fullScreenLightning = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
 
   const nonDeletedSouls = situationships.filter(s => !s.deleted);
   const deletedSouls = situationships.filter(s => s.deleted);
@@ -247,78 +257,112 @@ export default function GraveyardScreen() {
     }
   };
 
+  const handleBury = (id: string) => {
+    setSituationships((prev: Situationship[]) =>
+      prev.map((s: Situationship) => {
+        if (s.id === id) {
+          return {
+            ...s,
+            isRevived: false,
+          };
+        }
+        return s;
+      })
+    );
+    const soul = situationships.find(s => s.id === id);
+    if (soul) {
+      Alert.alert('Back to the grave', `${soul.name} has been buried again.`);
+    }
+  };
+
   const GraveCard = ({ situationship }: { situationship: Situationship }) => {
-    const cardColor = situationship.color || '#2a2a2a';
-    const isAnimating = reviveAnimId === situationship.id;
+    const screenWidth = Dimensions.get('window').width;
+    const width = Math.floor(screenWidth * 0.5);
+    const height = 290;
     return (
-      <TouchableOpacity style={styles.graveCard} onPress={() => openEditModal(situationship)}>
-        <LinearGradient
-          colors={[cardColor, '#1a1a1a']}
-          style={styles.graveGradient}
-        >
-          <View style={styles.graveHeader}>
-            <Text style={styles.graveName}>{situationship.name}</Text>
-            <Text style={styles.causeIcon}>
-              {getCauseOfDeathIcon(situationship.causeOfDeath)}
+      <TouchableOpacity style={[styles.graveCard, { marginHorizontal: 0 }]} onPress={() => openEditModal(situationship)}>
+        <View style={{ width, height, alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+            <Defs>
+              <SvgLinearGradient id="stoneGray" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0%" stopColor="#d3d6db" />
+                <Stop offset="100%" stopColor="#a2a5ab" />
+              </SvgLinearGradient>
+              <SvgLinearGradient id="baseGray" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0%" stopColor="#b0b2b8" />
+                <Stop offset="100%" stopColor="#888a92" />
+              </SvgLinearGradient>
+            </Defs>
+            {/* Main tombstone body, full width */}
+            <Path
+              d={`M0 ${height*0.8} L0 ${height*0.32} Q0 ${height*0.13} ${width/2} ${height*0.08} Q${width} ${height*0.13} ${width} ${height*0.32} L${width} ${height*0.8} Z`}
+              fill="url(#stoneGray)"
+              stroke="#888a92"
+              strokeWidth="3"
+            />
+            {/* Skinny inner border for subtle design */}
+            <Path
+              d={`M${width*0.05} ${height*0.77} L${width*0.05} ${height*0.36} Q${width*0.05} ${height*0.17} ${width/2} ${height*0.12} Q${width*0.95} ${height*0.17} ${width*0.95} ${height*0.36} L${width*0.95} ${height*0.77} Z`}
+              fill="none"
+              stroke="#cfd1d6"
+              strokeWidth="1.2"
+            />
+            {/* Base slab, full width */}
+            <Rect x={0} y={height*0.8} width={width} height={height*0.10} rx={0} fill="url(#baseGray)" stroke="#888a92" strokeWidth="2" />
+          </Svg>
+          <View style={{
+            position: 'absolute',
+            top: height * 0.28,
+            left: 0,
+            width: width,
+            height: height * 0.6,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+          }}>
+            <Text style={[styles.graveName, { color: '#222', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 2, textShadowColor: '#fff', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, alignSelf: 'center' }]} numberOfLines={1} ellipsizeMode="tail">{situationship.name}</Text>
+            <Text style={{ color: '#333', fontSize: 14, marginBottom: 2, textAlign: 'center', textShadowColor: '#fff', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, alignSelf: 'center' }} numberOfLines={1} ellipsizeMode="tail">
+              {situationship.dateStarted instanceof Date && situationship.dateEnded instanceof Date
+                ? `${situationship.dateStarted.toLocaleString('default', { month: 'short', year: 'numeric' })} - ${situationship.dateEnded.toLocaleString('default', { month: 'short', year: 'numeric' })}`
+                : ''}
             </Text>
-            <TouchableOpacity onPress={() => handleDelete(situationship.id)} style={{ marginLeft: 8 }}>
-              <Ionicons name="trash" size={20} color="#FF5555" />
-            </TouchableOpacity>
-          </View>
-          {/* Skeleton + Lightning Animation */}
-          {isAnimating && (
-            <View style={{ alignItems: 'center', marginBottom: 8 }}>
-              <Animated.Text
-                style={{
-                  fontSize: 40,
-                  transform: [{ translateY: reviveAnim }],
-                  zIndex: 2,
-                }}
-              >
-                💀
-              </Animated.Text>
-              <Animated.Text
-                style={{
-                  position: 'absolute',
-                  fontSize: 48,
-                  color: '#FFD700',
-                  opacity: lightningAnim,
-                  zIndex: 3,
-                  top: -10,
-                }}
-              >
-                ⚡
-              </Animated.Text>
-            </View>
-          )}
-          <View style={styles.graveDetails}>
-            <Text style={styles.epitaph} numberOfLines={2}>
+            <Text style={{ color: '#444', fontSize: 13, fontStyle: 'italic', marginBottom: 4, textAlign: 'center', textShadowColor: '#fff', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, alignSelf: 'center' }} numberOfLines={2} ellipsizeMode="tail">
               {situationship.epitaph || 'RIP'}
             </Text>
-            <View style={styles.statsRow}>
-              <Text style={styles.stat}>
-                📅 {situationship.emotionalLog.numberOfDates} dates
-              </Text>
-              <Text style={styles.stat}>
-                💬 {situationship.emotionalLog.talkedForWeeks} weeks
-              </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4, alignSelf: 'center' }}>
+              <Text style={[styles.stat, { textShadowColor: '#fff', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }]} numberOfLines={1} ellipsizeMode="tail">📅 {situationship.emotionalLog.numberOfDates} dates</Text>
+              <Text style={[styles.stat, { marginLeft: 8, textShadowColor: '#fff', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }]} numberOfLines={1} ellipsizeMode="tail">💬 {situationship.emotionalLog.talkedForWeeks} weeks</Text>
             </View>
-            {situationship.isRevived && (
-              <View style={styles.revivedBadge}>
-                <Text style={styles.revivedText}>
-                  👻 Back From The Dead ({situationship.reviveCount}x)
-                </Text>
-              </View>
+          </View>
+          {/* Button sits at the bottom slab */}
+          <View style={{
+            position: 'absolute',
+            left: 0,
+            width: width,
+            bottom: height * 0.04,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 3,
+          }}>
+            {situationship.isRevived ? (
+              <TouchableOpacity
+                style={[styles.reviveButton, { backgroundColor: '#222', borderColor: '#FFD700', borderWidth: 2, alignSelf: 'center', maxWidth: width * 0.8, justifyContent: 'center' }]}
+                onPress={() => handleBury(situationship.id)}
+              >
+                <Ionicons name="close-circle" size={20} color="#FFD700" />
+                <Text style={[styles.reviveText, { color: '#FFD700', marginLeft: 4, textAlign: 'center' }]} numberOfLines={1} ellipsizeMode="tail">Bury</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.reviveButton, { alignSelf: 'center', maxWidth: width * 0.8, justifyContent: 'center' }]}
+                onPress={() => handleRevive(situationship.id)}
+              >
+                <Ionicons name="flash" size={20} color="#FFD700" />
+                <Text style={[styles.reviveText, { textAlign: 'center' }]} numberOfLines={1} ellipsizeMode="tail">Revive</Text>
+              </TouchableOpacity>
             )}
           </View>
-          <TouchableOpacity
-            style={styles.reviveButton}
-            onPress={() => handleRevive(situationship.id)}
-          >
-            <Ionicons name="flash" size={20} color="#FFD700" />
-            <Text style={styles.reviveText}>Revive</Text>
-          </TouchableOpacity>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -349,19 +393,31 @@ export default function GraveyardScreen() {
                   value={editingSoul.epitaph || ''}
                   onChangeText={v => handleEditChange('epitaph', v)}
                 />
-                <Text>Number of Dates</Text>
+                <Text>Where You Met</Text>
                 <TextInput
                   style={styles.input}
-                  value={editingSoul.emotionalLog.numberOfDates.toString()}
-                  keyboardType="numeric"
-                  onChangeText={v => handleEditEmotionalLogChange('numberOfDates', parseInt(v) || 0)}
+                  value={editingSoul.whereMet || ''}
+                  onChangeText={v => handleEditChange('whereMet', v)}
                 />
-                <Text>Talked for Weeks</Text>
+                <Text>Red Flags (comma separated)</Text>
                 <TextInput
                   style={styles.input}
-                  value={editingSoul.emotionalLog.talkedForWeeks.toString()}
-                  keyboardType="numeric"
-                  onChangeText={v => handleEditEmotionalLogChange('talkedForWeeks', parseInt(v) || 1)}
+                  value={editingSoul.redFlags ? editingSoul.redFlags.join(', ') : ''}
+                  onChangeText={v => handleEditChange('redFlags', v.split(',').map(f => f.trim()).filter(Boolean))}
+                />
+                <Text>Last Message</Text>
+                <TextInput
+                  style={styles.input}
+                  value={editingSoul.lastMessage || ''}
+                  onChangeText={v => handleEditChange('lastMessage', v)}
+                  multiline
+                />
+                <Text>Reflection</Text>
+                <TextInput
+                  style={styles.input}
+                  value={editingSoul.reflection || ''}
+                  onChangeText={v => handleEditChange('reflection', v)}
+                  multiline
                 />
                 <Text>Card Color</Text>
                 <View style={{ flexDirection: 'row', marginBottom: 12, flexWrap: 'wrap' }}>
@@ -645,16 +701,10 @@ export default function GraveyardScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: darkMode ? '#0a0a0a' : '#f5f5f5' }]}>
       <FullScreenReviveModal />
-      <TouchableOpacity
-        style={{ alignSelf: 'center', margin: 12, backgroundColor: '#FFD700', borderRadius: 20, paddingHorizontal: 20, paddingVertical: 8 }}
-        onPress={() => setShowDeletedModal(true)}
-      >
-        <Text style={{ color: '#222', fontWeight: 'bold' }}>Show Deleted Souls</Text>
-      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: darkMode ? '#fff' : '#000' }]}>🪦 Situationship Graveyard</Text>
-          <Text style={[styles.subtitle, { color: darkMode ? '#888' : '#666' }]}>
+          <Text style={[styles.subtitle, { color: darkMode ? '#888' : '#666' }]}> 
             {nonDeletedSouls.length} souls rest here
           </Text>
         </View>
@@ -675,6 +725,14 @@ export default function GraveyardScreen() {
           </View>
         )}
       </ScrollView>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 24, alignItems: 'center', zIndex: 10 }}>
+        <TouchableOpacity
+          style={{ backgroundColor: '#FFD700', borderRadius: 20, paddingHorizontal: 20, paddingVertical: 8 }}
+          onPress={() => setShowDeletedModal(true)}
+        >
+          <Text style={{ color: '#222', fontWeight: 'bold' }}>Show Deleted Souls</Text>
+        </TouchableOpacity>
+      </View>
       <EditModal />
       <DeletedSoulsModal />
     </SafeAreaView>
@@ -706,7 +764,10 @@ const styles = StyleSheet.create({
   graveyardGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginTop: 0,
+    marginBottom: 0,
   },
   graveCard: {
     width: (width - 48) / 2,

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,8 +10,10 @@ import { Situationship, AppContextType } from './types';
 import GraveyardScreen from './screens/GraveyardScreen';
 import AddGraveScreen from './screens/AddGraveScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import StatsScreen from './screens/StatsScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 // Mock data for demonstration
 const mockSituationships: Situationship[] = [
@@ -110,54 +113,74 @@ const AppContent: React.FC = () => {
     <SafeAreaProvider>
       <NavigationContainer>
         <StatusBar style={darkMode ? "light" : "dark"} />
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName: keyof typeof Ionicons.glyphMap;
-
-              if (route.name === 'Graveyard') {
-                iconName = focused ? 'skull' : 'skull-outline';
-              } else if (route.name === 'Add Grave') {
-                iconName = focused ? 'add-circle' : 'add-circle-outline';
-              } else if (route.name === 'Settings') {
-                iconName = focused ? 'settings' : 'settings-outline';
-              } else {
-                iconName = 'help-outline';
-              }
-
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: '#8B0000',
-            tabBarInactiveTintColor: '#666',
-            tabBarStyle: {
-              backgroundColor: darkMode ? '#1a1a1a' : '#f5f5f5',
-              borderTopColor: darkMode ? '#333' : '#ddd',
-            },
-            headerStyle: {
-              backgroundColor: darkMode ? '#1a1a1a' : '#f5f5f5',
-            },
-            headerTintColor: darkMode ? '#fff' : '#000',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          })}
-        >
-          <Tab.Screen 
-            name="Graveyard" 
-            component={GraveyardScreen}
-            options={{ title: '🪦 Graveyard' }}
-          />
-          <Tab.Screen 
-            name="Add Grave" 
-            component={AddGraveScreen}
-            options={{ title: '➕ Add Grave' }}
-          />
-          <Tab.Screen 
-            name="Settings" 
-            component={SettingsScreen}
-            options={{ title: '⚙️ Settings' }}
-          />
-        </Tab.Navigator>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="MainTabs" options={{ headerShown: false }}>
+            {() => (
+              <Tab.Navigator
+                screenOptions={({ route, navigation }) => ({
+                  tabBarIcon: ({ focused, color, size }) => {
+                    let iconName: keyof typeof Ionicons.glyphMap;
+                    if (route.name === 'Graveyard') {
+                      iconName = focused ? 'skull' : 'skull-outline';
+                    } else if (route.name === 'Add Grave') {
+                      iconName = focused ? 'add-circle' : 'add-circle-outline';
+                    } else if (route.name === 'Stats') {
+                      iconName = focused ? 'bar-chart' : 'bar-chart-outline';
+                    } else {
+                      iconName = 'help-outline';
+                    }
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                  },
+                  tabBarActiveTintColor: '#8B0000',
+                  tabBarInactiveTintColor: '#666',
+                  tabBarStyle: {
+                    backgroundColor: darkMode ? '#1a1a1a' : '#f5f5f5',
+                    borderTopColor: darkMode ? '#333' : '#ddd',
+                  },
+                  headerStyle: {
+                    backgroundColor: darkMode ? '#1a1a1a' : '#f5f5f5',
+                  },
+                  headerTintColor: darkMode ? '#fff' : '#000',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                })}
+              >
+                <Tab.Screen 
+                  name="Graveyard" 
+                  component={GraveyardScreen}
+                  options={({ navigation }) => ({
+                    title: '🪦 Graveyard',
+                    headerRight: () => (
+                      <Ionicons
+                        name="settings-outline"
+                        size={26}
+                        color="#fff"
+                        style={{ marginRight: 16 }}
+                        onPress={() => navigation.getParent()?.navigate('Settings')}
+                      />
+                    ),
+                  })}
+                />
+                <Tab.Screen 
+                  name="Add Grave" 
+                  component={AddGraveScreen}
+                  options={{ title: '➕ Add Grave' }}
+                />
+                <Tab.Screen 
+                  name="Stats" 
+                  component={StatsScreen}
+                  options={{ title: '📊 Stats',
+                    tabBarIcon: ({ color, size }) => (
+                      <Ionicons name="bar-chart-outline" size={size} color={color} />
+                    ),
+                  }}
+                />
+              </Tab.Navigator>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: true, title: '⚙️ Settings' }} />
+        </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
   );

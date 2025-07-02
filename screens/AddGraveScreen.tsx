@@ -44,6 +44,11 @@ export default function AddGraveScreen() {
   const [talkedForWeeks, setTalkedForWeeks] = useState('1');
   const [wasExclusive, setWasExclusive] = useState(false);
 
+  const [whereMet, setWhereMet] = useState('');
+  const [redFlags, setRedFlags] = useState('');
+  const [lastMessage, setLastMessage] = useState('');
+  const [reflection, setReflection] = useState('');
+
   const generateSummary = (): string => {
     const parts = [];
     
@@ -93,6 +98,10 @@ export default function AddGraveScreen() {
       isRevived: false,
       epitaph: epitaph.trim() || undefined,
       createdAt: new Date(),
+      whereMet: whereMet.trim() || undefined,
+      redFlags: redFlags.split(',').map(f => f.trim()).filter(Boolean),
+      lastMessage: lastMessage.trim() || undefined,
+      reflection: reflection.trim() || undefined,
     };
     addSoul(newSituationship);
     Alert.alert(
@@ -116,6 +125,10 @@ export default function AddGraveScreen() {
             setFought(false);
             setTalkedForWeeks('1');
             setWasExclusive(false);
+            setWhereMet('');
+            setRedFlags('');
+            setLastMessage('');
+            setReflection('');
           }
         }
       ]
@@ -263,6 +276,40 @@ export default function AddGraveScreen() {
             placeholderTextColor="#666"
             multiline
             numberOfLines={3}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={whereMet}
+            onChangeText={setWhereMet}
+            placeholder="Where you met (e.g., Coffee shop, his apartment, the park)"
+            placeholderTextColor="#666"
+          />
+
+          <TextInput
+            style={styles.input}
+            value={redFlags}
+            onChangeText={setRedFlags}
+            placeholder="Red flags (comma separated, e.g., Always canceled, Still had dating apps)"
+            placeholderTextColor="#666"
+          />
+
+          <TextInput
+            style={styles.input}
+            value={lastMessage}
+            onChangeText={setLastMessage}
+            placeholder="Last message (e.g., 'Hey, I'm not really feeling this anymore...')"
+            placeholderTextColor="#666"
+            multiline
+          />
+
+          <TextInput
+            style={styles.input}
+            value={reflection}
+            onChangeText={setReflection}
+            placeholder="Reflection (what you learned from this experience)"
+            placeholderTextColor="#666"
+            multiline
           />
 
           <View style={styles.dateRow}>

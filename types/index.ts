@@ -12,6 +12,10 @@ export interface Situationship {
   createdAt: Date;
   color?: string;
   deleted?: boolean;
+  whereMet?: string;
+  redFlags?: string[];
+  lastMessage?: string;
+  reflection?: string;
 }
 
 export type CauseOfDeath = 
