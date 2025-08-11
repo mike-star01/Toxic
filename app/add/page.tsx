@@ -450,7 +450,7 @@ export default function AddSituationshipPage() {
               <div className="pt-4">
                 <Button
                   type="submit"
-                  className="w-full bg-red-800 hover:bg-red-900 h-12"
+                  className="w-full bg-red-800 hover:bg-red-900 h-12 text-white"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >
