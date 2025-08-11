@@ -3,9 +3,9 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Zap, Palette } from "lucide-react"
+import { Clock } from "lucide-react"
 import { useState, useEffect, use } from "react"
-import { useToast } from "@/hooks/use-toast"
+
 import AppHeader from "@/components/app-header"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
 
@@ -15,6 +15,7 @@ interface Situationship {
   cause: string;
   dates: { start: string; end: string };
   epitaph: string;
+  photo?: string; // Add optional photo field
   details: {
     meetInPerson: boolean;
     dateCount: number;
@@ -38,6 +39,7 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Ghosted",
     dates: { start: "Jan 2023", end: "Mar 2023" },
     epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 3,
@@ -58,6 +60,7 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Breadcrumbed",
     dates: { start: "Nov 2022", end: "Jan 2023" },
     epitaph: "RIP to the texter who was 'just busy with work' for 8 consecutive weekends.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 2,
@@ -209,9 +212,6 @@ const colorThemes: { name: string; value: string; baseColor: string; borderColor
 export default function SituationshipDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const { toast } = useToast()
-  const [isRevived, setIsRevived] = useState(false)
-  const [showColorPicker, setShowColorPicker] = useState(false)
   const [selectedColor, setSelectedColor] = useState<string>("classic")
   const [situationship, setSituationship] = useState<Situationship | null>(null)
 
@@ -231,7 +231,6 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
     }
     if (found) {
       setSituationship(found)
-      setIsRevived(found.revived)
       // Load saved color theme
       const savedColor = localStorage.getItem(`grave-color-${id}`)
       if (savedColor && colorThemes.find(theme => theme.value === savedColor)) {
@@ -240,31 +239,9 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
     }
   }, [id])
 
-  const handleRevive = () => {
-    setIsRevived(true)
-    toast({
-      title: "Revived!",
-      description: `${situationship?.name} has been revived!`,
-    })
-  }
 
-  const handleBury = () => {
-    setIsRevived(false)
-    toast({
-      title: "Buried!",
-      description: `${situationship?.name} has been buried again!`,
-    })
-  }
 
-  const handleColorChange = (colorValue: string) => {
-    setSelectedColor(colorValue)
-    localStorage.setItem(`grave-color-${id}`, colorValue)
-    toast({
-      title: "Color changed",
-      description: `Grave color changed to ${colorThemes.find(theme => theme.value === colorValue)?.name}`,
-      duration: 2000, // 2 seconds shorter
-    })
-  }
+
 
   if (!situationship) {
     return (
@@ -285,39 +262,76 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
   const SmallTombstone = () => (
     <div className="flex flex-col items-center">
       <div
-        className="relative shadow-lg w-28 h-32 rounded-t-[40px] border border-zinc-600 flex flex-col items-center justify-center p-3"
+        className="relative shadow-lg w-40 h-48 rounded-t-[40px] border-4 border-zinc-600 flex flex-col items-center justify-center p-4"
         style={{
           backgroundColor: currentTheme.baseColor,
-          background: `linear-gradient(to bottom right, ${currentTheme.baseColor}, rgba(39, 39, 42, 0.3))`,
+          background: selectedColor === "classic" 
+            ? `linear-gradient(135deg, ${currentTheme.baseColor} 0%, rgba(82, 82, 91, 0.9) 30%, rgba(52, 52, 59, 0.8) 60%, rgba(39, 39, 42, 1) 100%), 
+               url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="${currentTheme.baseColor.replace('#', '%23')}"/><ellipse cx="8" cy="12" rx="4" ry="2.5" fill="rgba(255,255,255,0.15)" transform="rotate(25 8 12)"/><ellipse cx="28" cy="8" rx="4" ry="2" fill="rgba(0,0,0,0.2)" transform="rotate(-15 28 8)"/><ellipse cx="35" cy="25" rx="5" ry="4" fill="rgba(255,255,255,0.1)" transform="rotate(40 35 25)"/><ellipse cx="15" cy="32" rx="3" ry="2" fill="rgba(0,0,0,0.25)" transform="rotate(-30 15 32)"/><ellipse cx="5" cy="35" rx="4" ry="2.5" fill="rgba(255,255,255,0.12)" transform="rotate(60 5 35)"/><ellipse cx="32" cy="35" rx="4.5" ry="2" fill="rgba(0,0,0,0.18)" transform="rotate(-45 32 35)"/><circle cx="12" cy="20" r="1.3" fill="rgba(255,255,255,0.2)"/><circle cx="25" cy="15" r="0.9" fill="rgba(0,0,0,0.3)"/><circle cx="37" cy="19" r="1.2" fill="rgba(255,255,255,0.18)"/><circle cx="20" cy="37" r="0.8" fill="rgba(0,0,0,0.25)"/><circle cx="30" cy="28" r="1.3" fill="rgba(255,255,255,0.15)"/><circle cx="8" cy="25" r="0.7" fill="rgba(0,0,0,0.2)"/></svg>') repeat`
+            : selectedColor === "black"
+            ? `radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(0, 0, 0, 1) 100%), 
+               radial-gradient(ellipse at 70% 80%, rgba(147, 51, 234, 0.08) 0%, transparent 40%), 
+               url('data:image/svg+xml;utf8,<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg"><rect width="90" height="90" fill="%23000000"/><circle cx="15" cy="13" r="1.3" fill="white" opacity="0.9"/><circle cx="71" cy="19" r="1.5" fill="%23bfdbfe" opacity="0.8"/><circle cx="26" cy="36" r="0.9" fill="white" opacity="0.7"/><circle cx="58" cy="45" r="1.1" fill="%23e0f2fe" opacity="0.85"/><circle cx="10" cy="58" r="0.6" fill="white" opacity="0.6"/><circle cx="77" cy="65" r="1.2" fill="white" opacity="0.9"/><circle cx="36" cy="68" r="0.8" fill="%23dbeafe" opacity="0.75"/><circle cx="52" cy="15" r="0.4" fill="white" opacity="0.5"/><circle cx="19" cy="80" r="0.9" fill="white" opacity="0.8"/><circle cx="80" cy="36" r="0.4" fill="%23bfdbfe" opacity="0.6"/><circle cx="42" cy="26" r="0.3" fill="white" opacity="0.4"/><circle cx="65" cy="75" r="0.6" fill="white" opacity="0.7"/><circle cx="5" cy="26" r="0.2" fill="white" opacity="0.3"/><circle cx="49" cy="52" r="0.4" fill="%23e0f2fe" opacity="0.5"/><circle cx="23" cy="10" r="0.3" fill="white" opacity="0.4"/><circle cx="84" cy="80" r="0.5" fill="white" opacity="0.6"/></svg>')`
+            : selectedColor === "rose"
+            ? `linear-gradient(135deg, 
+                 rgba(220, 20, 60, 1) 0%,     /* Deep cherry red */
+                 rgba(178, 34, 34, 0.95) 25%, /* Fire brick */
+                 rgba(139, 0, 0, 0.9) 50%,    /* Dark red */
+                 rgba(102, 0, 51, 0.95) 75%,  /* Deep burgundy */
+                 rgba(72, 0, 36, 1) 100%      /* Very dark burgundy */
+               ),
+               radial-gradient(ellipse at 30% 20%, rgba(255, 20, 147, 0.3) 0%, transparent 60%), /* Pink highlight */
+               radial-gradient(ellipse at 70% 80%, rgba(220, 20, 60, 0.4) 0%, transparent 50%),  /* Cherry glow */
+               radial-gradient(circle at 45% 45%, rgba(178, 34, 34, 0.2) 0%, transparent 40%)`   /* Central warmth */
+            : selectedColor === "ocean"
+            ? `linear-gradient(135deg, 
+                 rgba(59, 130, 246, 1) 0%,     /* Bright blue */
+                 rgba(37, 99, 235, 0.9) 25%,   /* Medium blue */
+                 rgba(29, 78, 216, 0.8) 50%,   /* Deeper blue */
+                 rgba(30, 64, 175, 0.9) 75%,   /* Dark blue */
+                 rgba(15, 23, 42, 1) 100%      /* Very dark blue */
+               ),
+               radial-gradient(ellipse at 20% 30%, rgba(20, 184, 166, 0.4) 0%, transparent 50%), /* Teal highlight */
+               radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 40%), /* Purple highlight */
+               radial-gradient(ellipse at 60% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 45%)`  /* Cyan glow */
+            : `linear-gradient(to bottom right, ${currentTheme.baseColor}, rgba(39, 39, 42, 0.3))`,
         }}
       >
-        <div className="text-center space-y-1">
-          <div className="text-xs font-bold text-white">{situationship.name}</div>
-          <div className="text-xs text-zinc-200 leading-tight">
-            <div className="text-xs">{situationship.dates.start}</div>
-            <div className="text-zinc-300 text-xs my-0.5">to</div>
-            <div className="text-xs">{situationship.dates.end}</div>
+        {/* Photo section at the top */}
+        {situationship.photo && (
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
+              <img 
+                src={situationship.photo} 
+                alt={`${situationship.name}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-          <div className="text-xs text-zinc-300 font-medium">R.I.P.</div>
+        )}
+        
+        {/* Text content - positioned below photo if exists, otherwise centered */}
+        <div className={`text-center space-y-1 ${situationship.photo ? 'mt-16' : ''}`}>
+          <div className="text-sm font-bold text-white">{situationship.name}</div>
+          <div className="text-sm text-zinc-200 leading-tight">
+            <div className="text-sm">{situationship.dates.start}</div>
+            <div className="text-zinc-300 text-sm my-0.5">to</div>
+            <div className="text-sm">{situationship.dates.end}</div>
+          </div>
+          <div className="text-sm text-zinc-300 font-medium">R.I.P.</div>
         </div>
       </div>
-      <div className="w-32 h-3 bg-zinc-600 border border-zinc-500 rounded-b-sm"></div>
+      <div className="w-40 h-4 bg-zinc-600 border border-zinc-500 rounded-b-sm"></div>
     </div>
   )
 
   return (
     <div className="min-h-screen bg-zinc-900">
-      <AppHeader title={situationship.name} showBack backButtonClassName="text-zinc-200" />
+      <AppHeader title={situationship.name} showBack />
 
       <div className="px-4 py-4 space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <Badge className="bg-red-800">{situationship.cause}</Badge>
-          {isRevived && (
-            <Badge className="bg-amber-500 text-black">
-              <Zap className="h-3 w-3 mr-1" />
-              Revived
-            </Badge>
-          )}
         </div>
 
         <Card className="bg-zinc-800 border-zinc-700">
@@ -339,61 +353,7 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
             </div>
           </CardContent>
 
-          {/* Color Picker Section */}
-          {showColorPicker && (
-            <div className="border-t border-zinc-700 p-4">
-              <div className="text-sm font-medium text-zinc-300 mb-3">Choose grave color:</div>
-              <div className="grid grid-cols-4 gap-2">
-                {colorThemes.map((theme) => (
-                  <button
-                    key={theme.value}
-                    onClick={() => handleColorChange(theme.value)}
-                    className={`w-full h-8 rounded border-2 transition-all ${
-                      selectedColor === theme.value ? "border-white scale-105" : "border-zinc-600 hover:border-zinc-400"
-                    }`}
-                    style={{
-                      background: `linear-gradient(to bottom right, ${theme.baseColor}, rgba(39, 39, 42, 0.3))`,
-                    }}
-                    title={theme.name}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
 
-          <CardFooter className="border-t border-zinc-700 p-6 flex justify-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-zinc-500 text-zinc-400 hover:bg-zinc-700 bg-transparent h-10 px-4"
-              onClick={() => setShowColorPicker(!showColorPicker)}
-            >
-              <Palette className="h-4 w-4 mr-2" />
-              Customize
-            </Button>
-
-            {!isRevived ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-amber-500 text-amber-400 hover:bg-amber-950 bg-transparent h-10 px-4"
-                onClick={handleRevive}
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Revive
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-zinc-500 text-zinc-400 hover:bg-zinc-700 bg-transparent h-10 px-4"
-                onClick={handleBury}
-              >
-                <span className="mr-2">⚰️</span>
-                Bury
-              </Button>
-            )}
-          </CardFooter>
         </Card>
 
         <Card className="bg-zinc-800 border-zinc-700">
@@ -476,7 +436,9 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
 
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="destructive" className="mt-4">Delete Grave</Button>
+          <div className="flex justify-center mt-4">
+            <Button variant="destructive">Delete Grave</Button>
+          </div>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>

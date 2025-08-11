@@ -146,14 +146,22 @@ export default function GraveyardPage() {
     if (typeof window !== 'undefined') {
       let stored = localStorage.getItem('situationships')
       let localGraves: Situationship[] = stored ? JSON.parse(stored) : []
-      // Merge example and localStorage graves by unique ID
-      const merged: Situationship[] = [
-        ...initialSituationships.filter(
-          eg => !localGraves.some(lg => lg.id === eg.id)
-        ),
-        ...localGraves
-      ]
-      setSituationships(merged)
+      
+      // Create a map of user-modified graves for quick lookup
+      const userGravesMap = new Map(localGraves.map(grave => [grave.id, grave]))
+      
+      // Merge example and localStorage graves by unique ID, preserving order
+      const merged: Situationship[] = initialSituationships.map(exampleGrave => {
+        // If user has modified this example grave, use the user version
+        return userGravesMap.get(exampleGrave.id) || exampleGrave
+      })
+      
+      // Add any additional user graves that aren't in the examples
+      const additionalUserGraves = localGraves.filter(grave => 
+        !initialSituationships.some(example => example.id === grave.id)
+      )
+      
+      setSituationships([...merged, ...additionalUserGraves])
     }
   }, [])
 

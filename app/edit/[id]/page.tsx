@@ -1,57 +1,167 @@
 "use client"
-
-import React, { useState } from "react"
+import React, { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
 import { Skull, Upload } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import AppHeader from "@/components/app-header"
-import { Switch } from "@/components/ui/switch"
 
-// Emoji mapping for causes
-const causeEmojis: Record<string, string> = {
-  ghosted: '👻',
-  breadcrumbed: '🍞',
-  situationship: '💔',
-  friendzoned: '🤝',
-  'love bombed': '💣',
-  'slow fade': '🌅',
-  cheated: '💔',
-  other: '💀',
+interface Situationship {
+  id: string;
+  name: string;
+  cause: string;
+  dates: { start: string; end: string };
+  epitaph: string;
+  details: {
+    meetInPerson: boolean;
+    dateCount: number;
+    kissed: boolean;
+    hookup: boolean;
+    exclusive: boolean;
+    duration: string;
+    location: string;
+    redFlags: string[];
+    lastMessage: string;
+  };
+  revived: boolean;
+  createdAt: string;
 }
 
-const causeLabels: Record<string, string> = {
-  ghosted: 'Ghosted',
-  breadcrumbed: 'Breadcrumbed',
-  situationship: 'Situationship',
-  friendzoned: 'Friendzoned',
-  'love bombed': 'Love Bombed',
-  'slow fade': 'Slow Fade',
-  cheated: 'Cheated',
-  other: 'Other',
+// Mock data - in a real app this would come from a database
+const situationshipsData: Record<string, Situationship> = {
+  "1": {
+    id: "1",
+    name: "Gym Rat Greg",
+    cause: "Ghosted",
+    dates: { start: "Jan 2023", end: "Mar 2023" },
+    epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
+    details: {
+      meetInPerson: true,
+      dateCount: 3,
+      kissed: true,
+      hookup: false,
+      exclusive: false,
+      duration: "2 months",
+      location: "Coffee shop, his apartment, the park",
+      redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
+      lastMessage: "Hey, I'm not really feeling this anymore. I think we should stop seeing each other.",
+    },
+    revived: false,
+    createdAt: "March 15, 2023",
+  },
+  "2": {
+    id: "2",
+    name: "Tinder Tom",
+    cause: "Breadcrumbed",
+    dates: { start: "Nov 2022", end: "Jan 2023" },
+    epitaph: "RIP to the texter who was 'just busy with work' for 8 consecutive weekends.",
+    details: {
+      meetInPerson: true,
+      dateCount: 2,
+      kissed: true,
+      hookup: true,
+      exclusive: false,
+      duration: "3 months",
+      location: "Dating app, local bar",
+      redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
+      lastMessage: "Sorry, work has been crazy. Let's catch up soon!",
+    },
+    revived: true,
+    createdAt: "January 20, 2023",
+  },
+  "3": {
+    id: "3",
+    name: "Hinge Harry",
+    cause: "Situationship",
+    dates: { start: "May 2022", end: "Nov 2022" },
+    epitaph: "We were 'exclusive but not official' until he wasn't exclusive anymore.",
+    details: {
+      meetInPerson: true,
+      dateCount: 12,
+      kissed: true,
+      hookup: true,
+      exclusive: true,
+      duration: "6 months",
+      location: "Dating app, various restaurants",
+      redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
+      lastMessage: "I think we want different things right now.",
+    },
+    revived: false,
+    createdAt: "November 10, 2022",
+  },
+  "4": {
+    id: "4",
+    name: "Bumble Brad",
+    cause: "Slow Fade",
+    dates: { start: "Feb 2023", end: "Apr 2023" },
+    epitaph: "Texts got shorter until they stopped completely. Classic.",
+    details: {
+      meetInPerson: true,
+      dateCount: 5,
+      kissed: true,
+      hookup: false,
+      exclusive: false,
+      duration: "2 months",
+      location: "Dating app, coffee shops",
+      redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
+      lastMessage: "Yeah",
+    },
+    revived: false,
+    createdAt: "April 5, 2023",
+  },
+  "5": {
+    id: "5",
+    name: "Coffee Shop Crush",
+    cause: "Never Started",
+    dates: { start: "Dec 2022", end: "Dec 2022" },
+    epitaph: "We made eye contact for 3 months. I finally got their number. They never texted back.",
+    details: {
+      meetInPerson: true,
+      dateCount: 0,
+      kissed: false,
+      hookup: false,
+      exclusive: false,
+      duration: "1 day",
+      location: "Local coffee shop",
+      redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
+      lastMessage: "Hey, it's [name] from the coffee shop!",
+    },
+    revived: false,
+    createdAt: "December 12, 2022",
+  },
+  "6": {
+    id: "6",
+    name: "Instagram Influencer",
+    cause: "Benched",
+    dates: { start: "Mar 2023", end: "May 2023" },
+    epitaph: "Kept me on the sidelines while exploring 'options'. I was never the starting player.",
+    details: {
+      meetInPerson: true,
+      dateCount: 4,
+      kissed: true,
+      hookup: true,
+      exclusive: false,
+      duration: "3 months",
+      location: "Instagram DMs, trendy restaurants",
+      redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
+      lastMessage: "You're amazing, but I'm not ready to settle down.",
+    },
+    revived: true,
+    createdAt: "May 18, 2023",
+  },
 }
 
-const causeOptions = [
-  'ghosted',
-  'breadcrumbed',
-  'situationship',
-  'friendzoned',
-  'love bombed',
-  'slow fade',
-  'cheated',
-  'other',
-]
-
-export default function AddSituationshipPage() {
+export default function EditSituationshipPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [situationship, setSituationship] = useState<Situationship | null>(null)
+  const [selectedColor, setSelectedColor] = useState("classic")
   const [formData, setFormData] = useState({
     name: "",
     cause: "",
@@ -67,7 +177,6 @@ export default function AddSituationshipPage() {
     exclusive: false,
   })
   const [photo, setPhoto] = useState<string | null>(null)
-  const [selectedColor, setSelectedColor] = useState("classic")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // Color themes for graves
@@ -82,6 +191,80 @@ export default function AddSituationshipPage() {
     { name: "Midnight Black", value: "black", baseColor: "#18181b", borderColor: "#27272a" },
   ]
 
+  // Emoji mapping for causes
+  const causeEmojis: Record<string, string> = {
+    ghosted: '👻',
+    breadcrumbed: '🍞',
+    situationship: '💔',
+    friendzoned: '🤝',
+    'love bombed': '💣',
+    'slow fade': '🌅',
+    cheated: '💔',
+    other: '💀',
+  }
+
+  const causeLabels: Record<string, string> = {
+    ghosted: 'Ghosted',
+    breadcrumbed: 'Breadcrumbed',
+    situationship: 'Situationship',
+    friendzoned: 'Friendzoned',
+    'love bombed': 'Love Bombed',
+    'slow fade': 'Slow Fade',
+    cheated: 'Cheated',
+    other: 'Other',
+  }
+
+  const causeOptions = [
+    'ghosted',
+    'breadcrumbed',
+    'situationship',
+    'friendzoned',
+    'love bombed',
+    'slow fade',
+    'cheated',
+    'other',
+  ]
+
+  useEffect(() => {
+    // Try to get the situationship from localStorage first
+    let found: Situationship | null = null
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('situationships')
+      if (stored) {
+        const graves: Situationship[] = JSON.parse(stored)
+        found = graves.find(g => g.id === id) || null
+      }
+    }
+    // If not found, fall back to example data
+    if (!found) {
+      found = situationshipsData[id] || null
+    }
+    if (found) {
+      setSituationship(found)
+      setFormData({
+        name: found.name,
+        cause: Object.keys(causeLabels).find(key => causeLabels[key] === found.cause) || '',
+        startDate: found.dates.start,
+        endDate: found.dates.end,
+        epitaph: found.epitaph,
+        meetInPerson: found.details.meetInPerson,
+        dateCount: found.details.dateCount.toString(),
+        kissed: found.details.kissed,
+        hookup: found.details.hookup,
+        love: found.details.love || false,
+        fight: found.details.fight || false,
+        exclusive: found.details.exclusive,
+      })
+      setPhoto(found.photo || null)
+      
+      // Load saved color theme
+      const savedColor = localStorage.getItem(`grave-color-${id}`)
+      if (savedColor && colorThemes.find(theme => theme.value === savedColor)) {
+        setSelectedColor(savedColor)
+      }
+    }
+  }, [id])
+
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -89,9 +272,16 @@ export default function AddSituationshipPage() {
     }))
   }
 
+  if (!situationship) {
+    return (
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-zinc-400">Situationship not found</div>
+      </div>
+    )
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
 
     if (!formData.name || !formData.cause) {
       toast({
@@ -99,7 +289,6 @@ export default function AddSituationshipPage() {
         description: "Please provide at least a name and cause of death.",
         variant: "destructive",
       })
-      setIsSubmitting(false)
       return
     }
 
@@ -109,13 +298,12 @@ export default function AddSituationshipPage() {
         description: "Please keep your epitaph under 100 characters for the best display.",
         variant: "destructive",
       })
-      setIsSubmitting(false)
       return
     }
 
-    // Build new grave object
-    const newGrave = {
-      id: Date.now().toString(),
+    // Update the situationship
+    const updatedSituationship = {
+      ...situationship!,
       name: formData.name,
       cause: causeLabels[formData.cause] || formData.cause,
       dates: {
@@ -123,8 +311,9 @@ export default function AddSituationshipPage() {
         end: formData.endDate,
       },
       epitaph: formData.epitaph,
-      photo: photo, // Add photo to the grave object
+      photo: photo,
       details: {
+        ...situationship!.details,
         meetInPerson: formData.meetInPerson,
         dateCount: Number(formData.dateCount),
         kissed: formData.kissed,
@@ -132,47 +321,43 @@ export default function AddSituationshipPage() {
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
-        duration: '',
-        location: '',
-        redFlags: [],
-        lastMessage: '',
       },
-      revived: false,
     }
 
-    // Save color theme to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`grave-color-${newGrave.id}`, selectedColor)
-    }
-
-    // Save to localStorage
-    let graves = []
+    // Update localStorage
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('situationships')
-      graves = stored ? JSON.parse(stored) : []
-      graves.push(newGrave)
+      let graves = stored ? JSON.parse(stored) : []
+      const index = graves.findIndex((g: any) => g.id === id)
+      if (index !== -1) {
+        // Replace in place to maintain order
+        graves[index] = updatedSituationship
+      } else {
+        // Only add if not found (shouldn't happen for existing graves)
+        graves.push(updatedSituationship)
+      }
       localStorage.setItem('situationships', JSON.stringify(graves))
+      
+      // Save color theme
+      localStorage.setItem(`grave-color-${id}`, selectedColor)
     }
 
-    setTimeout(() => {
-      toast({
-        title: "Added to graveyard",
-        description: `${formData.name} has been laid to rest.`,
-      })
-      setIsSubmitting(false)
-      router.push("/graveyard")
-    }, 500)
+    toast({
+      title: "Updated!",
+      description: "Situationship details have been updated.",
+    })
+    router.back()
   }
 
   return (
     <div className="min-h-screen bg-zinc-900">
-      <AppHeader title="Add to Graveyard" showBack centered />
+      <AppHeader title={`Edit ${situationship.name}`} showBack />
 
       <div className="px-4 py-4">
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg">New Situationship</CardTitle>
-            <CardDescription>Fill out the details about your almost-relationship.</CardDescription>
+            <CardTitle className="text-lg">Edit Situationship</CardTitle>
+            <CardDescription>Update the details of this situationship</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -451,10 +636,8 @@ export default function AddSituationshipPage() {
                 <Button
                   type="submit"
                   className="w-full bg-red-800 hover:bg-red-900 h-12"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Adding to Graveyard..." : "Add to Graveyard"}
+                  Save Changes
                 </Button>
               </div>
             </form>
@@ -463,4 +646,4 @@ export default function AddSituationshipPage() {
       </div>
     </div>
   )
-}
+} 
