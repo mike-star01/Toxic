@@ -20,9 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-white text-zinc-900`}>
+      <body className={`${inter.className} min-h-screen bg-black text-zinc-100`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <div className="pb-20">{children}</div>
+          <div className="pb-16">{children}</div>
           <BottomNav />
           <Toaster />
         </ThemeProvider>
