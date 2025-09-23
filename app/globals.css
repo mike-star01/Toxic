@@ -3,15 +3,17 @@
 @tailwind utilities;
 
 @keyframes pulseGlow {
-  0% {
-    filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0.0));
-  }
-  50% {
-    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.35));
-  }
-  100% {
-    filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0.0));
-  }
+  0%   { filter: drop-shadow(0 0 0 rgba(251,191,36,0)); }
+  40%  { filter: drop-shadow(0 0 10px rgba(251,191,36,.35)); }
+  60%  { filter: drop-shadow(0 0 14px rgba(251,191,36,.45)); }
+  100% { filter: drop-shadow(0 0 0 rgba(251,191,36,0)); }
+}
+
+@keyframes outerPulse {
+  0%   { opacity: 0; }
+  40%  { opacity: .45; }
+  60%  { opacity: .55; }
+  100% { opacity: 0; }
 }
 
 body {

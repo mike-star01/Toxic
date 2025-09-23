@@ -428,7 +428,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium">
-                    Name or Nickname
+                    Name or Nickname <span className="text-zinc-400">(max 30)</span>
                   </label>
                   <Input
                     id="name"
@@ -436,6 +436,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
                     className="bg-zinc-900 border-zinc-700 h-11"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    maxLength={30}
                   />
                 </div>
 
@@ -687,7 +688,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
                       key={theme.value}
                       type="button"
                       onClick={() => setSelectedColor(theme.value)}
-                      className={`w-full h-8 rounded border-2 transition-all ${
+                      className={`w-full h-12 rounded border-2 transition-all ${
                         selectedColor === theme.value ? "border-white scale-105" : "border-zinc-600 hover:border-zinc-400"
                       }`}
                       style={{
@@ -796,13 +797,33 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
               </div>
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 space-y-3">
                 <Button
                   type="submit"
-                  className="w-full bg-red-800 hover:bg-red-900 h-12"
+                  className="w-full bg-red-800 hover:bg-red-900 h-12 text-white"
                 >
                   Save Changes
                 </Button>
+                <div className="pt-1">
+                  <Button
+                    type="button"
+                    className="w-full bg-red-800 hover:bg-red-900 h-12 text-white"
+                    onClick={() => {
+                      // Confirm delete
+                      if (confirm('Delete this grave? This cannot be undone.')) {
+                        if (typeof window !== 'undefined') {
+                          const stored = localStorage.getItem('situationships')
+                          let graves = stored ? JSON.parse(stored) : []
+                          graves = graves.filter((g: any) => g.id !== id)
+                          localStorage.setItem('situationships', JSON.stringify(graves))
+                        }
+                        router.push('/graveyard')
+                      }
+                    }}
+                  >
+                    Delete Grave
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>

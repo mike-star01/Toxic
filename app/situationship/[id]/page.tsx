@@ -7,6 +7,7 @@ import { Clock } from "lucide-react"
 import { useState, useEffect, use } from "react"
 
 import AppHeader from "@/components/app-header"
+import { Skull } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
 
 // Utility to format date from YYYY-MM to "Month YYYY"
@@ -308,6 +309,8 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
             ? `radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(0, 0, 0, 1) 100%), 
                radial-gradient(ellipse at 70% 80%, rgba(147, 51, 234, 0.08) 0%, transparent 40%), 
                url('data:image/svg+xml;utf8,<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg"><rect width="90" height="90" fill="%23000000"/><circle cx="15" cy="13" r="1.3" fill="white" opacity="0.9"/><circle cx="71" cy="19" r="1.5" fill="%23bfdbfe" opacity="0.8"/><circle cx="26" cy="36" r="0.9" fill="white" opacity="0.7"/><circle cx="58" cy="45" r="1.1" fill="%23e0f2fe" opacity="0.85"/><circle cx="10" cy="58" r="0.6" fill="white" opacity="0.6"/><circle cx="77" cy="65" r="1.2" fill="white" opacity="0.9"/><circle cx="36" cy="68" r="0.8" fill="%23dbeafe" opacity="0.75"/><circle cx="52" cy="15" r="0.4" fill="white" opacity="0.5"/><circle cx="19" cy="80" r="0.9" fill="white" opacity="0.8"/><circle cx="80" cy="36" r="0.4" fill="%23bfdbfe" opacity="0.6"/><circle cx="42" cy="26" r="0.3" fill="white" opacity="0.4"/><circle cx="65" cy="75" r="0.6" fill="white" opacity="0.7"/><circle cx="5" cy="26" r="0.2" fill="white" opacity="0.3"/><circle cx="49" cy="52" r="0.4" fill="%23e0f2fe" opacity="0.5"/><circle cx="23" cy="10" r="0.3" fill="white" opacity="0.4"/><circle cx="84" cy="80" r="0.5" fill="white" opacity="0.6"/></svg>')`
+            : selectedColor === "pink"
+            ? `linear-gradient(to bottom right, #db2777, rgba(255,255,255,0.65)), url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.2" fill="white" opacity="0.85"/><circle cx="80" cy="30" r="1.7" fill="white" opacity="0.7"/><circle cx="50" cy="70" r="2.1" fill="white" opacity="0.8"/><circle cx="70" cy="90" r="1.5" fill="white" opacity="0.7"/><circle cx="30" cy="50" r="1.8" fill="white" opacity="0.8"/><circle cx="60" cy="20" r="1.2" fill="deepskyblue" opacity="0.5"/><circle cx="90" cy="80" r="1.5" fill="deepskyblue" opacity="0.4"/><circle cx="20" cy="80" r="1.3" fill="white" opacity="0.7"/><circle cx="40" cy="90" r="1.1" fill="deepskyblue" opacity="0.5"/></svg>') repeat`
             : selectedColor === "rose"
             ? `linear-gradient(135deg, 
                  rgba(220, 20, 60, 1) 0%,     /* Deep cherry red */
@@ -333,8 +336,8 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
             : `linear-gradient(to bottom right, ${currentTheme.baseColor}, rgba(39, 39, 42, 0.3))`,
         }}
       >
-        {/* Photo section at the top */}
-        {situationship.photo && (
+        {/* Photo section at the top or default skull */}
+        {situationship.photo ? (
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
               <img 
@@ -344,15 +347,21 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
               />
             </div>
           </div>
+        ) : (
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg bg-black/30 flex items-center justify-center">
+              <Skull className="h-6 w-6 text-zinc-300" />
+            </div>
+          </div>
         )}
         
         {/* Text content - positioned below photo if exists, otherwise centered */}
         <div className={`text-center space-y-1 ${situationship.photo ? 'mt-16' : ''}`}>
           <div className="text-sm font-bold text-white">{situationship.name}</div>
-          <div className="text-sm text-zinc-200 leading-tight">
-            <div className="text-sm">{formatDate(situationship.dates.start)}</div>
-            <div className="text-zinc-300 text-sm my-0.5">to</div>
-            <div className="text-sm">{formatDate(situationship.dates.end)}</div>
+          <div className="text-xs text-zinc-200 leading-tight">
+            <div className="text-xs">{formatDate(situationship.dates.start)}</div>
+            <div className="text-zinc-300 text-[11px] my-0.5">to</div>
+            <div className="text-xs">{formatDate(situationship.dates.end)}</div>
           </div>
           <div className="text-sm text-zinc-300 font-medium">R.I.P.</div>
         </div>
@@ -366,17 +375,32 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
       <AppHeader title={situationship.name} showBack />
 
       <div className="px-4 py-4 space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Badge className="bg-red-800">{situationship.cause}</Badge>
-        </div>
 
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="bg-zinc-900 border-b border-zinc-700">
-            <CardTitle>Memorial</CardTitle>
+            <CardTitle>Memorial 🕯️</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-6">
               <SmallTombstone />
+              {/* Cause of death label under grave */}
+              <div className="text-zinc-200 text-base font-medium">
+                {(() => {
+                  const emojiMap: Record<string, string> = {
+                    Ghosted: '👻',
+                    Breadcrumbed: '🍞',
+                    Situationship: '🥀',
+                    'Slow Fade': '🌅',
+                    Cheated: '💔',
+                    Benched: '🪑',
+                    'Never Started': '❓',
+                    Other: '💀',
+                  }
+                  const cause = situationship.cause
+                  const emoji = emojiMap[cause] || '❓'
+                  return <span className="inline-flex items-center gap-2"><span className="text-2xl leading-none">{emoji}</span><span>{cause}</span></span>
+                })()}
+              </div>
               <div className="text-center">
                 <div className="text-lg italic mb-4">"{situationship.epitaph}"</div>
                 <div className="grid grid-cols-1 gap-4 text-sm">
@@ -394,8 +418,8 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
 
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader>
-            <CardTitle>Situationship Autopsy</CardTitle>
-            <CardDescription>The details of what happened between you</CardDescription>
+            <CardTitle>Situationship Autopsy 🔍</CardTitle>
+            <CardDescription>The details of what happened between you 💔</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6">
@@ -452,8 +476,8 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
 
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader>
-            <CardTitle>Reflection</CardTitle>
-            <CardDescription>What you learned from this experience</CardDescription>
+            <CardTitle>Reflection 💭</CardTitle>
+            <CardDescription>What you learned from this experience 🥀</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             {situationship.reflection ? (
@@ -478,34 +502,7 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
         </Card>
       </div>
 
-      <Dialog>
-        <DialogTrigger asChild>
-          <div className="flex justify-center mt-4">
-            <Button variant="destructive">Delete Grave</Button>
-          </div>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-          </DialogHeader>
-          <p className="text-white !text-white text-center">This will permanently remove this grave from your graveyard. This action cannot be undone.</p>
-          <DialogFooter />
-          <div className="flex justify-center gap-6 mt-4">
-            <DialogClose asChild>
-              <Button variant="outline" className="text-zinc-200 border-zinc-600 w-40 py-3">Cancel</Button>
-            </DialogClose>
-            <Button variant="destructive" className="w-40 py-3" onClick={() => {
-              if (typeof window !== 'undefined') {
-                const stored = localStorage.getItem('situationships')
-                let graves = stored ? JSON.parse(stored) : []
-                graves = graves.filter((g: any) => g.id !== id)
-                localStorage.setItem('situationships', JSON.stringify(graves))
-              }
-              router.push('/graveyard')
-            }}>Delete</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Delete removed per request; manage deletion from Edit page */}
     </div>
   )
 }

@@ -524,15 +524,7 @@ export default function StatsPage() {
           </CardContent>
         </Card>
 
-        {/* Refresh Button */}
-        <div className="pt-2">
-          <button
-            onClick={calculateStats}
-            className="w-full bg-zinc-700 hover:bg-zinc-600 text-white py-3 rounded-lg transition-colors"
-          >
-            Refresh Stats
-          </button>
-        </div>
+        {/* Manual refresh button removed per request */}
       </div>
     </div>
   )

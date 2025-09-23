@@ -110,13 +110,13 @@ const causeEmojis: Record<string, string> = {
   Ghosted: '👻',
   Breadcrumbed: '🍞',
   Situationship: '🥀',
-  'Slow Fade': '🌫️',
+  'Slow Fade': '🌅',
   Benched: '🪑',
   'Never Started': '❓',
   Cheated: '💔',
   cheated: '💔',
   situationship: '🥀',
-  'slow fade': '🌫️',
+  'slow fade': '🌅',
   breadcrumbed: '🍞',
   ghosted: '👻',
   benched: '🪑',
@@ -219,9 +219,20 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
 
   return (
     <div className="relative">
+      {isRevived && (
+        <div
+          className="absolute -inset-0.5 rounded-t-[44px] pointer-events-none z-0"
+          style={{
+            background: 'transparent',
+            mixBlendMode: 'normal',
+            boxShadow: `0 0 18px rgba(251,191,36,.42), 0 0 28px rgba(251,191,36,.28)`,
+            animation: 'outerPulse 2.2s ease-in-out infinite'
+          }}
+        />
+      )}
       {/* Tombstone with base color + gradient overlay */}
       <div
-        className="relative border-4 rounded-t-[40px] p-3 pb-3 h-[300px] flex flex-col justify-between overflow-visible"
+        className="relative z-10 rounded-t-[40px] p-3 pb-3 h-[300px] flex flex-col justify-between overflow-visible"
         style={{
           backgroundColor: (isPink || isClassic || isBlack || selectedColor === "rose" || selectedColor === "ocean") ? 'transparent' : currentTheme.baseColor,
           background: isPink
@@ -256,22 +267,29 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 40%), /* Purple highlight */
                radial-gradient(ellipse at 60% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 45%)`  /* Cyan glow */
             : `linear-gradient(to bottom right, ${currentTheme.baseColor}, rgba(255,255,255,0.15))`,
-          borderColor: isRevived ? "#fbbf24" : currentTheme.borderColor,
+          // Always draw the frame via inset box-shadow; avoids hard border edge clipping on mobile
+          borderColor: 'transparent',
+          borderWidth: 0,
+          boxShadow: isRevived
+            ? `inset 0 0 0 4px #fbbf24`
+            : `inset 0 0 0 4px ${currentTheme.borderColor}`,
           ...(isRevived
             ? {
-                boxShadow: `
-                0 0 14px rgba(251, 191, 36, 0.7),
-                0 0 24px rgba(251, 191, 36, 0.5),
-                inset 0 0 12px rgba(251, 191, 36, 0.12)
-              `,
-                animation: 'pulseGlow 2.4s ease-in-out infinite'
+                animation: 'pulseGlow 2.2s ease-in-out infinite',
+                willChange: 'filter, box-shadow'
               }
             : {}),
         }}
       >
         {/* Name */}
         <div className="text-center mb-3">
-          <h3 className="text-base font-bold text-white leading-tight">{situationship.name}</h3>
+          <h3
+            className="text-base font-bold text-white leading-tight px-3"
+            style={{ display: '-webkit-box', WebkitLineClamp: 2 as any, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+            title={situationship.name}
+          >
+            {situationship.name}
+          </h3>
         </div>
 
         {/* Centered skull icon and dates below */}
@@ -341,7 +359,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
             <Button
               variant="outline"
               size="sm"
-              className="border-transparent text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1"
+              className="border-zinc-400 text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1"
               onClick={handleBury}
             >
               <span className="mr-1">⚰️</span>
@@ -368,9 +386,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
         }`}
         style={
           isRevived
-            ? {
-                boxShadow: `0 0 16px rgba(251, 191, 36, 0.55)`
-              }
+            ? { border: 'none' }
             : {}
         }
       ></div>

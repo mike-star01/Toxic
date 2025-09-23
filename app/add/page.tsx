@@ -220,7 +220,7 @@ export default function AddSituationshipPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium">
-                    Name or Nickname
+                    Name or Nickname <span className="text-zinc-400">(max 32)</span>
                   </label>
                   <Input
                     id="name"
@@ -228,6 +228,7 @@ export default function AddSituationshipPage() {
                     className="bg-zinc-900 border-zinc-700 h-11"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    maxLength={30}
                   />
                 </div>
 
@@ -378,7 +379,7 @@ export default function AddSituationshipPage() {
                       key={theme.value}
                       type="button"
                       onClick={() => setSelectedColor(theme.value)}
-                      className={`w-full h-8 rounded border-2 transition-all ${
+                      className={`w-full h-12 rounded border-2 transition-all ${
                         selectedColor === theme.value ? "border-white scale-105" : "border-zinc-600 hover:border-zinc-400"
                       }`}
                       style={{
