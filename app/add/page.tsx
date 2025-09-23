@@ -65,9 +65,12 @@ export default function AddSituationshipPage() {
     love: false,
     fight: false,
     exclusive: false,
+    reflection: "",
+    redFlags: [] as string[],
   })
   const [photo, setPhoto] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState("classic")
+  const [redFlagInput, setRedFlagInput] = useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // Color themes for graves
@@ -87,6 +90,37 @@ export default function AddSituationshipPage() {
       ...prev,
       [field]: value,
     }))
+  }
+
+  const calculateDuration = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return ''
+    
+    try {
+      // Handle month format (YYYY-MM) by adding day 1 to make it a valid date
+      const start = new Date(startDate + '-01')
+      const end = new Date(endDate + '-01')
+      
+      // Check if dates are valid
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return ''
+      }
+      
+      const diffTime = Math.abs(end.getTime() - start.getTime())
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      
+      if (diffDays < 30) {
+        return `${diffDays} day${diffDays !== 1 ? 's' : ''}`
+      } else if (diffDays < 365) {
+        const months = Math.round(diffDays / 30.44)
+        return `${months} month${months !== 1 ? 's' : ''}`
+      } else {
+        const years = Math.round(diffDays / 365.25)
+        return `${years} year${years !== 1 ? 's' : ''}`
+      }
+    } catch (error) {
+      console.error('Error calculating duration:', error)
+      return ''
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,6 +158,7 @@ export default function AddSituationshipPage() {
       },
       epitaph: formData.epitaph,
       photo: photo, // Add photo to the grave object
+      reflection: formData.reflection,
       details: {
         meetInPerson: formData.meetInPerson,
         dateCount: Number(formData.dateCount),
@@ -132,12 +167,17 @@ export default function AddSituationshipPage() {
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
-        duration: '',
+        duration: calculateDuration(formData.startDate, formData.endDate),
         location: '',
-        redFlags: [],
+        redFlags: formData.redFlags,
         lastMessage: '',
       },
       revived: false,
+      createdAt: new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }),
     }
 
     // Save color theme to localStorage
@@ -372,6 +412,107 @@ export default function AddSituationshipPage() {
                       title={theme.name}
                     />
                   ))}
+                </div>
+              </div>
+
+              {/* Red Flags Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">🚩</span>
+                  <h3 className="text-base font-bold">Red Flags</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Add red flags you noticed <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g., Always canceled last minute"
+                        className="bg-zinc-800 border-zinc-700 h-10 flex-1"
+                        value={redFlagInput}
+                        onChange={(e) => setRedFlagInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            if (redFlagInput.trim()) {
+                              setFormData(prev => ({
+                                ...prev,
+                                redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                              }))
+                              setRedFlagInput('')
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-zinc-700 bg-transparent px-3"
+                        onClick={() => {
+                          if (redFlagInput.trim()) {
+                            setFormData(prev => ({
+                              ...prev,
+                              redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                            }))
+                            setRedFlagInput('')
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    {formData.redFlags && formData.redFlags.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs text-zinc-400">Red flags:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.redFlags.map((flag, index) => (
+                            <div key={index} className="flex items-center gap-1 bg-red-900/20 border border-red-700/30 rounded-full px-3 py-1">
+                              <span className="text-xs text-red-300">{flag}</span>
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  redFlags: prev.redFlags?.filter((_, i) => i !== index) || []
+                                }))}
+                                className="text-red-400 hover:text-red-300 text-xs ml-1"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Reflection Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">💭</span>
+                  <h3 className="text-base font-bold">Personal Reflection</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="reflection" className="text-sm font-medium">
+                      What did you learn from this situationship? <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <Textarea
+                      id="reflection"
+                      placeholder="Reflect on what you learned, red flags you noticed, or how you grew from this experience..."
+                      className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
+                      value={formData.reflection}
+                      onChange={(e) => handleChange("reflection", e.target.value)}
+                      maxLength={300}
+                    />
+                    <div className="flex justify-between items-center text-xs text-zinc-400">
+                      <span>Share your thoughts, lessons learned, or personal growth</span>
+                      <span>{formData.reflection.length}/300</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

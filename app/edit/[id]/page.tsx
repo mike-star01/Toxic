@@ -17,11 +17,15 @@ interface Situationship {
   cause: string;
   dates: { start: string; end: string };
   epitaph: string;
+  reflection?: string;
+  photo?: string;
   details: {
     meetInPerson: boolean;
     dateCount: number;
     kissed: boolean;
     hookup: boolean;
+    love: boolean;
+    fight: boolean;
     exclusive: boolean;
     duration: string;
     location: string;
@@ -40,11 +44,15 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Ghosted",
     dates: { start: "Jan 2023", end: "Mar 2023" },
     epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
+    reflection: "Learned to trust my gut when someone says they're not ready for a relationship. Also, if they're still on dating apps after we've been seeing each other for weeks, that's a major red flag. I deserve someone who's actually ready to commit.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 3,
       kissed: true,
       hookup: false,
+      love: false,
+      fight: false,
       exclusive: false,
       duration: "2 months",
       location: "Coffee shop, his apartment, the park",
@@ -60,11 +68,15 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Breadcrumbed",
     dates: { start: "Nov 2022", end: "Jan 2023" },
     epitaph: "RIP to the texter who was 'just busy with work' for 8 consecutive weekends.",
+    reflection: "Actions speak louder than words. If someone keeps saying they want to meet but always has excuses, they're not actually interested. I learned to stop making excuses for people who don't prioritize spending time with me.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 2,
       kissed: true,
       hookup: true,
+      love: false,
+      fight: false,
       exclusive: false,
       duration: "3 months",
       location: "Dating app, local bar",
@@ -80,11 +92,14 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Situationship",
     dates: { start: "May 2022", end: "Nov 2022" },
     epitaph: "We were 'exclusive but not official' until he wasn't exclusive anymore.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 12,
       kissed: true,
       hookup: true,
+      love: true,
+      fight: true,
       exclusive: true,
       duration: "6 months",
       location: "Dating app, various restaurants",
@@ -100,11 +115,14 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Slow Fade",
     dates: { start: "Feb 2023", end: "Apr 2023" },
     epitaph: "Texts got shorter until they stopped completely. Classic.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 5,
       kissed: true,
       hookup: false,
+      love: false,
+      fight: false,
       exclusive: false,
       duration: "2 months",
       location: "Dating app, coffee shops",
@@ -120,11 +138,14 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Never Started",
     dates: { start: "Dec 2022", end: "Dec 2022" },
     epitaph: "We made eye contact for 3 months. I finally got their number. They never texted back.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 0,
       kissed: false,
       hookup: false,
+      love: false,
+      fight: false,
       exclusive: false,
       duration: "1 day",
       location: "Local coffee shop",
@@ -140,11 +161,14 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Benched",
     dates: { start: "Mar 2023", end: "May 2023" },
     epitaph: "Kept me on the sidelines while exploring 'options'. I was never the starting player.",
+    photo: "/placeholder-user.jpg",
     details: {
       meetInPerson: true,
       dateCount: 4,
       kissed: true,
       hookup: true,
+      love: false,
+      fight: false,
       exclusive: false,
       duration: "3 months",
       location: "Instagram DMs, trendy restaurants",
@@ -168,6 +192,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     startDate: "",
     endDate: "",
     epitaph: "",
+    reflection: "",
     meetInPerson: false,
     dateCount: "0",
     kissed: false,
@@ -175,8 +200,10 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     love: false,
     fight: false,
     exclusive: false,
+    redFlags: [] as string[],
   })
   const [photo, setPhoto] = useState<string | null>(null)
+  const [redFlagInput, setRedFlagInput] = useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // Color themes for graves
@@ -247,6 +274,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         startDate: found.dates.start,
         endDate: found.dates.end,
         epitaph: found.epitaph,
+        reflection: found.reflection || '',
         meetInPerson: found.details.meetInPerson,
         dateCount: found.details.dateCount.toString(),
         kissed: found.details.kissed,
@@ -254,6 +282,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         love: found.details.love || false,
         fight: found.details.fight || false,
         exclusive: found.details.exclusive,
+        redFlags: found.details.redFlags || [],
       })
       setPhoto(found.photo || null)
       
@@ -270,6 +299,37 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
       ...prev,
       [field]: value,
     }))
+  }
+
+  const calculateDuration = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return ''
+    
+    try {
+      // Handle month format (YYYY-MM) by adding day 1 to make it a valid date
+      const start = new Date(startDate + '-01')
+      const end = new Date(endDate + '-01')
+      
+      // Check if dates are valid
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return ''
+      }
+      
+      const diffTime = Math.abs(end.getTime() - start.getTime())
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      
+      if (diffDays < 30) {
+        return `${diffDays} day${diffDays !== 1 ? 's' : ''}`
+      } else if (diffDays < 365) {
+        const months = Math.round(diffDays / 30.44)
+        return `${months} month${months !== 1 ? 's' : ''}`
+      } else {
+        const years = Math.round(diffDays / 365.25)
+        return `${years} year${years !== 1 ? 's' : ''}`
+      }
+    } catch (error) {
+      console.error('Error calculating duration:', error)
+      return ''
+    }
   }
 
   if (!situationship) {
@@ -311,6 +371,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         end: formData.endDate,
       },
       epitaph: formData.epitaph,
+      reflection: formData.reflection,
       photo: photo,
       details: {
         ...situationship!.details,
@@ -321,6 +382,8 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
+        redFlags: formData.redFlags,
+        duration: calculateDuration(formData.startDate, formData.endDate),
       },
     }
 
@@ -440,6 +503,107 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
                   {formData.epitaph.length > 90 && (
                     <p className="text-amber-400 text-xs">{100 - formData.epitaph.length} characters remaining</p>
                   )}
+                </div>
+              </div>
+
+              {/* Reflection Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">💭</span>
+                  <h3 className="text-base font-bold">Personal Reflection</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="reflection" className="text-sm font-medium">
+                      What did you learn from this situationship? <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <Textarea
+                      id="reflection"
+                      placeholder="Reflect on what you learned, red flags you noticed, or how you grew from this experience..."
+                      className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
+                      value={formData.reflection}
+                      onChange={(e) => handleChange("reflection", e.target.value)}
+                      maxLength={300}
+                    />
+                    <div className="flex justify-between items-center text-xs text-zinc-400">
+                      <span>Share your thoughts, lessons learned, or personal growth</span>
+                      <span>{formData.reflection.length}/300</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Red Flags Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">🚩</span>
+                  <h3 className="text-base font-bold">Red Flags</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Add red flags you noticed <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g., Always canceled last minute"
+                        className="bg-zinc-800 border-zinc-700 h-10 flex-1"
+                        value={redFlagInput}
+                        onChange={(e) => setRedFlagInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            if (redFlagInput.trim()) {
+                              setFormData(prev => ({
+                                ...prev,
+                                redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                              }))
+                              setRedFlagInput('')
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-zinc-700 bg-transparent px-3"
+                        onClick={() => {
+                          if (redFlagInput.trim()) {
+                            setFormData(prev => ({
+                              ...prev,
+                              redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                            }))
+                            setRedFlagInput('')
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    {formData.redFlags && formData.redFlags.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs text-zinc-400">Red flags:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.redFlags.map((flag, index) => (
+                            <div key={index} className="flex items-center gap-1 bg-red-900/20 border border-red-700/30 rounded-full px-3 py-1">
+                              <span className="text-xs text-red-300">{flag}</span>
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  redFlags: prev.redFlags?.filter((_, i) => i !== index) || []
+                                }))}
+                                className="text-red-400 hover:text-red-300 text-xs ml-1"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

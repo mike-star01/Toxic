@@ -34,10 +34,10 @@ export default function AppHeader({
               variant="ghost"
               size="lg"
               asChild
-              className="absolute right-4 p-2 hover:bg-zinc-800 w-16 h-16 rounded-full flex items-center justify-center"
+              className="absolute right-4 p-2 hover:bg-zinc-800 w-12 h-12 rounded-full flex items-center justify-center"
             >
               <Link href="/profile">
-                <User className="w-8 h-8 text-white" />
+                <User className="w-6 h-6 text-white" />
               </Link>
             </Button>
           )}
@@ -69,10 +69,10 @@ export default function AppHeader({
               variant="ghost"
               size="lg"
               asChild
-              className="p-2 hover:bg-zinc-800 w-16 h-16 rounded-full flex items-center justify-center"
+              className="p-2 hover:bg-zinc-800 w-12 h-12 rounded-full flex items-center justify-center"
             >
               <Link href="/profile">
-                <User className="w-8 h-8 text-white" />
+                <User className="w-6 h-6 text-white" />
               </Link>
             </Button>
           )}

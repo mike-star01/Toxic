@@ -1,3 +1,5 @@
+"use client"
+
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -76,54 +78,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Customization */}
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Customization
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="ghost" className="w-full justify-start h-12">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-zinc-600 rounded border-2 border-zinc-500"></div>
-                <span>Grave Colors</span>
-              </div>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-gradient-to-r from-amber-400 to-yellow-500 rounded"></div>
-                <span>Revival Effects</span>
-              </div>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-zinc-700 rounded flex items-center justify-center">
-                  <span className="text-xs">💀</span>
-                </div>
-                <span>Grave Icons</span>
-              </div>
-            </Button>
-          </CardContent>
-        </Card>
 
-        {/* Quick Actions */}
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start border-zinc-700 bg-transparent h-12">
-              <Share2 className="mr-3 h-5 w-5" />
-              Share Your Graveyard
-            </Button>
-            <Button variant="outline" className="w-full justify-start border-zinc-700 bg-transparent h-12">
-              <Download className="mr-3 h-5 w-5" />
-              Export Data
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* Settings */}
         <Card className="bg-zinc-800 border-zinc-700">
@@ -138,13 +93,7 @@ export default function ProfilePage() {
               Notifications
             </Button>
             <Button variant="ghost" className="w-full justify-start h-12">
-              Privacy Settings
-            </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
               Theme Preferences
-            </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
-              Backup & Sync
             </Button>
           </CardContent>
         </Card>
@@ -158,10 +107,11 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="ghost" className="w-full justify-start h-12">
-              Help Center
-            </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start h-12"
+              onClick={() => window.open('mailto:toxicos@gmail.com', '_blank')}
+            >
               Contact Support
             </Button>
             <Button variant="ghost" className="w-full justify-start h-12">

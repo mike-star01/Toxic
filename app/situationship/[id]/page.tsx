@@ -15,12 +15,15 @@ interface Situationship {
   cause: string;
   dates: { start: string; end: string };
   epitaph: string;
+  reflection?: string;
   photo?: string; // Add optional photo field
   details: {
     meetInPerson: boolean;
     dateCount: number;
     kissed: boolean;
     hookup: boolean;
+    love: boolean;
+    fight: boolean;
     exclusive: boolean;
     duration: string;
     location: string;
@@ -39,18 +42,21 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Ghosted",
     dates: { start: "Jan 2023", end: "Mar 2023" },
     epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
+    reflection: "Learned to trust my gut when someone says they're not ready for a relationship. Also, if they're still on dating apps after we've been seeing each other for weeks, that's a major red flag. I deserve someone who's actually ready to commit.",
     photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 3,
-      kissed: true,
-      hookup: false,
-      exclusive: false,
-      duration: "2 months",
-      location: "Coffee shop, his apartment, the park",
-      redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
-      lastMessage: "Hey, I'm not really feeling this anymore. I think we should stop seeing each other.",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 3,
+        kissed: true,
+        hookup: false,
+        love: false,
+        fight: false,
+        exclusive: false,
+        duration: "2 months",
+        location: "Coffee shop, his apartment, the park",
+        redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
+        lastMessage: "Hey, I'm not really feeling this anymore. I think we should stop seeing each other.",
+      },
     revived: false,
     createdAt: "March 15, 2023",
   },
@@ -60,18 +66,21 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Breadcrumbed",
     dates: { start: "Nov 2022", end: "Jan 2023" },
     epitaph: "RIP to the texter who was 'just busy with work' for 8 consecutive weekends.",
+    reflection: "Actions speak louder than words. If someone keeps saying they want to meet but always has excuses, they're not actually interested. I learned to stop making excuses for people who don't prioritize spending time with me.",
     photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 2,
-      kissed: true,
-      hookup: true,
-      exclusive: false,
-      duration: "3 months",
-      location: "Dating app, local bar",
-      redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
-      lastMessage: "Sorry, work has been crazy. Let's catch up soon!",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 2,
+        kissed: true,
+        hookup: true,
+        love: false,
+        fight: false,
+        exclusive: false,
+        duration: "3 months",
+        location: "Dating app, local bar",
+        redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
+        lastMessage: "Sorry, work has been crazy. Let's catch up soon!",
+      },
     revived: true,
     createdAt: "January 20, 2023",
   },
@@ -81,17 +90,19 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Situationship",
     dates: { start: "May 2022", end: "Nov 2022" },
     epitaph: "We were 'exclusive but not official' until he wasn't exclusive anymore.",
-    details: {
-      meetInPerson: true,
-      dateCount: 12,
-      kissed: true,
-      hookup: true,
-      exclusive: true,
-      duration: "6 months",
-      location: "Dating app, various restaurants",
-      redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
-      lastMessage: "I think we want different things right now.",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 12,
+        kissed: true,
+        hookup: true,
+        love: true,
+        fight: true,
+        exclusive: true,
+        duration: "6 months",
+        location: "Dating app, various restaurants",
+        redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
+        lastMessage: "I think we want different things right now.",
+      },
     revived: false,
     createdAt: "November 10, 2022",
   },
@@ -101,17 +112,19 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Slow Fade",
     dates: { start: "Feb 2023", end: "Apr 2023" },
     epitaph: "Texts got shorter until they stopped completely. Classic.",
-    details: {
-      meetInPerson: true,
-      dateCount: 5,
-      kissed: true,
-      hookup: false,
-      exclusive: false,
-      duration: "2 months",
-      location: "Dating app, coffee shops",
-      redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
-      lastMessage: "Yeah",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 5,
+        kissed: true,
+        hookup: false,
+        love: false,
+        fight: false,
+        exclusive: false,
+        duration: "2 months",
+        location: "Dating app, coffee shops",
+        redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
+        lastMessage: "Yeah",
+      },
     revived: false,
     createdAt: "April 5, 2023",
   },
@@ -121,17 +134,19 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Never Started",
     dates: { start: "Dec 2022", end: "Dec 2022" },
     epitaph: "We made eye contact for 3 months. I finally got their number. They never texted back.",
-    details: {
-      meetInPerson: true,
-      dateCount: 0,
-      kissed: false,
-      hookup: false,
-      exclusive: false,
-      duration: "1 day",
-      location: "Local coffee shop",
-      redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
-      lastMessage: "Hey, it's [name] from the coffee shop!",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 0,
+        kissed: false,
+        hookup: false,
+        love: false,
+        fight: false,
+        exclusive: false,
+        duration: "1 day",
+        location: "Local coffee shop",
+        redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
+        lastMessage: "Hey, it's [name] from the coffee shop!",
+      },
     revived: false,
     createdAt: "December 12, 2022",
   },
@@ -141,17 +156,19 @@ const situationshipsData: Record<string, Situationship> = {
     cause: "Benched",
     dates: { start: "Mar 2023", end: "May 2023" },
     epitaph: "Kept me on the sidelines while exploring 'options'. I was never the starting player.",
-    details: {
-      meetInPerson: true,
-      dateCount: 4,
-      kissed: true,
-      hookup: true,
-      exclusive: false,
-      duration: "3 months",
-      location: "Instagram DMs, trendy restaurants",
-      redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
-      lastMessage: "You're amazing, but I'm not ready to settle down.",
-    },
+          details: {
+        meetInPerson: true,
+        dateCount: 4,
+        kissed: true,
+        hookup: true,
+        love: false,
+        fight: false,
+        exclusive: false,
+        duration: "3 months",
+        location: "Instagram DMs, trendy restaurants",
+        redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
+        lastMessage: "You're amazing, but I'm not ready to settle down.",
+      },
     revived: true,
     createdAt: "May 18, 2023",
   },
@@ -373,10 +390,6 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   <div className="font-medium">{situationship.details.dateCount}</div>
                 </div>
                 <div className="bg-zinc-900 p-4 rounded-lg">
-                  <div className="text-zinc-500 text-sm mb-1">Duration</div>
-                  <div className="font-medium">{situationship.details.duration}</div>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg">
                   <div className="text-zinc-500 text-sm mb-1">Kissed</div>
                   <div className="font-medium">{situationship.details.kissed ? "Yes" : "No"}</div>
                 </div>
@@ -385,17 +398,24 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   <div className="font-medium">{situationship.details.hookup ? "Yes" : "No"}</div>
                 </div>
                 <div className="bg-zinc-900 p-4 rounded-lg">
-                  <div className="text-zinc-500 text-sm mb-1">Exclusive</div>
+                  <div className="text-zinc-500 text-sm mb-1">Fell in love</div>
+                  <div className="font-medium">{situationship.details.love ? "Yes" : "No"}</div>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg">
+                  <div className="text-zinc-500 text-sm mb-1">Had fights</div>
+                  <div className="font-medium">{situationship.details.fight ? "Yes" : "No"}</div>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg">
+                  <div className="text-zinc-500 text-sm mb-1">Were exclusive</div>
                   <div className="font-medium">{situationship.details.exclusive ? "Yes" : "No"}</div>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg">
+                  <div className="text-zinc-500 text-sm mb-1">Duration</div>
+                  <div className="font-medium">{situationship.details.duration}</div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-zinc-500 mb-2">Where you met</h3>
-                  <div className="bg-zinc-900 p-3 rounded-lg text-sm">{location}</div>
-                </div>
-
                 <div>
                   <h3 className="text-sm font-medium text-zinc-500 mb-2">Red Flags</h3>
                   <ul className="list-disc pl-5 space-y-1">
@@ -405,11 +425,6 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-zinc-500 mb-2">Last Message</h3>
-                  <div className="bg-zinc-900 p-3 rounded-lg text-sm italic">"{lastMessage}"</div>
                 </div>
               </div>
             </div>
@@ -422,13 +437,23 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
             <CardDescription>What you learned from this experience</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="bg-zinc-900 p-4 rounded-lg italic text-zinc-400">
-              Add your personal reflection on this situationship and what you learned from it.
-            </div>
+            {situationship.reflection ? (
+              <div className="bg-zinc-900 p-4 rounded-lg text-zinc-300 leading-relaxed">
+                "{situationship.reflection}"
+              </div>
+            ) : (
+              <div className="bg-zinc-900 p-4 rounded-lg italic text-zinc-400">
+                No reflection added yet. Add your personal thoughts on what you learned from this situationship.
+              </div>
+            )}
           </CardContent>
           <CardFooter className="border-t border-zinc-700 p-4 flex justify-end">
-            <Button variant="outline" className="border-zinc-700 bg-transparent">
-              Add Reflection
+            <Button 
+              variant="outline" 
+              className="border-zinc-700 bg-transparent"
+              onClick={() => router.push(`/edit/${situationship.id}`)}
+            >
+              {situationship.reflection ? 'Edit Reflection' : 'Add Reflection'}
             </Button>
           </CardFooter>
         </Card>
