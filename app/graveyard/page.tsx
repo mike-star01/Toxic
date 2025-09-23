@@ -234,11 +234,50 @@ export default function GraveyardPage() {
 
   // Handle revive functionality
   const handleRevive = (id: string) => {
-    setSituationships((prev) =>
-      (prev ?? []).map((situationship: Situationship) =>
+    setSituationships((prev) => {
+      const updated = (prev ?? []).map((situationship: Situationship) =>
         situationship.id === id ? { ...situationship, revived: true } : situationship
       )
-    )
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('situationships', JSON.stringify(updated))
+      }
+      
+      return updated
+    })
+  }
+
+  // Handle bury functionality (reverse of revive)
+  const handleBury = (id: string) => {
+    setSituationships((prev) => {
+      const updated = (prev ?? []).map((situationship: Situationship) =>
+        situationship.id === id ? { ...situationship, revived: false } : situationship
+      )
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('situationships', JSON.stringify(updated))
+      }
+      
+      return updated
+    })
+  }
+
+  // Handle delete functionality
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this grave? This action cannot be undone.')) {
+      setSituationships((prev) => {
+        const updated = (prev ?? []).filter((situationship: Situationship) => situationship.id !== id)
+        
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('situationships', JSON.stringify(updated))
+        }
+        
+        return updated
+      })
+    }
   }
 
   if (situationships === null) {
@@ -309,6 +348,8 @@ export default function GraveyardPage() {
                 key={`${situationship.id}-${refreshKey}`}
                 situationship={situationship}
                 onRevive={() => handleRevive(situationship.id)}
+                onBury={() => handleBury(situationship.id)}
+                onDelete={() => handleDelete(situationship.id)}
               />
             ))
           ) : (

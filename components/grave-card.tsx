@@ -29,6 +29,8 @@ type Situationship = {
 interface GraveCardProps {
   situationship: Situationship
   onRevive?: (id: string) => void
+  onBury?: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
 // Color themes for graves - base colors with gradient overlay
@@ -84,17 +86,36 @@ function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && (typeof window === 'undefined' || !(window as any).MSStream);
 }
 
+// Utility to format date from YYYY-MM to "Month YYYY"
+function formatDate(dateString: string) {
+  if (!dateString) return ''
+  
+  try {
+    // Handle both "YYYY-MM" and "Month YYYY" formats
+    if (dateString.includes('-')) {
+      const [year, month] = dateString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1)
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    } else {
+      // Already formatted, return as is
+      return dateString
+    }
+  } catch (error) {
+    return dateString
+  }
+}
+
 // Emoji mapping for causes
 const causeEmojis: Record<string, string> = {
   Ghosted: '👻',
   Breadcrumbed: '🍞',
-  Situationship: '💔',
+  Situationship: '🥀',
   'Slow Fade': '🌫️',
   Benched: '🪑',
   'Never Started': '❓',
-  Cheated: '🥀',
-  cheated: '🥀',
-  situationship: '💔',
+  Cheated: '💔',
+  cheated: '💔',
+  situationship: '🥀',
   'slow fade': '🌫️',
   breadcrumbed: '🍞',
   ghosted: '👻',
@@ -102,7 +123,7 @@ const causeEmojis: Record<string, string> = {
   other: '💀',
 }
 
-export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
+export default function GraveCard({ situationship, onRevive, onBury, onDelete }: GraveCardProps) {
   const [isRevived, setIsRevived] = useState(situationship.revived)
   const [selectedColor, setSelectedColor] = useState("classic")
   const { toast } = useToast()
@@ -159,9 +180,29 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
 
     setIsRevived(false)
 
+    if (onBury) {
+      onBury(situationship.id)
+    }
+
     toast({
       title: "Back to the grave",
       description: `${situationship.name} has been buried again.`,
+    })
+  }
+
+  const handleDelete = () => {
+    // Add haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate([100, 50, 100]) // Longer vibration for delete
+    }
+
+    if (onDelete) {
+      onDelete(situationship.id)
+    }
+
+    toast({
+      title: "Grave deleted",
+      description: `${situationship.name} has been permanently removed.`,
     })
   }
 
@@ -180,7 +221,7 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
     <div className="relative">
       {/* Tombstone with base color + gradient overlay */}
       <div
-        className="relative border-4 rounded-t-[40px] p-3 pb-3 h-[300px] flex flex-col justify-between overflow-hidden"
+        className="relative border-4 rounded-t-[40px] p-3 pb-3 h-[300px] flex flex-col justify-between overflow-visible"
         style={{
           backgroundColor: (isPink || isClassic || isBlack || selectedColor === "rose" || selectedColor === "ocean") ? 'transparent' : currentTheme.baseColor,
           background: isPink
@@ -219,11 +260,11 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
           ...(isRevived
             ? {
                 boxShadow: `
-                0 0 20px rgba(251, 191, 36, 0.8),
-                0 0 40px rgba(251, 191, 36, 0.6),
-                0 0 60px rgba(251, 191, 36, 0.4),
-                inset 0 0 20px rgba(251, 191, 36, 0.1)
+                0 0 14px rgba(251, 191, 36, 0.7),
+                0 0 24px rgba(251, 191, 36, 0.5),
+                inset 0 0 12px rgba(251, 191, 36, 0.12)
               `,
+                animation: 'pulseGlow 2.4s ease-in-out infinite'
               }
             : {}),
         }}
@@ -247,7 +288,7 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
             )}
           </div>
           <div className="text-zinc-200 text-xs text-center">
-            {situationship.dates.start} - {situationship.dates.end}
+            {formatDate(situationship.dates.start)} - {formatDate(situationship.dates.end)}
           </div>
           {/* Cause of death icon - bigger and colored or emoji on iOS */}
           <div className="mt-2">
@@ -288,13 +329,7 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="flex items-center text-red-400 focus:text-red-300 py-3 px-4 text-sm"
-                onClick={() => {
-                  // Handle delete - you can implement this later
-                  toast({
-                    title: "Delete feature coming soon",
-                    description: "Delete functionality will be implemented soon!",
-                  })
-                }}
+                onClick={handleDelete}
               >
                 <span className="mr-3 text-lg">🗑️</span>
                 Delete Grave
@@ -306,7 +341,7 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
             <Button
               variant="outline"
               size="sm"
-              className="border-zinc-400 text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1"
+              className="border-transparent text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1"
               onClick={handleBury}
             >
               <span className="mr-1">⚰️</span>
@@ -328,16 +363,13 @@ export default function GraveCard({ situationship, onRevive }: GraveCardProps) {
 
       {/* Stone base with stronger golden glow */}
       <div
-        className={`w-full h-2 border-x-4 border-b-4 ${
-          isRevived ? "bg-amber-400 border-amber-400" : "bg-zinc-600 border-zinc-600"
+        className={`w-full h-2 ${
+          isRevived ? "bg-amber-400" : "bg-zinc-600"
         }`}
         style={
           isRevived
             ? {
-                boxShadow: `
-            0 0 15px rgba(251, 191, 36, 0.8),
-            0 0 30px rgba(251, 191, 36, 0.6)
-          `,
+                boxShadow: `0 0 16px rgba(251, 191, 36, 0.55)`
               }
             : {}
         }

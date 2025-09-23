@@ -50,7 +50,7 @@ interface Situationship {
 const causeEmojis: Record<string, string> = {
   'Ghosted': '👻',
   'Breadcrumbed': '🍞',
-  'Situationship': '💔',
+  'Situationship': '🥀',
   'Friendzoned': '🤝',
   'Love Bombed': '💣',
   'Slow Fade': '🌅',
@@ -90,6 +90,26 @@ export default function StatsPage() {
 
   useEffect(() => {
     calculateStats()
+    
+    // Refresh stats when the page comes into focus (e.g., when navigating back from other pages)
+    const handleFocus = () => {
+      calculateStats()
+    }
+    
+    // Refresh stats when localStorage changes (e.g., from other tabs or components)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'situationships') {
+        calculateStats()
+      }
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   const calculateStats = () => {
@@ -160,16 +180,30 @@ export default function StatsPage() {
         })
         .filter(d => d > 0)
 
+      const formatDuration = (days: number) => {
+        const months = days / 30.44
+        if (months < 1) {
+          const weeks = Math.round(days / 7)
+          return `${weeks} week${weeks !== 1 ? 's' : ''}`
+        } else if (months >= 12) {
+          const years = Math.round(months / 12)
+          return `${years} year${years !== 1 ? 's' : ''}`
+        } else {
+          const roundedMonths = Math.round(months)
+          return `${roundedMonths} month${roundedMonths !== 1 ? 's' : ''}`
+        }
+      }
+
       const averageDuration = durations.length > 0 
-        ? `${(durations.reduce((a, b) => a + b, 0) / durations.length / 30.44).toFixed(1)} months`
+        ? formatDuration(durations.reduce((a, b) => a + b, 0) / durations.length)
         : "0 months"
       
       const longestSituationship = durations.length > 0
-        ? `${Math.max(...durations) / 30.44} months`
+        ? formatDuration(Math.max(...durations))
         : "0 months"
       
       const shortestSituationship = durations.length > 0
-        ? `${Math.min(...durations) / 30.44} months`
+        ? formatDuration(Math.min(...durations))
         : "0 months"
 
       // Calculate cause breakdown

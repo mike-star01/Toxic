@@ -9,6 +9,25 @@ import { useState, useEffect, use } from "react"
 import AppHeader from "@/components/app-header"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
 
+// Utility to format date from YYYY-MM to "Month YYYY"
+function formatDate(dateString: string) {
+  if (!dateString) return ''
+  
+  try {
+    // Handle both "YYYY-MM" and "Month YYYY" formats
+    if (dateString.includes('-')) {
+      const [year, month] = dateString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1)
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    } else {
+      // Already formatted, return as is
+      return dateString
+    }
+  } catch (error) {
+    return dateString
+  }
+}
+
 interface Situationship {
   id: string;
   name: string;
@@ -331,9 +350,9 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
         <div className={`text-center space-y-1 ${situationship.photo ? 'mt-16' : ''}`}>
           <div className="text-sm font-bold text-white">{situationship.name}</div>
           <div className="text-sm text-zinc-200 leading-tight">
-            <div className="text-sm">{situationship.dates.start}</div>
+            <div className="text-sm">{formatDate(situationship.dates.start)}</div>
             <div className="text-zinc-300 text-sm my-0.5">to</div>
-            <div className="text-sm">{situationship.dates.end}</div>
+            <div className="text-sm">{formatDate(situationship.dates.end)}</div>
           </div>
           <div className="text-sm text-zinc-300 font-medium">R.I.P.</div>
         </div>
