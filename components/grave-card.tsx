@@ -169,6 +169,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     toast({
       title: "They're alive!",
       description: `${situationship.name} has been revived from the dead!`,
+      duration: 4000,
     })
   }
 
@@ -187,6 +188,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     toast({
       title: "Back to the grave",
       description: `${situationship.name} has been buried again.`,
+      duration: 4000,
     })
   }
 
@@ -203,6 +205,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     toast({
       title: "Grave deleted",
       description: `${situationship.name} has been permanently removed.`,
+      duration: 4000,
     })
   }
 

@@ -132,6 +132,7 @@ export default function AddSituationshipPage() {
         title: "Missing information",
         description: "Please provide at least a name and cause of death.",
         variant: "destructive",
+        duration: 4000,
       })
       setIsSubmitting(false)
       return
@@ -142,6 +143,7 @@ export default function AddSituationshipPage() {
         title: "Epitaph too long",
         description: "Please keep your epitaph under 100 characters for the best display.",
         variant: "destructive",
+        duration: 4000,
       })
       setIsSubmitting(false)
       return
@@ -198,6 +200,7 @@ export default function AddSituationshipPage() {
       toast({
         title: "Added to graveyard",
         description: `${formData.name} has been laid to rest.`,
+        duration: 4000,
       })
       setIsSubmitting(false)
       router.push("/graveyard")
@@ -301,7 +304,7 @@ export default function AddSituationshipPage() {
 
               {/* Photo Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Photo (Optional)</label>
+                <label className="text-sm font-medium">Photo <span className="text-zinc-400">(Optional)</span></label>
                 <div className="border-2 border-dashed border-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center bg-zinc-900">
                   {/* Image preview */}
                   {photo ? (

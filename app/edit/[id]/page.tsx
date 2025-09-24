@@ -348,6 +348,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         title: "Missing information",
         description: "Please provide at least a name and cause of death.",
         variant: "destructive",
+        duration: 4000,
       })
       return
     }
@@ -357,6 +358,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
         title: "Epitaph too long",
         description: "Please keep your epitaph under 100 characters for the best display.",
         variant: "destructive",
+        duration: 4000,
       })
       return
     }
@@ -408,6 +410,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     toast({
       title: "Updated!",
       description: "Situationship details have been updated.",
+      duration: 4000,
     })
     router.back()
   }
@@ -610,7 +613,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
 
               {/* Photo Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Photo (Optional)</label>
+                <label className="text-sm font-medium">Photo <span className="text-zinc-400">(Optional)</span></label>
                 <div className="border-2 border-dashed border-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center bg-zinc-900">
                   {/* Image preview */}
                   {photo ? (

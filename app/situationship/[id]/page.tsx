@@ -356,7 +356,7 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
         )}
         
         {/* Text content - positioned below photo if exists, otherwise centered */}
-        <div className={`text-center space-y-1 ${situationship.photo ? 'mt-16' : ''}`}>
+        <div className={`text-center space-y-1 mt-16`}>
           <div className="text-sm font-bold text-white">{situationship.name}</div>
           <div className="text-xs text-zinc-200 leading-tight">
             <div className="text-xs">{formatDate(situationship.dates.start)}</div>
@@ -418,7 +418,7 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
 
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader>
-            <CardTitle>Situationship Autopsy 🔍</CardTitle>
+            <CardTitle>Autopsy 🔍</CardTitle>
             <CardDescription>The details of what happened between you 💔</CardDescription>
           </CardHeader>
           <CardContent className="p-6">

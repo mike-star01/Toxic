@@ -9,7 +9,7 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 4000
+const TOAST_REMOVE_DELAY = 2500
 
 type ToasterToast = ToastProps & {
   id: string
@@ -59,7 +59,8 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string, duration?: number) => {
+// Schedule final removal after close animation finishes (default 1s)
+const addToRemoveQueue = (toastId: string, duration: number = 1000) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
@@ -70,7 +71,7 @@ const addToRemoveQueue = (toastId: string, duration?: number) => {
       type: "REMOVE_TOAST",
       toastId: toastId,
     })
-  }, duration || TOAST_REMOVE_DELAY)
+  }, duration)
 
   toastTimeouts.set(toastId, timeout)
 }
@@ -78,10 +79,6 @@ const addToRemoveQueue = (toastId: string, duration?: number) => {
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
-      // If the toast has a duration, automatically schedule its removal
-      if (action.toast.duration) {
-        addToRemoveQueue(action.toast.id, action.toast.duration)
-      }
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
@@ -101,11 +98,11 @@ export const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        const toast = state.toasts.find(t => t.id === toastId)
-        addToRemoveQueue(toastId, toast?.duration)
+        // Remove shortly after to allow close animation to play
+        addToRemoveQueue(toastId, 350)
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id, toast.duration)
+          addToRemoveQueue(toast.id, 350)
         })
       }
 
