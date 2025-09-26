@@ -333,6 +333,28 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                radial-gradient(ellipse at 20% 30%, rgba(20, 184, 166, 0.4) 0%, transparent 50%), /* Teal highlight */
                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 40%), /* Purple highlight */
                radial-gradient(ellipse at 60% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 45%)`  /* Cyan glow */
+            : selectedColor === "sunset"
+            ? `linear-gradient(135deg, 
+                 rgba(255, 140, 0, 1) 0%,      /* Bright orange */
+                 rgba(255, 165, 0, 0.95) 15%,  /* Golden orange */
+                 rgba(255, 69, 0, 0.9) 30%,    /* Red orange */
+                 rgba(255, 99, 71, 0.85) 45%,  /* Tomato */
+                 rgba(255, 140, 0, 0.8) 60%,   /* Dark orange */
+                 rgba(255, 69, 0, 0.9) 75%,    /* Red orange */
+                 rgba(255, 165, 0, 1) 90%,     /* Golden orange */
+                 rgba(255, 140, 0, 1) 100%     /* Bright orange */
+               ),
+               radial-gradient(ellipse at 25% 25%, rgba(255, 215, 0, 0.4) 0%, transparent 60%), /* Golden highlight */
+               radial-gradient(ellipse at 75% 75%, rgba(255, 69, 0, 0.3) 0%, transparent 50%),  /* Red orange glow */
+               radial-gradient(ellipse at 50% 50%, rgba(255, 165, 0, 0.2) 0%, transparent 40%),  /* Central warmth */
+               url('data:image/svg+xml;utf8,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="%23ff8c00"/><circle cx="12" cy="15" r="1.5" fill="white" opacity="0.9"/><circle cx="45" cy="20" r="2" fill="%23ffd700" opacity="0.8"/><circle cx="25" cy="35" r="1.2" fill="white" opacity="0.7"/><circle cx="50" cy="45" r="1.8" fill="%23ffa500" opacity="0.9"/><circle cx="15" cy="50" r="1" fill="white" opacity="0.6"/><circle cx="40" cy="55" r="1.5" fill="%23ffd700" opacity="0.8"/><circle cx="30" cy="25" r="0.8" fill="white" opacity="0.5"/><circle cx="55" cy="35" r="1.2" fill="%23ffa500" opacity="0.7"/><circle cx="20" cy="40" r="0.6" fill="white" opacity="0.4"/><circle cx="35" cy="15" r="0.9" fill="%23ffd700" opacity="0.6"/><circle cx="48" cy="25" r="0.7" fill="white" opacity="0.3"/><circle cx="18" cy="30" r="0.5" fill="%23ffa500" opacity="0.5"/><circle cx="42" cy="40" r="0.8" fill="white" opacity="0.4"/><circle cx="28" cy="50" r="0.6" fill="%23ffd700" opacity="0.6"/><circle cx="52" cy="15" r="0.4" fill="white" opacity="0.3"/><circle cx="22" cy="45" r="0.7" fill="%23ffa500" opacity="0.4"/><circle cx="38" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="15" cy="25" r="0.3" fill="%23ffd700" opacity="0.5"/><circle cx="45" cy="50" r="0.6" fill="white" opacity="0.3"/><circle cx="32" cy="40" r="0.4" fill="%23ffa500" opacity="0.4"/><circle cx="25" cy="15" r="0.2" fill="white" opacity="0.2"/><circle cx="50" cy="35" r="0.5" fill="%23ffd700" opacity="0.3"/><circle cx="18" cy="35" r="0.3" fill="white" opacity="0.1"/><circle cx="42" cy="20" r="0.4" fill="%23ffa500" opacity="0.3"/><circle cx="35" cy="45" r="0.3" fill="white" opacity="0.1"/><circle cx="48" cy="40" r="0.2" fill="%23ffd700" opacity="0.2"/></svg>') repeat`
+           : selectedColor === "purple"
+           ? `linear-gradient(135deg,
+               #0b021f 0%,   /* near-black indigo */
+               #2d0d5a 30%,  /* very dark purple */
+               #5b21b6 65%,  /* deep royal purple */
+               #000000 100%  /* fade to black */
+             )`
             : `linear-gradient(to bottom right, ${currentTheme.baseColor}, rgba(39, 39, 42, 0.3))`,
         }}
       >
@@ -394,6 +416,8 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                     Cheated: '💔',
                     Benched: '🪑',
                     'Never Started': '❓',
+                    'Love Bombed': '💣',
+                    'Friendzoned': '🤝',
                     Other: '💀',
                   }
                   const cause = situationship.cause
@@ -429,10 +453,6 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   <div className="font-medium">{situationship.details.meetInPerson ? "Yes" : "No"}</div>
                 </div>
                 <div className="bg-zinc-900 p-4 rounded-lg">
-                  <div className="text-zinc-500 text-sm mb-1">Number of dates</div>
-                  <div className="font-medium">{situationship.details.dateCount}</div>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg">
                   <div className="text-zinc-500 text-sm mb-1">Kissed</div>
                   <div className="font-medium">{situationship.details.kissed ? "Yes" : "No"}</div>
                 </div>
@@ -452,9 +472,9 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   <div className="text-zinc-500 text-sm mb-1">Were exclusive</div>
                   <div className="font-medium">{situationship.details.exclusive ? "Yes" : "No"}</div>
                 </div>
-                <div className="bg-zinc-900 p-4 rounded-lg">
-                  <div className="text-zinc-500 text-sm mb-1">Duration</div>
-                  <div className="font-medium">{situationship.details.duration}</div>
+                <div className="bg-zinc-900 p-4 rounded-lg col-span-2">
+                  <div className="text-zinc-500 text-sm mb-1">Dates went on</div>
+                  <div className="font-medium">{situationship.details.dateCount ?? 0}</div>
                 </div>
               </div>
 

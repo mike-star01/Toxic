@@ -48,6 +48,7 @@ const causeOptions = [
   'other',
 ]
 
+
 export default function AddSituationshipPage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -57,6 +58,8 @@ export default function AddSituationshipPage() {
     cause: "",
     startDate: "",
     endDate: "",
+    preciseDuration: "", // For days/weeks when same month
+    preciseDurationType: "days", // days or weeks
     epitaph: "",
     meetInPerson: false,
     dateCount: "0",
@@ -92,8 +95,13 @@ export default function AddSituationshipPage() {
     }))
   }
 
-  const calculateDuration = (startDate: string, endDate: string) => {
+  const calculateDuration = (startDate: string, endDate: string, preciseDuration?: string) => {
     if (!startDate || !endDate) return ''
+    
+    // If same month and precise duration is provided, use that
+    if (startDate === endDate && preciseDuration) {
+      return preciseDuration
+    }
     
     try {
       // Handle month format (YYYY-MM) by adding day 1 to make it a valid date
@@ -127,10 +135,10 @@ export default function AddSituationshipPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    if (!formData.name || !formData.cause) {
+    if (!formData.name || !formData.cause || !formData.startDate || !formData.endDate) {
       toast({
         title: "Missing information",
-        description: "Please provide at least a name and cause of death.",
+        description: "Please provide a name, cause of death, start date, and end date.",
         variant: "destructive",
         duration: 4000,
       })
@@ -149,6 +157,13 @@ export default function AddSituationshipPage() {
       return
     }
 
+    // Calculate final duration (with precise duration if same month)
+    const finalDuration = calculateDuration(
+      formData.startDate, 
+      formData.endDate, 
+      formData.preciseDuration ? `${formData.preciseDuration} ${formData.preciseDurationType}` : undefined
+    )
+    
     // Build new grave object
     const newGrave = {
       id: Date.now().toString(),
@@ -169,7 +184,8 @@ export default function AddSituationshipPage() {
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
-        duration: calculateDuration(formData.startDate, formData.endDate),
+        duration: finalDuration,
+        preciseDuration: formData.preciseDuration ? `${formData.preciseDuration} ${formData.preciseDurationType}` : '',
         location: '',
         redFlags: formData.redFlags,
         lastMessage: '',
@@ -267,7 +283,13 @@ export default function AddSituationshipPage() {
                       type="month"
                       className="bg-zinc-900 border-zinc-700 h-11"
                       value={formData.startDate}
-                      onChange={(e) => handleChange("startDate", e.target.value)}
+                      onChange={(e) => {
+                        handleChange("startDate", e.target.value)
+                        // Clear precise duration if months are different
+                        if (formData.endDate && e.target.value !== formData.endDate) {
+                          handleChange("preciseDuration", "")
+                        }
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -278,11 +300,52 @@ export default function AddSituationshipPage() {
                       id="end-date"
                       type="month"
                       className="bg-zinc-900 border-zinc-700 h-11"
-                      value={formData.endDate}
-                      onChange={(e) => handleChange("endDate", e.target.value)}
+                      value={formData.endDate || ""}
+                      onChange={(e) => {
+                        handleChange("endDate", e.target.value)
+                        // Clear precise duration if months are different
+                        if (formData.startDate && e.target.value !== formData.startDate) {
+                          handleChange("preciseDuration", "")
+                        }
+                      }}
                     />
                   </div>
                 </div>
+
+                {/* Precise Duration - Only show when same month */}
+                {formData.startDate && formData.endDate && formData.startDate === formData.endDate && (
+                  <div className="space-y-2">
+                    <label htmlFor="precise-duration" className="text-sm font-medium">
+                      Precise Duration <span className="text-zinc-400">(Optional - for same month)</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="precise-duration"
+                        type="number"
+                        min="1"
+                        max="31"
+                        placeholder="Days"
+                        className="bg-zinc-900 border-zinc-700 h-11"
+                        value={formData.preciseDuration || ""}
+                        onChange={(e) => handleChange("preciseDuration", e.target.value)}
+                      />
+                      <Select
+                        value={formData.preciseDurationType || "days"}
+                        onValueChange={(value) => handleChange("preciseDurationType", value)}
+                      >
+                        <SelectTrigger className="bg-zinc-900 border-zinc-700 h-11 w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="days">Days</SelectItem>
+                          <SelectItem value="weeks">Weeks</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                
 
                 <div className="space-y-2">
                   <label htmlFor="epitaph" className="text-sm font-medium">
@@ -393,6 +456,10 @@ export default function AddSituationshipPage() {
                           ? `linear-gradient(to bottom right, #db2777, rgba(255,255,255,0.65)), url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="0.9" fill="white" opacity="0.85"/><circle cx="32" cy="12" r="0.7" fill="white" opacity="0.7"/><circle cx="20" cy="28" r="0.8" fill="white" opacity="0.8"/><circle cx="28" cy="36" r="0.6" fill="white" opacity="0.7"/><circle cx="12" cy="20" r="0.7" fill="white" opacity="0.8"/><circle cx="24" cy="8" r="0.5" fill="deepskyblue" opacity="0.5"/><circle cx="36" cy="32" r="0.6" fill="deepskyblue" opacity="0.4"/><circle cx="8" cy="32" r="0.5" fill="white" opacity="0.7"/><circle cx="16" cy="36" r="0.4" fill="deepskyblue" opacity="0.5"/></svg>')`
                           : theme.value === "black"
                           ? `radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(0, 0, 0, 1) 100%), radial-gradient(ellipse at 70% 80%, rgba(147, 51, 234, 0.08) 0%, transparent 40%), url('data:image/svg+xml;utf8,<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"><rect width="50" height="50" fill="%23000000"/><circle cx="10" cy="8" r="0.8" fill="white" opacity="0.9"/><circle cx="38" cy="12" r="1.0" fill="%23bfdbfe" opacity="0.8"/><circle cx="15" cy="22" r="0.6" fill="white" opacity="0.7"/><circle cx="32" cy="28" r="0.7" fill="%23e0f2fe" opacity="0.85"/><circle cx="6" cy="35" r="0.4" fill="white" opacity="0.6"/><circle cx="42" cy="38" r="0.8" fill="white" opacity="0.9"/><circle cx="20" cy="42" r="0.5" fill="%23dbeafe" opacity="0.75"/><circle cx="28" cy="10" r="0.3" fill="white" opacity="0.5"/><circle cx="12" cy="48" r="0.6" fill="white" opacity="0.8"/><circle cx="45" cy="22" r="0.25" fill="%23bfdbfe" opacity="0.6"/><circle cx="22" cy="16" r="0.2" fill="white" opacity="0.4"/><circle cx="35" cy="45" r="0.4" fill="white" opacity="0.7"/><circle cx="3" cy="16" r="0.12" fill="white" opacity="0.3"/><circle cx="26" cy="32" r="0.25" fill="%23e0f2fe" opacity="0.5"/><circle cx="18" cy="6" r="0.2" fill="white" opacity="0.4"/><circle cx="47" cy="48" r="0.3" fill="white" opacity="0.6"/></svg>')`
+                          : theme.value === "sunset"
+                          ? `linear-gradient(135deg, #ff8c00 0%, #ffa500 35%, #ff6347 65%, #ff4500 100%)`
+                          : theme.value === "purple"
+                          ? `linear-gradient(135deg, #0b021f 0%, #2d0d5a 30%, #5b21b6 65%, #000000 100%)`
                           : theme.value === "rose"
                         ? `linear-gradient(135deg, 
                            rgba(220, 20, 60, 1) 0%,     /* Deep cherry red */
@@ -575,17 +642,15 @@ export default function AddSituationshipPage() {
                       id="exclusive"
                     />
                   </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm font-medium">Talked for (weeks):</span>
+                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                    <span className="text-sm font-medium">Dates went on</span>
                     <Input
-                      id="dateCount"
+                      id="date-count"
                       type="number"
                       min="0"
-                      className="bg-zinc-800 border-zinc-700 h-10 w-20 text-right appearance-none focus:outline-none focus:ring-2 focus:ring-red-700 hide-number-spin"
+                      className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
                       value={formData.dateCount}
                       onChange={(e) => handleChange("dateCount", e.target.value)}
-                      placeholder="0"
-                      style={{ MozAppearance: 'textfield' }}
                     />
                   </div>
                 </div>

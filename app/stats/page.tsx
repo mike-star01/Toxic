@@ -58,6 +58,40 @@ const causeEmojis: Record<string, string> = {
   'Other': '💀',
   'Benched': '🪑',
   'Never Started': '❓',
+  'ghosted': '👻',
+  'breadcrumbed': '🍞',
+  'situationship': '🥀',
+  'friendzoned': '🤝',
+  'love bombed': '💣',
+  'lovebombed': '💣',
+  'slow fade': '🌅',
+  'cheated': '💔',
+  'other': '💀',
+  'benched': '🪑',
+  'never started': '❓',
+}
+
+// Utility function to parse duration string and convert to days
+const parseDurationToDays = (duration: string): number => {
+  if (!duration) return 0
+  
+  if (duration.includes("day")) {
+    const days = parseInt(duration.split(" ")[0])
+    return days
+  } else if (duration.includes("week")) {
+    const weeks = parseInt(duration.split(" ")[0])
+    return weeks * 7
+  } else if (duration.includes("month")) {
+    const months = parseInt(duration.split(" ")[0])
+    return Math.round(months * 30.44) // Average days per month
+  } else if (duration.includes("year")) {
+    const years = parseInt(duration.split(" ")[0])
+    return Math.round(years * 365.25) // Account for leap years
+  } else if (duration === "3+ years") {
+    return Math.round(3 * 365.25)
+  }
+  
+  return 0
 }
 
 export default function StatsPage() {
@@ -170,27 +204,43 @@ export default function StatsPage() {
 
       // Calculate durations
       const durations = situationships
-        .filter(s => s.dates.start && s.dates.end)
+        .filter(s => s.dates.start && (s.dates.end || s.details?.duration))
         .map(s => {
-          const start = new Date(s.dates.start)
-          const end = new Date(s.dates.end)
-          const diffTime = Math.abs(end.getTime() - start.getTime())
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-          return diffDays
+          // First try to use the duration string if available
+          if (s.details?.duration) {
+            return parseDurationToDays(s.details.duration)
+          }
+          
+          // Fallback to date calculation for older entries
+          if (s.dates.start && s.dates.end) {
+            const start = new Date(s.dates.start + "-01")
+            const end = new Date(s.dates.end + "-01")
+            const diffTime = Math.abs(end.getTime() - start.getTime())
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            
+            // Also consider the "talked for" duration (dateCount is in weeks)
+            const talkedForDays = (s.details?.dateCount || 0) * 7
+            
+            // Use the maximum of date difference or talked for duration
+            return Math.max(diffDays, talkedForDays)
+          }
+          
+          return 0
         })
         .filter(d => d > 0)
 
       const formatDuration = (days: number) => {
-        const months = days / 30.44
-        if (months < 1) {
+        if (days < 7) {
+          return `${days} day${days !== 1 ? 's' : ''}`
+        } else if (days < 30) {
           const weeks = Math.round(days / 7)
           return `${weeks} week${weeks !== 1 ? 's' : ''}`
-        } else if (months >= 12) {
-          const years = Math.round(months / 12)
-          return `${years} year${years !== 1 ? 's' : ''}`
+        } else if (days < 365) {
+          const months = Math.round(days / 30.44)
+          return `${months} month${months !== 1 ? 's' : ''}`
         } else {
-          const roundedMonths = Math.round(months)
-          return `${roundedMonths} month${roundedMonths !== 1 ? 's' : ''}`
+          const years = Math.round(days / 365.25)
+          return `${years} year${years !== 1 ? 's' : ''}`
         }
       }
 
@@ -335,25 +385,7 @@ export default function StatsPage() {
           </Card>
         </div>
 
-        {/* Date Stats */}
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CalendarDays className="h-5 w-5" />
-              Date Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-400">Total Dates</span>
-              <span className="font-medium">{stats.totalDates}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-400">Average Dates per Grave</span>
-              <span className="font-medium">{stats.averageDates}</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Date Stats removed per request */}
 
         {/* Reflection Stats */}
         <Card className="bg-zinc-800 border-zinc-700">

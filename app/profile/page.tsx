@@ -44,39 +44,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                  {activity.action === "revived" ? (
-                    <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
-                      <Zap className="h-4 w-4 text-amber-400" />
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
-                      <Plus className="h-4 w-4 text-red-400" />
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium">{activity.name}</div>
-                    <div className="text-sm text-zinc-400">
-                      {activity.action === "revived" ? "Revived from the dead" : "Added to graveyard"}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-xs text-zinc-500">{activity.time}</div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        {/* Recent Activity removed per request */}
 
 
 
