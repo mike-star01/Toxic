@@ -18,9 +18,9 @@ import { Switch } from "@/components/ui/switch"
 const causeEmojis: Record<string, string> = {
   ghosted: '👻',
   breadcrumbed: '🍞',
-  situationship: '🥀',
+  fumbled: '🏀',
   friendzoned: '🤝',
-  'love bombed': '💣',
+  incompatible: '🧩',
   'slow fade': '🌅',
   cheated: '💔',
   other: '💀',
@@ -29,9 +29,9 @@ const causeEmojis: Record<string, string> = {
 const causeLabels: Record<string, string> = {
   ghosted: 'Ghosted',
   breadcrumbed: 'Breadcrumbed',
-  situationship: 'Situationship',
+  fumbled: 'Fumbled',
   friendzoned: 'Friendzoned',
-  'love bombed': 'Love Bombed',
+  incompatible: 'Incompatible',
   'slow fade': 'Slow Fade',
   cheated: 'Cheated',
   other: 'Other',
@@ -40,9 +40,9 @@ const causeLabels: Record<string, string> = {
 const causeOptions = [
   'ghosted',
   'breadcrumbed',
-  'situationship',
+  'fumbled',
   'friendzoned',
-  'love bombed',
+  'incompatible',
   'slow fade',
   'cheated',
   'other',
@@ -68,6 +68,8 @@ export default function AddSituationshipPage() {
     love: false,
     fight: false,
     exclusive: false,
+    closure: false,
+    emotionalImpact: 5, // Default to middle of scale
     reflection: "",
     redFlags: [] as string[],
   })
@@ -178,12 +180,14 @@ export default function AddSituationshipPage() {
       reflection: formData.reflection,
       details: {
         meetInPerson: formData.meetInPerson,
-        dateCount: Number(formData.dateCount),
+        dateCount: (formData.dateCount === "?" ? null : Number(formData.dateCount)),
         kissed: formData.kissed,
         hookup: formData.hookup,
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
+        closure: formData.closure,
+        emotionalImpact: formData.emotionalImpact,
         duration: finalDuration,
         preciseDuration: formData.preciseDuration ? `${formData.preciseDuration} ${formData.preciseDurationType}` : '',
         location: '',
@@ -270,6 +274,50 @@ export default function AddSituationshipPage() {
                         <span className="text-sm font-semibold">{causeLabels[cause]}</span>
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Emotional Impact Scale */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Emotional Impact:</label>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-zinc-400">
+                      <span>1 - Barely affected</span>
+                      <span className="text-lg font-bold text-red-400">{formData.emotionalImpact}</span>
+                      <span>10 - Devastated</span>
+                    </div>
+                    <div className="relative h-8 flex items-center">
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={formData.emotionalImpact}
+                        onChange={(e) => handleChange("emotionalImpact", parseInt(e.target.value))}
+                        className="w-full h-12 bg-transparent appearance-none cursor-pointer slider absolute inset-0 z-10"
+                        style={{ 
+                          top: '-8px',
+                          height: '48px'
+                        }}
+                      />
+                      <div 
+                        className="w-full h-2 bg-zinc-700 rounded-lg"
+                        style={{
+                          background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${(formData.emotionalImpact - 1) * 11.11}%, #3f3f46 ${(formData.emotionalImpact - 1) * 11.11}%, #3f3f46 100%)`
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-zinc-500">
+                      <span>1</span>
+                      <span>2</span>
+                      <span>3</span>
+                      <span>4</span>
+                      <span>5</span>
+                      <span>6</span>
+                      <span>7</span>
+                      <span>8</span>
+                      <span>9</span>
+                      <span>10</span>
+                    </div>
                   </div>
                 </div>
 
@@ -569,19 +617,18 @@ export default function AddSituationshipPage() {
                 <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
                   <div className="space-y-2">
                     <label htmlFor="reflection" className="text-sm font-medium">
-                      What did you learn from this situationship? <span className="text-zinc-400">(Optional)</span>
+                      What did you learn? <span className="text-zinc-400">(Optional)</span>
                     </label>
                     <Textarea
                       id="reflection"
-                      placeholder="Reflect on what you learned, red flags you noticed, or how you grew from this experience..."
+                      placeholder="Reflect on what you learned or how you grew from this experience..."
                       className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
                       value={formData.reflection}
                       onChange={(e) => handleChange("reflection", e.target.value)}
-                      maxLength={300}
+                      maxLength={500}
                     />
-                    <div className="flex justify-between items-center text-xs text-zinc-400">
-                      <span>Share your thoughts, lessons learned, or personal growth</span>
-                      <span>{formData.reflection.length}/300</span>
+                    <div className="flex justify-end text-xs text-zinc-400">
+                      <span>{formData.reflection.length}/500</span>
                     </div>
                   </div>
                 </div>
@@ -643,21 +690,42 @@ export default function AddSituationshipPage() {
                     />
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Dates went on</span>
-                    <Input
-                      id="date-count"
-                      type="number"
-                      min="0"
-                      className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
-                      value={formData.dateCount}
-                      onChange={(e) => handleChange("dateCount", e.target.value)}
+                    <span className="text-sm font-medium">Got closure?</span>
+                    <Switch
+                      checked={formData.closure}
+                      onCheckedChange={(checked) => handleChange("closure", checked)}
+                      id="closure"
                     />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                    <span className="text-sm font-medium">Dates went on</span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="date-count"
+                        type="number"
+                        min="0"
+                        className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
+                        value={formData.dateCount}
+                        onChange={(e) => handleChange("dateCount", e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-9 px-3 text-sm text-zinc-200 border border-zinc-600 rounded hover:bg-zinc-800"
+                        onClick={() => handleChange("dateCount", "?")}
+                        title="Unsure"
+                      >
+                        ?
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              
+
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 space-y-2">
                 <Button
                   type="submit"
                   className="w-full bg-red-800 hover:bg-red-900 h-12 text-white"
@@ -666,6 +734,54 @@ export default function AddSituationshipPage() {
                 >
                   {isSubmitting ? "Adding to Graveyard..." : "Add to Graveyard"}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-10 border-zinc-700 text-zinc-200"
+                  onClick={() => {
+                    const testId = Date.now().toString()
+                    const testGrave = {
+                      id: testId,
+                      name: 'Gym Rat Greg',
+                      cause: 'Ghosted',
+                      dates: { start: '2023-01', end: '2023-03' },
+                      epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
+                      photo: '/images/gym-rat-greg.jpg',
+                      reflection: 'Learned to trust my gut when someone says they\'re not ready.',
+                      details: {
+                        meetInPerson: true,
+                        dateCount: 3,
+                        kissed: true,
+                        hookup: false,
+                        love: false,
+                        fight: false,
+                        exclusive: false,
+                        closure: false,
+                        emotionalImpact: 5,
+                        duration: '2 months',
+                        preciseDuration: '',
+                        location: 'Coffee shop, his apartment, the park',
+                        redFlags: ['Always canceled last minute','Never introduced me to friends','Still had dating apps'],
+                        lastMessage: "Hey, I'm not really feeling this anymore.",
+                      },
+                      revived: false,
+                      createdAt: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                    }
+                    // Save grave and set color to black theme
+                    const stored = localStorage.getItem('situationships')
+                    const graves = stored ? JSON.parse(stored) : []
+                    graves.push(testGrave)
+                    localStorage.setItem('situationships', JSON.stringify(graves))
+                    localStorage.setItem(`grave-color-${testId}`, 'black')
+                    // Go to graveyard
+                    router.push('/graveyard')
+                  }}
+                >
+                  Add Example Grave
+                </Button>
+                <p className="mt-2 text-xs text-zinc-500 text-center">
+                  Data is only stored on your device (localStorage)
+                </p>
               </div>
             </form>
           </CardContent>

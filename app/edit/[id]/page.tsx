@@ -28,6 +28,8 @@ interface Situationship {
     love: boolean;
     fight: boolean;
     exclusive: boolean;
+    closure: boolean;
+    emotionalImpact: number;
     duration: string;
     preciseDuration?: string;
     location: string;
@@ -56,6 +58,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: false,
       fight: false,
       exclusive: false,
+      closure: false,
+      emotionalImpact: 5,
       duration: "2 months",
       location: "Coffee shop, his apartment, the park",
       redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
@@ -80,6 +84,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: false,
       fight: false,
       exclusive: false,
+      closure: false,
+      emotionalImpact: 5,
       duration: "3 months",
       location: "Dating app, local bar",
       redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
@@ -103,6 +109,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: true,
       fight: true,
       exclusive: true,
+      closure: false,
+      emotionalImpact: 5,
       duration: "6 months",
       location: "Dating app, various restaurants",
       redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
@@ -126,6 +134,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: false,
       fight: false,
       exclusive: false,
+      closure: false,
+      emotionalImpact: 5,
       duration: "2 months",
       location: "Dating app, coffee shops",
       redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
@@ -149,6 +159,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: false,
       fight: false,
       exclusive: false,
+      closure: false,
+      emotionalImpact: 5,
       duration: "1 day",
       location: "Local coffee shop",
       redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
@@ -172,6 +184,8 @@ const situationshipsData: Record<string, Situationship> = {
       love: false,
       fight: false,
       exclusive: false,
+      closure: false,
+      emotionalImpact: 5,
       duration: "3 months",
       location: "Instagram DMs, trendy restaurants",
       redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
@@ -204,6 +218,8 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     love: false,
     fight: false,
     exclusive: false,
+    closure: false,
+    emotionalImpact: 5, // Default to middle of scale
     redFlags: [] as string[],
   })
   const [photo, setPhoto] = useState<string | null>(null)
@@ -226,9 +242,9 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
   const causeEmojis: Record<string, string> = {
     ghosted: '👻',
     breadcrumbed: '🍞',
-    situationship: '🥀',
+    fumbled: '🏀',
     friendzoned: '🤝',
-    'love bombed': '💣',
+    incompatible: '🧩',
     'slow fade': '🌅',
     cheated: '💔',
     other: '💀',
@@ -237,9 +253,9 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
   const causeLabels: Record<string, string> = {
     ghosted: 'Ghosted',
     breadcrumbed: 'Breadcrumbed',
-    situationship: 'Situationship',
+    fumbled: 'Fumbled',
     friendzoned: 'Friendzoned',
-    'love bombed': 'Love Bombed',
+    incompatible: 'Incompatible',
     'slow fade': 'Slow Fade',
     cheated: 'Cheated',
     other: 'Other',
@@ -248,9 +264,9 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
 const causeOptions = [
   'ghosted',
   'breadcrumbed',
-  'situationship',
+  'fumbled',
   'friendzoned',
-  'love bombed',
+  'incompatible',
   'slow fade',
   'cheated',
   'other',
@@ -289,12 +305,14 @@ const causeOptions = [
         epitaph: found.epitaph,
         reflection: found.reflection || '',
         meetInPerson: found.details.meetInPerson,
-        dateCount: found.details.dateCount.toString(),
+        dateCount: (found.details.dateCount == null ? "?" : found.details.dateCount.toString()),
         kissed: found.details.kissed,
         hookup: found.details.hookup,
         love: found.details.love || false,
         fight: found.details.fight || false,
         exclusive: found.details.exclusive,
+        closure: found.details.closure || false,
+        emotionalImpact: found.details.emotionalImpact || 5,
         redFlags: found.details.redFlags || [],
       })
       setPhoto(found.photo || null)
@@ -403,12 +421,14 @@ const causeOptions = [
       details: {
         ...situationship!.details,
         meetInPerson: formData.meetInPerson,
-        dateCount: Number(formData.dateCount),
+        dateCount: (formData.dateCount === "?" ? null : Number(formData.dateCount)),
         kissed: formData.kissed,
         hookup: formData.hookup,
         love: formData.love,
         fight: formData.fight,
         exclusive: formData.exclusive,
+        closure: formData.closure,
+        emotionalImpact: formData.emotionalImpact,
         redFlags: formData.redFlags,
         duration: finalDuration,
         preciseDuration: formData.preciseDuration ? `${formData.preciseDuration} ${formData.preciseDurationType}` : '',
@@ -488,6 +508,50 @@ const causeOptions = [
                         <span className="text-sm font-semibold">{causeLabels[cause]}</span>
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Emotional Impact Scale */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Emotional Impact:</label>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-zinc-400">
+                      <span>1 - Barely affected</span>
+                      <span className="text-lg font-bold text-red-400">{formData.emotionalImpact}</span>
+                      <span>10 - Devastated</span>
+                    </div>
+                    <div className="relative h-8 flex items-center">
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={formData.emotionalImpact}
+                        onChange={(e) => handleChange("emotionalImpact", parseInt(e.target.value))}
+                        className="w-full h-12 bg-transparent appearance-none cursor-pointer slider absolute inset-0 z-10"
+                        style={{ 
+                          top: '-8px',
+                          height: '48px'
+                        }}
+                      />
+                      <div 
+                        className="w-full h-2 bg-zinc-700 rounded-lg"
+                        style={{
+                          background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${(formData.emotionalImpact - 1) * 11.11}%, #3f3f46 ${(formData.emotionalImpact - 1) * 11.11}%, #3f3f46 100%)`
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-zinc-500">
+                      <span>1</span>
+                      <span>2</span>
+                      <span>3</span>
+                      <span>4</span>
+                      <span>5</span>
+                      <span>6</span>
+                      <span>7</span>
+                      <span>8</span>
+                      <span>9</span>
+                      <span>10</span>
+                    </div>
                   </div>
                 </div>
 
@@ -583,32 +647,6 @@ const causeOptions = [
                 </div>
               </div>
 
-              {/* Reflection Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">💭</span>
-                  <h3 className="text-base font-bold">Personal Reflection</h3>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="reflection" className="text-sm font-medium">
-                      What did you learn from this situationship? <span className="text-zinc-400">(Optional)</span>
-                    </label>
-                    <Textarea
-                      id="reflection"
-                      placeholder="Reflect on what you learned, red flags you noticed, or how you grew from this experience..."
-                      className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
-                      value={formData.reflection}
-                      onChange={(e) => handleChange("reflection", e.target.value)}
-                      maxLength={300}
-                    />
-                    <div className="flex justify-between items-center text-xs text-zinc-400">
-                      <span>Share your thoughts, lessons learned, or personal growth</span>
-                      <span>{formData.reflection.length}/300</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Red Flags Section */}
               <div className="space-y-4">
@@ -680,6 +718,32 @@ const causeOptions = [
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Reflection Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">💭</span>
+                  <h3 className="text-base font-bold">Personal Reflection</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="reflection" className="text-sm font-medium">
+                      What did you learn? <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <Textarea
+                      id="reflection"
+                      placeholder="Reflect on what you learned or how you grew from this experience..."
+                      className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
+                      value={formData.reflection}
+                      onChange={(e) => handleChange("reflection", e.target.value)}
+                      maxLength={500}
+                    />
+                    <div className="flex justify-end text-xs text-zinc-400">
+                      <span>{formData.reflection.length}/500</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -861,15 +925,34 @@ const causeOptions = [
                     />
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Dates went on</span>
-                    <Input
-                      id="date-count"
-                      type="number"
-                      min="0"
-                      className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
-                      value={formData.dateCount}
-                      onChange={(e) => handleChange("dateCount", e.target.value)}
+                    <span className="text-sm font-medium">Got closure?</span>
+                    <Switch
+                      checked={formData.closure}
+                      onCheckedChange={(checked) => handleChange("closure", checked)}
+                      id="closure"
                     />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                    <span className="text-sm font-medium">Dates went on</span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="date-count"
+                        type="number"
+                        min="0"
+                        className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
+                        value={formData.dateCount}
+                        onChange={(e) => handleChange("dateCount", e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-9 px-3 text-sm text-zinc-200 border border-zinc-600 rounded hover:bg-zinc-800"
+                        onClick={() => handleChange("dateCount", "?")}
+                        title="Unsure"
+                      >
+                        ?
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

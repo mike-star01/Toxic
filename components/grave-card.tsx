@@ -21,6 +21,8 @@ type Situationship = {
     kissed: boolean
     hookup: boolean
     exclusive: boolean
+    closure: boolean
+    emotionalImpact: number
     duration: string
   }
   revived: boolean
@@ -105,29 +107,29 @@ function formatDate(dateString: string) {
   }
 }
 
-// Emoji mapping for causes
-const causeEmojis: Record<string, string> = {
-  Ghosted: '👻',
-  Breadcrumbed: '🍞',
-  Situationship: '🥀',
-  'Slow Fade': '🌅',
-  Benched: '🪑',
-  'Never Started': '❓',
-  Cheated: '💔',
-  cheated: '💔',
-  situationship: '🥀',
-  'slow fade': '🌅',
-  breadcrumbed: '🍞',
-  ghosted: '👻',
-  benched: '🪑',
-  other: '💀',
-  friendzoned: '🤝',
-  'love bombed': '💣',
-  'lovebombed': '💣',
-  'Love Bombed': '💣',
-  'Friendzoned': '🤝',
-  'Other': '💀',
-}
+  // Emoji mapping for causes
+  const causeEmojis: Record<string, string> = {
+    Ghosted: '👻',
+    Breadcrumbed: '🍞',
+    Fumbled: '🏀',
+    'Slow Fade': '🌅',
+    Benched: '🪑',
+    'Never Started': '❓',
+    Cheated: '💔',
+    cheated: '💔',
+    fumbled: '🏀',
+    'slow fade': '🌅',
+    breadcrumbed: '🍞',
+    ghosted: '👻',
+    benched: '🪑',
+    other: '💀',
+    friendzoned: '🤝',
+    'incompatible': '🧩',
+    'incompatible': '🧩',
+    'Incompatible': '🧩',
+    'Friendzoned': '🤝',
+    'Other': '💀',
+  }
 
 export default function GraveCard({ situationship, onRevive, onBury, onDelete }: GraveCardProps) {
   const [isRevived, setIsRevived] = useState(situationship.revived)
@@ -331,6 +333,9 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
                 src={situationship.photo}
                 alt={situationship.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/placeholder-user.jpg'
+                }}
               />
             ) : (
               <Skull className="h-6 w-6 text-zinc-300" />

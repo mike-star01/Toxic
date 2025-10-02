@@ -50,9 +50,9 @@ interface Situationship {
 const causeEmojis: Record<string, string> = {
   'Ghosted': '👻',
   'Breadcrumbed': '🍞',
-  'Situationship': '🥀',
+  'Fumbled': '🏀',
   'Friendzoned': '🤝',
-  'Love Bombed': '💣',
+  'Incompatible': '🧩',
   'Slow Fade': '🌅',
   'Cheated': '💔',
   'Other': '💀',
@@ -60,10 +60,10 @@ const causeEmojis: Record<string, string> = {
   'Never Started': '❓',
   'ghosted': '👻',
   'breadcrumbed': '🍞',
-  'situationship': '🥀',
+  'fumbled': '🏀',
   'friendzoned': '🤝',
-  'love bombed': '💣',
-  'lovebombed': '💣',
+  'incompatible': '🧩',
+  'incompatible': '🧩',
   'slow fade': '🌅',
   'cheated': '💔',
   'other': '💀',
@@ -113,6 +113,8 @@ export default function StatsPage() {
       love: 0,
       fight: 0,
       exclusive: 0,
+      closure: 0,
+      avgEmotionalImpact: 0,
     },
     totalDates: 0,
     averageDates: 0,
@@ -173,6 +175,8 @@ export default function StatsPage() {
             love: 0,
             fight: 0,
             exclusive: 0,
+            closure: 0,
+            avgEmotionalImpact: 0,
           },
           totalDates: 0,
           averageDates: 0,
@@ -297,6 +301,13 @@ export default function StatsPage() {
         love: situationships.filter(s => s.details.love).length,
         fight: situationships.filter(s => s.details.fight).length,
         exclusive: situationships.filter(s => s.details.exclusive).length,
+        closure: situationships.filter(s => s.details.closure).length,
+        avgEmotionalImpact: (() => {
+          const impacts = situationships.map(s => s.details?.emotionalImpact).filter((n) => typeof n === 'number') as number[]
+          if (impacts.length === 0) return 0
+          const avg = impacts.reduce((a, b) => a + b, 0) / impacts.length
+          return Math.round(avg * 10) / 10
+        })(),
       }
 
       // Calculate date stats
@@ -385,31 +396,6 @@ export default function StatsPage() {
           </Card>
         </div>
 
-        {/* Date Stats removed per request */}
-
-        {/* Reflection Stats */}
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span className="text-2xl">💭</span>
-              Reflection Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-400">Total Reflections</span>
-              <span className="font-medium">{stats.reflectionStats.totalReflections}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-zinc-400">Reflection Rate</span>
-              <span className="font-medium">{stats.reflectionStats.reflectionRate}%</span>
-            </div>
-            <div className="pt-2">
-              <Progress value={stats.reflectionStats.reflectionRate} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Duration Stats */}
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="pb-3">
@@ -460,6 +446,22 @@ export default function StatsPage() {
                 <div className="text-lg font-bold text-red-400">{stats.emotionalStats.love}</div>
                 <div className="text-xs text-zinc-400">Fell in Love</div>
               </div>
+              <div className="text-center p-2 bg-zinc-900 rounded">
+                <div className="text-lg font-bold text-yellow-400">{stats.emotionalStats.fight}</div>
+                <div className="text-xs text-zinc-400">Had Fights</div>
+              </div>
+              <div className="text-center p-2 bg-zinc-900 rounded">
+                <div className="text-lg font-bold text-blue-400">{stats.emotionalStats.exclusive}</div>
+                <div className="text-xs text-zinc-400">Exclusive</div>
+              </div>
+              <div className="text-center p-2 bg-zinc-900 rounded">
+                <div className="text-lg font-bold text-teal-400">{stats.emotionalStats.closure}</div>
+                <div className="text-xs text-zinc-400">Got Closure</div>
+              </div>
+              <div className="text-center p-2 bg-zinc-900 rounded">
+                <div className="text-lg font-bold text-orange-400">{stats.emotionalStats.avgEmotionalImpact}</div>
+                <div className="text-xs text-zinc-400">Avg Emotional Impact</div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -494,6 +496,29 @@ export default function StatsPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Reflection Stats */}
+        <Card className="bg-zinc-800 border-zinc-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span className="text-2xl">💭</span>
+              Reflection Stats
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-zinc-400">Total Reflections</span>
+              <span className="font-medium">{stats.reflectionStats.totalReflections}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-zinc-400">Reflection Rate</span>
+              <span className="font-medium">{stats.reflectionStats.reflectionRate}%</span>
+            </div>
+            <div className="pt-2">
+              <Progress value={stats.reflectionStats.reflectionRate} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Monthly Activity */}
         <Card className="bg-zinc-800 border-zinc-700">

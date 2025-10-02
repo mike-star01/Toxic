@@ -45,6 +45,8 @@ interface Situationship {
     love: boolean;
     fight: boolean;
     exclusive: boolean;
+    closure: boolean;
+    emotionalImpact: number;
     duration: string;
     location: string;
     redFlags: string[];
@@ -72,6 +74,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: false,
         fight: false,
         exclusive: false,
+        closure: false,
+        emotionalImpact: 5,
         duration: "2 months",
         location: "Coffee shop, his apartment, the park",
         redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
@@ -96,6 +100,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: false,
         fight: false,
         exclusive: false,
+        closure: false,
+        emotionalImpact: 5,
         duration: "3 months",
         location: "Dating app, local bar",
         redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
@@ -118,6 +124,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: true,
         fight: true,
         exclusive: true,
+        closure: false,
+        emotionalImpact: 5,
         duration: "6 months",
         location: "Dating app, various restaurants",
         redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
@@ -140,6 +148,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: false,
         fight: false,
         exclusive: false,
+        closure: false,
+        emotionalImpact: 5,
         duration: "2 months",
         location: "Dating app, coffee shops",
         redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
@@ -162,6 +172,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: false,
         fight: false,
         exclusive: false,
+        closure: false,
+        emotionalImpact: 5,
         duration: "1 day",
         location: "Local coffee shop",
         redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
@@ -184,6 +196,8 @@ const situationshipsData: Record<string, Situationship> = {
         love: false,
         fight: false,
         exclusive: false,
+        closure: false,
+        emotionalImpact: 5,
         duration: "3 months",
         location: "Instagram DMs, trendy restaurants",
         redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
@@ -411,12 +425,12 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   const emojiMap: Record<string, string> = {
                     Ghosted: '👻',
                     Breadcrumbed: '🍞',
-                    Situationship: '🥀',
+                    Fumbled: '🏀',
                     'Slow Fade': '🌅',
                     Cheated: '💔',
                     Benched: '🪑',
                     'Never Started': '❓',
-                    'Love Bombed': '💣',
+                    Incompatible: '🧩',
                     'Friendzoned': '🤝',
                     Other: '💀',
                   }
@@ -447,6 +461,26 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid gap-6">
+              {/* Emotional Impact - Top of Autopsy */}
+              <div className="bg-zinc-900 p-4 rounded-lg">
+                <div className="text-zinc-500 text-sm mb-3">Emotional Impact</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-zinc-700 rounded-full h-2">
+                    <div 
+                      className="bg-red-400 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(situationship.details.emotionalImpact / 10) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xl font-bold text-red-400 min-w-[3rem] text-center">
+                    {situationship.details.emotionalImpact}/10
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-zinc-500 mt-2">
+                  <span>1 - Barely affected</span>
+                  <span>10 - Devastated</span>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-zinc-900 p-4 rounded-lg">
                   <div className="text-zinc-500 text-sm mb-1">Met in person</div>
@@ -472,9 +506,13 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                   <div className="text-zinc-500 text-sm mb-1">Were exclusive</div>
                   <div className="font-medium">{situationship.details.exclusive ? "Yes" : "No"}</div>
                 </div>
-                <div className="bg-zinc-900 p-4 rounded-lg col-span-2">
+                <div className="bg-zinc-900 p-4 rounded-lg">
+                  <div className="text-zinc-500 text-sm mb-1">Got closure</div>
+                  <div className="font-medium">{situationship.details.closure ? "Yes" : "No"}</div>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg">
                   <div className="text-zinc-500 text-sm mb-1">Dates went on</div>
-                  <div className="font-medium">{situationship.details.dateCount ?? 0}</div>
+                  <div className="font-medium">{situationship.details.dateCount == null ? '?' : situationship.details.dateCount}</div>
                 </div>
               </div>
 

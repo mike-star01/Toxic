@@ -1,19 +1,128 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { User, Settings, Share2, Heart, Download, HelpCircle, Clock, Zap, Plus, Palette } from "lucide-react"
 
-// Mock data for recent activity
-const recentActivity = [
-  { name: "Gym Rat Greg", action: "added", time: "2 hours ago" },
-  { name: "Tinder Tom", action: "revived", time: "1 day ago" },
-  { name: "Coffee Shop Crush", action: "added", time: "3 days ago" },
-  { name: "Bumble Brad", action: "added", time: "1 week ago" },
-]
+interface Situationship {
+  id: string
+  name: string
+  cause: string
+  dates: {
+    start: string
+    end: string
+  }
+  epitaph: string
+  reflection?: string
+  photo?: string
+  details: {
+    closure: boolean
+    emotionalImpact: number
+    redFlags: string[]
+    meetInPerson: boolean
+    dateCount: number
+    kissed: boolean
+    hookup: boolean
+    love: boolean
+    fight: boolean
+    exclusive: boolean
+    duration: string
+    location: string
+    lastMessage: string
+  }
+  revived: boolean
+  createdAt: string
+}
+
+// Helper: parse a human-readable duration string into days
+function parseDurationToDays(duration: string): number {
+  if (!duration) return 0
+  if (duration.includes("day")) {
+    const days = parseInt(duration.split(" ")[0])
+    return days
+  } else if (duration.includes("week")) {
+    const weeks = parseInt(duration.split(" ")[0])
+    return weeks * 7
+  } else if (duration.includes("month")) {
+    const months = parseInt(duration.split(" ")[0])
+    return Math.round(months * 30.44)
+  } else if (duration.includes("year")) {
+    const years = parseInt(duration.split(" ")[0])
+    return Math.round(years * 365.25)
+  } else if (duration === "3+ years") {
+    return Math.round(3 * 365.25)
+  }
+  return 0
+}
 
 export default function ProfilePage() {
+  const [stats, setStats] = useState({
+    totalGraves: 0,
+    revived: 0,
+    avgMonths: 0
+  })
+
+  useEffect(() => {
+    const calculateStats = () => {
+      const saved = localStorage.getItem('situationships')
+      if (!saved) return
+
+      const situationships: Situationship[] = JSON.parse(saved)
+      
+      const totalGraves = situationships.length
+      
+      // Count revived (where revived is true)
+      const revived = situationships.filter(s => s.revived).length
+      
+      // Calculate average months using same logic as stats page
+      const durations = situationships
+        .filter(s => s.dates.start && (s.dates.end || s.details?.duration))
+        .map(s => {
+          // First try to use the duration string if available
+          if (s.details?.duration) {
+            return parseDurationToDays(s.details.duration)
+          }
+          
+          // Fallback to date calculation
+          if (s.dates.start && s.dates.end) {
+            const start = new Date(s.dates.start + "-01")
+            const end = new Date(s.dates.end + "-01")
+            const diffTime = Math.abs(end.getTime() - start.getTime())
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            
+            // Also consider the "talked for" duration (dateCount is in weeks)
+            const talkedForDays = (s.details?.dateCount || 0) * 7
+            
+            // Use the maximum of date difference or talked for duration
+            return Math.max(diffDays, talkedForDays)
+          }
+          
+          return 0
+        })
+        .filter(d => d > 0)
+
+      const avgMonthsRaw = durations.length > 0 
+        ? (durations.reduce((a, b) => a + b, 0) / durations.length) / 30.44 // Convert days to months
+        : 0
+      const avgMonths = Math.round(avgMonthsRaw * 10) / 10
+      
+      setStats({
+        totalGraves,
+        revived,
+        avgMonths: Number.isFinite(avgMonths) ? avgMonths : 0
+      })
+    }
+
+    calculateStats()
+    
+    // Listen for storage changes to update stats when graves are added/edited
+    const handleStorageChange = () => calculateStats()
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
   return (
     <div className="min-h-screen bg-zinc-900">
       <AppHeader title="Profile" showProfile={false} />
@@ -29,15 +138,15 @@ export default function ProfilePage() {
             <p className="text-zinc-400 text-sm">Member since March 2023</p>
             <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-zinc-700">
               <div className="text-center">
-                <div className="text-lg font-bold text-red-400">6</div>
+                <div className="text-lg font-bold text-red-400">{stats.totalGraves}</div>
                 <div className="text-xs text-zinc-400">Graves</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-amber-400">2</div>
+                <div className="text-lg font-bold text-amber-400">{stats.revived}</div>
                 <div className="text-xs text-zinc-400">Revived</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-zinc-400">3.2</div>
+                <div className="text-lg font-bold text-zinc-400">{stats.avgMonths}</div>
                 <div className="text-xs text-zinc-400">Avg Months</div>
               </div>
             </div>
@@ -57,11 +166,26 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="ghost" className="w-full justify-start h-12">
+            <Button
+              variant="ghost"
+              className="w-full justify-start h-12 active:bg-zinc-700"
+              onClick={() => alert('Coming soon 🦦')}
+            >
               Notifications
             </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
+            <Button
+              variant="ghost"
+              className="w-full justify-start h-12 active:bg-zinc-700"
+              onClick={() => alert('Coming soon 🦦')}
+            >
               Theme Preferences
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start h-12 active:bg-zinc-700"
+              onClick={() => { window.location.href = '/profile/reorder' }}
+            >
+              Reorder Graves
             </Button>
           </CardContent>
         </Card>
@@ -82,20 +206,43 @@ export default function ProfilePage() {
             >
               Contact Support
             </Button>
-            <Button variant="ghost" className="w-full justify-start h-12">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start h-12 active:bg-zinc-700"
+              onClick={() => alert('Coming soon 🦦')}
+            >
               Rate the App
             </Button>
           </CardContent>
         </Card>
 
-        {/* App Info */}
-        <div className="text-center py-4">
-          <div className="flex items-center justify-center gap-2 text-zinc-500 mb-2">
-            <Heart className="h-4 w-4" />
-            <span className="text-sm">Situationship Graveyard</span>
-          </div>
-          <p className="text-xs text-zinc-600">Version 1.0.0</p>
+      {/* Danger zone */}
+      <div className="px-4 pb-2">
+        <Button
+          className="w-full bg-red-800 hover:bg-red-900 h-11 text-white"
+          onClick={() => {
+            if (confirm('Delete ALL local data? This cannot be undone.')) {
+              try {
+                // Clear all app data in localStorage
+                localStorage.clear()
+              } catch (e) {}
+              alert('All data deleted')
+              window.location.reload()
+            }
+          }}
+        >
+          Delete All Data
+        </Button>
+      </div>
+
+      {/* App Info */}
+      <div className="text-center py-4">
+        <div className="flex items-center justify-center gap-2 text-zinc-500 mb-2">
+          <Heart className="h-4 w-4" />
+          <span className="text-sm">Situationship Graveyard</span>
         </div>
+        <p className="text-xs text-zinc-600">Version 1.0.0</p>
+      </div>
       </div>
     </div>
   )

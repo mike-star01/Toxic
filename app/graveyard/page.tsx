@@ -197,29 +197,27 @@ export default function GraveyardPage() {
     return () => window.removeEventListener("focus", handleFocus)
   }, [])
 
-  // Load from localStorage if available
+  // Load graves from localStorage only (no bundled examples)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      let stored = localStorage.getItem('situationships')
-      let localGraves: Situationship[] = stored ? JSON.parse(stored) : []
-      
-      // Create a map of user-modified graves for quick lookup
-      const userGravesMap = new Map(localGraves.map(grave => [grave.id, grave]))
-      
-      // Merge example and localStorage graves by unique ID, preserving order
-      const merged: Situationship[] = initialSituationships.map(exampleGrave => {
-        // If user has modified this example grave, use the user version
-        return userGravesMap.get(exampleGrave.id) || exampleGrave
+      const stored = localStorage.getItem('situationships')
+      let finalGraves: any[] = stored ? JSON.parse(stored) : []
+
+      // Ensure each grave has an order and sort by it
+      let changed = false
+      finalGraves = finalGraves.map((g: any, i: number) => {
+        if (typeof g.order !== 'number') {
+          changed = true
+          return { ...g, order: i }
+        }
+        return g
       })
-      
-      // Add any additional user graves that aren't in the examples
-      const additionalUserGraves = localGraves.filter(grave => 
-        !initialSituationships.some(example => example.id === grave.id)
-      )
-      
-      const finalGraves = [...merged, ...additionalUserGraves]
+      if (changed) {
+        localStorage.setItem('situationships', JSON.stringify(finalGraves))
+      }
+      finalGraves = [...finalGraves].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
       console.log('Graveyard data loaded:', finalGraves.length, 'graves')
-      setSituationships(finalGraves)
+      setSituationships(finalGraves as any)
     }
   }, [])
 
@@ -317,10 +315,12 @@ export default function GraveyardPage() {
                 <SelectItem value="all">All Causes</SelectItem>
                 <SelectItem value="ghosted">Ghosted</SelectItem>
                 <SelectItem value="breadcrumbed">Breadcrumbed</SelectItem>
-                <SelectItem value="situationship">Situationship</SelectItem>
+                <SelectItem value="fumbled">Fumbled</SelectItem>
+                <SelectItem value="friendzoned">Friendzoned</SelectItem>
+                <SelectItem value="incompatible">Incompatible</SelectItem>
                 <SelectItem value="slow fade">Slow Fade</SelectItem>
-                <SelectItem value="benched">Benched</SelectItem>
-                <SelectItem value="never started">Never Started</SelectItem>
+                <SelectItem value="cheated">Cheated</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
           )}
