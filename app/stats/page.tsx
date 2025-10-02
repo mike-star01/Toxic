@@ -37,6 +37,8 @@ interface Situationship {
     love: boolean
     fight: boolean
     exclusive: boolean
+    closure: boolean
+    emotionalImpact: number
     duration: string
     location: string
     redFlags: string[]
@@ -75,23 +77,58 @@ const causeEmojis: Record<string, string> = {
 const parseDurationToDays = (duration: string): number => {
   if (!duration) return 0
   
-  if (duration.includes("day")) {
-    const days = parseInt(duration.split(" ")[0])
-    return days
-  } else if (duration.includes("week")) {
-    const weeks = parseInt(duration.split(" ")[0])
-    return weeks * 7
-  } else if (duration.includes("month")) {
-    const months = parseInt(duration.split(" ")[0])
-    return Math.round(months * 30.44) // Average days per month
-  } else if (duration.includes("year")) {
-    const years = parseInt(duration.split(" ")[0])
-    return Math.round(years * 365.25) // Account for leap years
-  } else if (duration === "3+ years") {
-    return Math.round(3 * 365.25)
+  let totalDays = 0
+  
+  // Handle compound formats like "8 years 2 months" or "2 months 3 weeks"
+  const parts = duration.split(" ")
+  
+  for (let i = 0; i < parts.length; i += 2) {
+    const value = parseInt(parts[i])
+    const unit = parts[i + 1]
+    
+    if (isNaN(value)) continue
+    
+    if (unit?.includes("day")) {
+      totalDays += value
+    } else if (unit?.includes("week")) {
+      totalDays += value * 7
+    } else if (unit?.includes("month")) {
+      totalDays += Math.round(value * 30.44)
+    } else if (unit?.includes("year")) {
+      totalDays += Math.round(value * 365.25)
+    }
   }
   
-  return 0
+  // Fallback for simple formats if no compound format was found
+  if (totalDays === 0) {
+    if (duration.includes("day")) {
+      const days = parseInt(duration.split(" ")[0])
+      return days
+    } else if (duration.includes("week")) {
+      const weeks = parseInt(duration.split(" ")[0])
+      return weeks * 7
+    } else if (duration.includes("month")) {
+      const months = parseInt(duration.split(" ")[0])
+      return Math.round(months * 30.44)
+    } else if (duration.includes("year")) {
+      const years = parseInt(duration.split(" ")[0])
+      return Math.round(years * 365.25)
+    } else if (duration === "3+ years") {
+      return Math.round(3 * 365.25)
+    }
+  }
+  
+  return totalDays
+}
+
+// Safely parse a YYYY-MM string to a month index (0-11). Returns null if invalid
+const getMonthIndexFromYYYYMM = (value?: string): number | null => {
+  if (!value || typeof value !== 'string') return null
+  const parts = value.split('-')
+  if (parts.length < 2) return null
+  const month = parseInt(parts[1], 10)
+  if (isNaN(month) || month < 1 || month > 12) return null
+  return month - 1
 }
 
 export default function StatsPage() {
@@ -105,7 +142,8 @@ export default function StatsPage() {
     shortestSituationship: "0 months",
     mostCommonCause: "None",
     causeBreakdown: [] as Array<{ cause: string; count: number; percentage: number; icon: any; color: string }>,
-    monthlyTrend: [] as Array<{ month: string; count: number }>,
+    startMonths: [] as Array<{ month: string; count: number }>,
+    endMonths: [] as Array<{ month: string; count: number }>,
     emotionalStats: {
       meetInPerson: 0,
       kissed: 0,
@@ -167,7 +205,8 @@ export default function StatsPage() {
           shortestSituationship: "0 months",
           mostCommonCause: "None",
           causeBreakdown: [],
-          monthlyTrend: [],
+          startMonths: [],
+          endMonths: [],
           emotionalStats: {
             meetInPerson: 0,
             kissed: 0,
@@ -212,21 +251,41 @@ export default function StatsPage() {
         .map(s => {
           // First try to use the duration string if available
           if (s.details?.duration) {
-            return parseDurationToDays(s.details.duration)
+            const days = parseDurationToDays(s.details.duration)
+            // Debug logging for long durations
+            if (days > 2000) {
+              console.log(`Duration string: "${s.details.duration}" -> ${days} days`)
+            }
+            return days
           }
           
           // Fallback to date calculation for older entries
           if (s.dates.start && s.dates.end) {
-            const start = new Date(s.dates.start + "-01")
-            const end = new Date(s.dates.end + "-01")
-            const diffTime = Math.abs(end.getTime() - start.getTime())
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            // Parse YYYY-MM format safely
+            const startParts = s.dates.start.split('-')
+            const endParts = s.dates.end.split('-')
             
-            // Also consider the "talked for" duration (dateCount is in weeks)
-            const talkedForDays = (s.details?.dateCount || 0) * 7
-            
-            // Use the maximum of date difference or talked for duration
-            return Math.max(diffDays, talkedForDays)
+            if (startParts.length === 2 && endParts.length === 2) {
+              const startYear = parseInt(startParts[0])
+              const startMonth = parseInt(startParts[1])
+              const endYear = parseInt(endParts[0])
+              const endMonth = parseInt(endParts[1])
+              
+              // Calculate months difference
+              const monthsDiff = (endYear - startYear) * 12 + (endMonth - startMonth)
+              
+              // Also consider the "talked for" duration (dateCount is in weeks)
+              const talkedForDays = (s.details?.dateCount != null ? s.details.dateCount : 0) * 7
+              
+              // For same month, use the talked for duration if available, otherwise 1 month
+              if (monthsDiff === 0) {
+                return talkedForDays > 0 ? talkedForDays : 30.44
+              }
+              
+              // For different months, use the actual date difference
+              const diffDays = monthsDiff * 30.44
+              return diffDays
+            }
           }
           
           return 0
@@ -239,12 +298,21 @@ export default function StatsPage() {
         } else if (days < 30) {
           const weeks = Math.round(days / 7)
           return `${weeks} week${weeks !== 1 ? 's' : ''}`
-        } else if (days < 365) {
-          const months = Math.round(days / 30.44)
-          return `${months} month${months !== 1 ? 's' : ''}`
         } else {
-          const years = Math.round(days / 365.25)
-          return `${years} year${years !== 1 ? 's' : ''}`
+          // Use more precise calculation to avoid rounding issues
+          const totalMonths = Math.round(days / 30.44)
+          const years = Math.floor(totalMonths / 12)
+          const months = totalMonths % 12
+          
+          if (years > 0) {
+            if (months === 0) {
+              return `${years} year${years !== 1 ? 's' : ''}`
+            } else {
+              return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''}`
+            }
+          } else {
+            return `${totalMonths} month${totalMonths !== 1 ? 's' : ''}`
+          }
         }
       }
 
@@ -279,18 +347,27 @@ export default function StatsPage() {
         }))
         .sort((a, b) => b.count - a.count)
 
-      // Calculate monthly trend (last 6 months)
-      const monthlyTrend = []
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date()
-        date.setMonth(date.getMonth() - i)
-        const monthName = date.toLocaleDateString('en-US', { month: 'short' })
-        const monthCount = situationships.filter(s => {
-          if (!s.dates.end) return false
-          const endDate = new Date(s.dates.end)
-          return endDate.getMonth() === date.getMonth() && endDate.getFullYear() === date.getFullYear()
+      // Calculate monthly start and end patterns (all 12 months)
+      const startMonths = []
+      const endMonths = []
+      
+      for (let i = 0; i < 12; i++) {
+        const monthName = new Date(2024, i, 1).toLocaleDateString('en-US', { month: 'short' })
+        
+        // Count situationships that started in this month
+        const startCount = situationships.filter(s => {
+          const idx = getMonthIndexFromYYYYMM(s.dates.start)
+          return idx === i
         }).length
-        monthlyTrend.push({ month: monthName, count: monthCount })
+        
+        // Count situationships that ended in this month
+        const endCount = situationships.filter(s => {
+          const idx = getMonthIndexFromYYYYMM(s.dates.end)
+          return idx === i
+        }).length
+        
+        startMonths.push({ month: monthName, count: startCount })
+        endMonths.push({ month: monthName, count: endCount })
       }
 
       // Calculate emotional stats
@@ -328,7 +405,8 @@ export default function StatsPage() {
         shortestSituationship,
         mostCommonCause,
         causeBreakdown,
-        monthlyTrend,
+        startMonths,
+        endMonths,
         emotionalStats,
         totalDates,
         averageDates,
@@ -520,20 +598,42 @@ export default function StatsPage() {
           </CardContent>
         </Card>
 
-        {/* Monthly Activity */}
+        {/* When You Start */}
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Monthly Activity
+              When You Start
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-6 gap-2">
-              {stats.monthlyTrend.map((month) => (
+              {stats.startMonths.map((month) => (
                 <div key={month.month} className="text-center">
                   <div className="bg-zinc-900 rounded p-2 mb-1">
-                    <div className="text-lg font-bold text-yellow-400">{month.count}</div>
+                    <div className="text-lg font-bold text-green-400">{month.count}</div>
+                  </div>
+                  <div className="text-xs text-zinc-400">{month.month}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* When They End */}
+        <Card className="bg-zinc-800 border-zinc-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <CalendarDays className="h-5 w-5" />
+              When They End
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-6 gap-2">
+              {stats.endMonths.map((month) => (
+                <div key={month.month} className="text-center">
+                  <div className="bg-zinc-900 rounded p-2 mb-1">
+                    <div className="text-lg font-bold text-red-400">{month.count}</div>
                   </div>
                   <div className="text-xs text-zinc-400">{month.month}</div>
                 </div>

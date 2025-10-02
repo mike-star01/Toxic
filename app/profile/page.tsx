@@ -160,7 +160,7 @@ export default function ProfilePage() {
         {/* Settings */}
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-xl flex items-center gap-2">
               <Settings className="h-5 w-5" />
               Settings
             </CardTitle>
@@ -168,21 +168,21 @@ export default function ProfilePage() {
           <CardContent className="space-y-3">
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700"
+              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Notifications
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700"
+              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Theme Preferences
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700"
+              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
               onClick={() => { window.location.href = '/profile/reorder' }}
             >
               Reorder Graves
@@ -193,7 +193,7 @@ export default function ProfilePage() {
         {/* Support */}
         <Card className="bg-zinc-800 border-zinc-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-xl flex items-center gap-2">
               <HelpCircle className="h-5 w-5" />
               Support
             </CardTitle>
@@ -201,14 +201,14 @@ export default function ProfilePage() {
           <CardContent className="space-y-3">
             <Button 
               variant="ghost" 
-              className="w-full justify-start h-12"
+              className="w-full justify-start h-12 text-base"
               onClick={() => window.open('mailto:toxicos@gmail.com', '_blank')}
             >
               Contact Support
             </Button>
             <Button 
               variant="ghost" 
-              className="w-full justify-start h-12 active:bg-zinc-700"
+              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Rate the App

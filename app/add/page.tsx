@@ -91,6 +91,9 @@ export default function AddSituationshipPage() {
   ]
 
   const handleChange = (field: string, value: any) => {
+    if (field === "dateCount") {
+      console.log(`dateCount changing from "${formData.dateCount}" to "${value}"`);
+    }
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -180,7 +183,11 @@ export default function AddSituationshipPage() {
       reflection: formData.reflection,
       details: {
         meetInPerson: formData.meetInPerson,
-        dateCount: (formData.dateCount === "?" ? null : Number(formData.dateCount)),
+        dateCount: (() => {
+          const result = formData.dateCount === "?" ? null : Number(formData.dateCount);
+          console.log(`Saving dateCount: "${formData.dateCount}" -> ${result}`);
+          return result;
+        })(),
         kissed: formData.kissed,
         hookup: formData.hookup,
         love: formData.love,
