@@ -48,29 +48,28 @@ interface Situationship {
   createdAt: string
 }
 
-// Emoji mapping for causes
+// Emoji mapping for causes (normalized via getCauseEmoji)
 const causeEmojis: Record<string, string> = {
-  'Ghosted': '👻',
-  'Breadcrumbed': '🍞',
-  'Fumbled': '🏀',
-  'Friendzoned': '🤝',
-  'Incompatible': '🧩',
-  'Slow Fade': '🌅',
-  'Cheated': '💔',
-  'Other': '💀',
-  'Benched': '🪑',
-  'Never Started': '❓',
   'ghosted': '👻',
   'breadcrumbed': '🍞',
+  'bread crumbed': '🍞',
   'fumbled': '🏀',
   'friendzoned': '🤝',
-  'incompatible': '🧩',
+  'friend-zoned': '🤝',
   'incompatible': '🧩',
   'slow fade': '🌅',
+  'slow-fade': '🌅',
   'cheated': '💔',
-  'other': '💀',
+  'situationship': '👥',
   'benched': '🪑',
-  'never started': '❓',
+  'other': '💀',
+  'never started': '❌',
+  'never-started': '❌',
+}
+
+const getCauseEmoji = (cause: string): string => {
+  const key = (cause || '').toLowerCase().trim()
+  return causeEmojis[key] ?? '💀'
 }
 
 // Utility function to parse duration string and convert to days
@@ -556,7 +555,7 @@ export default function StatsPage() {
                   <div key={item.cause} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">{causeEmojis[item.cause] || '❓'}</span>
+                        <span className="text-2xl">{getCauseEmoji(item.cause)}</span>
                         <span className="text-sm">{item.cause}</span>
                       </div>
                       <span className="text-sm text-zinc-400">
@@ -599,7 +598,7 @@ export default function StatsPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              When You Start
+              When You Begin
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -621,7 +620,7 @@ export default function StatsPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
-              When They End
+              When You End
             </CardTitle>
           </CardHeader>
           <CardContent>

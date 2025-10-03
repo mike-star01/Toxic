@@ -162,7 +162,7 @@ export default function ReorderGravesPage() {
                   onDragOver={(e) => e.preventDefault()}
                   data-reorder-item
                   data-idx={idx}
-                  style={{ WebkitUserSelect: 'none', WebkitTouchCallout: 'none', WebkitUserDrag: 'none' }}
+                  style={{ WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}
                 >
                   <div className="text-base touch-auto">
                     <span className="text-zinc-500 mr-3" style={{ WebkitUserSelect: 'none' }}>{idx + 1}.</span>
@@ -184,12 +184,22 @@ export default function ReorderGravesPage() {
           </CardContent>
         </Card>
 
-        <div className="flex gap-3">
-          <Button className="bg-red-800 hover:bg-red-900 text-white" onClick={save} disabled={!dirty}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            size="lg"
+            className="h-12 text-base bg-red-800 hover:bg-red-900 text-white w-full"
+            onClick={save}
+            disabled={!dirty}
+          >
             Save Order
           </Button>
-          <Button variant="ghost" onClick={() => (window.location.href = '/profile')}>
-            Done
+          <Button
+            size="lg"
+            variant="ghost"
+            className="h-12 text-base w-full"
+            onClick={() => (window.location.href = '/profile')}
+          >
+            Back
           </Button>
         </div>
       </div>
