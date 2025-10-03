@@ -127,8 +127,19 @@ export default function AddSituationshipPage() {
         const months = Math.round(diffDays / 30.44)
         return `${months} month${months !== 1 ? 's' : ''}`
       } else {
-        const years = Math.round(diffDays / 365.25)
-        return `${years} year${years !== 1 ? 's' : ''}`
+        const totalMonths = Math.round(diffDays / 30.44)
+        const years = Math.floor(totalMonths / 12)
+        const months = totalMonths % 12
+        
+        if (years > 0) {
+          if (months === 0) {
+            return `${years} year${years !== 1 ? 's' : ''}`
+          } else {
+            return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''}`
+          }
+        } else {
+          return `${totalMonths} month${totalMonths !== 1 ? 's' : ''}`
+        }
       }
     } catch (error) {
       console.error('Error calculating duration:', error)

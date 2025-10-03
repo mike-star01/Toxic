@@ -234,9 +234,9 @@ export default function StatsPage() {
       // Calculate monthly and yearly stats
       const now = new Date()
       const thisMonth = situationships.filter(s => {
-        if (!s.dates.end) return false
-        const endDate = new Date(s.dates.end)
-        return endDate.getMonth() === now.getMonth() && endDate.getFullYear() === now.getFullYear()
+        if (!s.createdAt) return false
+        const createdDate = new Date(s.createdAt)
+        return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear()
       }).length
       
       const thisYear = situationships.filter(s => {
@@ -252,10 +252,6 @@ export default function StatsPage() {
           // First try to use the duration string if available
           if (s.details?.duration) {
             const days = parseDurationToDays(s.details.duration)
-            // Debug logging for long durations
-            if (days > 2000) {
-              console.log(`Duration string: "${s.details.duration}" -> ${days} days`)
-            }
             return days
           }
           
