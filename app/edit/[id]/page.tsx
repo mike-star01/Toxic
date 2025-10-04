@@ -212,7 +212,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     epitaph: "",
     reflection: "",
     meetInPerson: false,
-    dateCount: "0",
+    dateCount: "",
     kissed: false,
     hookup: false,
     love: false,
@@ -939,6 +939,7 @@ const causeOptions = [
                         id="date-count"
                         type="number"
                         min="0"
+                        placeholder="0"
                         className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
                         value={formData.dateCount}
                         onChange={(e) => handleChange("dateCount", e.target.value)}

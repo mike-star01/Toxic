@@ -163,41 +163,45 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
   }, [situationship.id])
 
   const handleRevive = () => {
-    // Add haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50) // Short vibration
+    if (window.confirm(`✨ Resurrect ${situationship.name}?`)) {
+      // Add haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50) // Short vibration
+      }
+
+      setIsRevived(true)
+
+      if (onRevive) {
+        onRevive(situationship.id)
+      }
+
+      toast({
+        title: "They're alive!",
+        description: `${situationship.name} has been revived from the dead!`,
+        duration: 4000,
+      })
     }
-
-    setIsRevived(true)
-
-    if (onRevive) {
-      onRevive(situationship.id)
-    }
-
-    toast({
-      title: "They're alive!",
-      description: `${situationship.name} has been revived from the dead!`,
-      duration: 4000,
-    })
   }
 
   const handleBury = () => {
-    // Add haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50) // Short vibration
+    if (window.confirm(`🌹 Say goodbye to ${situationship.name}?`)) {
+      // Add haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50) // Short vibration
+      }
+
+      setIsRevived(false)
+
+      if (onBury) {
+        onBury(situationship.id)
+      }
+
+      toast({
+        title: "Back to the grave",
+        description: `${situationship.name} has been buried again.`,
+        duration: 4000,
+      })
     }
-
-    setIsRevived(false)
-
-    if (onBury) {
-      onBury(situationship.id)
-    }
-
-    toast({
-      title: "Back to the grave",
-      description: `${situationship.name} has been buried again.`,
-      duration: 4000,
-    })
   }
 
   const handleDelete = () => {
@@ -362,9 +366,10 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-zinc-200 hover:text-white hover:bg-black/30 h-8 text-xs px-2 flex-1"
+                className="text-zinc-200 hover:text-white hover:bg-black/30 h-8 pl-1 pr-2 flex-1"
+                style={{ fontSize: '13px' }}
               >
-                <MoreVertical className="h-3 w-3 mr-1" />
+                <MoreVertical className="h-3.5 w-3.5" style={{ width: '15px', height: '15px' }} />
                 Menu
               </Button>
             </DropdownMenuTrigger>
