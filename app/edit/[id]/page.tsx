@@ -224,6 +224,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
   })
   const [photo, setPhoto] = useState<string | null>(null)
   const [redFlagInput, setRedFlagInput] = useState("")
+  const [isUnsurePressed, setIsUnsurePressed] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // Color themes for graves
@@ -305,7 +306,7 @@ const causeOptions = [
         epitaph: found.epitaph,
         reflection: found.reflection || '',
         meetInPerson: found.details.meetInPerson,
-        dateCount: (found.details.dateCount == null ? "?" : found.details.dateCount.toString()),
+        dateCount: (found.details.dateCount == null ? "?" : found.details.dateCount === 0 ? "" : found.details.dateCount.toString()),
         kissed: found.details.kissed,
         hookup: found.details.hookup,
         love: found.details.love || false,
@@ -316,6 +317,7 @@ const causeOptions = [
         redFlags: found.details.redFlags || [],
       })
       setPhoto(found.photo || null)
+      setIsUnsurePressed(found.details.dateCount == null)
       
       // Load saved color theme
       const savedColor = localStorage.getItem(`grave-color-${id}`)
@@ -383,6 +385,17 @@ const causeOptions = [
       toast({
         title: "Missing information",
         description: "Please provide a name, cause of death, start date, and end date.",
+        variant: "destructive",
+        duration: 4000,
+      })
+      return
+    }
+
+    // Check if end date is before start date
+    if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
+      toast({
+        title: "Invalid dates",
+        description: "End date cannot be before start date.",
         variant: "destructive",
         duration: 4000,
       })
@@ -942,13 +955,26 @@ const causeOptions = [
                         placeholder="0"
                         className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
                         value={formData.dateCount}
-                        onChange={(e) => handleChange("dateCount", e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          handleChange("dateCount", value);
+                          if (value && isUnsurePressed) {
+                            setIsUnsurePressed(false);
+                          }
+                        }}
                       />
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-9 px-3 text-sm text-zinc-200 border border-zinc-600 rounded hover:bg-zinc-800"
-                        onClick={() => handleChange("dateCount", "?")}
+                        className={`h-9 px-3 text-base border rounded focus:outline-none focus:ring-0 active:outline-none touch-manipulation ${
+                          isUnsurePressed 
+                            ? 'text-white border-red-800 bg-red-800 focus:bg-red-800 active:bg-red-800 hover:bg-red-800' 
+                            : 'text-zinc-200 border-zinc-600 bg-transparent focus:bg-transparent active:bg-transparent hover:bg-transparent'
+                        }`}
+                        onClick={() => {
+                          handleChange("dateCount", "?");
+                          setIsUnsurePressed(!isUnsurePressed);
+                        }}
                         title="Unsure"
                       >
                         ?

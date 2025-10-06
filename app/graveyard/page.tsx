@@ -291,20 +291,22 @@ export default function GraveyardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-900">
-      <AppHeader title="Graveyard 🪦" centered />
+      <AppHeader title="The Graveyard 🪦" centered />
 
       <div className="px-4 py-4 space-y-4">
         {/* Search and Filters - Always visible */}
-        <div className="bg-zinc-800 p-4 rounded-lg space-y-3 outline outline-1 outline-zinc-800">
+        <div className="bg-zinc-800 p-4 rounded-lg space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-            <input
-              type="text"
-              placeholder="Search by name..."
-              className="w-full pl-9 pr-3 py-2 bg-zinc-900 text-white placeholder-zinc-500 rounded-md h-11 focus:outline-none focus:ring-2 focus:ring-red-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <div className="w-full h-11 rounded-md bg-zinc-900 pl-9 pr-3 flex items-center">
+              <input
+                type="text"
+                placeholder="Search by name..."
+                className="w-full bg-transparent border-0 outline-none ring-0 shadow-none text-white placeholder-zinc-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
           {showFilters && (
             <Select value={causeFilter} onValueChange={setCauseFilter}>

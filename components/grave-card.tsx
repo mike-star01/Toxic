@@ -310,6 +310,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
           boxShadow: isRevived
             ? `inset 0 0 0 4px #fbbf24`
             : `inset 0 0 0 4px ${currentTheme.borderColor}`,
+          // Revert to original classic styling without blend/offset logic
           ...(isRevived
             ? {
                 animation: 'pulseGlow 2.2s ease-in-out infinite',
@@ -345,7 +346,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               <Skull className="h-6 w-6 text-zinc-300" />
             )}
           </div>
-          <div className="text-zinc-200 text-xs text-center">
+          <div className="text-zinc-200 text-xs text-center font-bold">
             {formatDate(situationship.dates.start)} - {formatDate(situationship.dates.end)}
           </div>
           {/* Cause of death icon - bigger and colored or emoji on iOS */}
