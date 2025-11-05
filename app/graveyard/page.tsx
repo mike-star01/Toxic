@@ -5,154 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, SlidersHorizontal } from "lucide-react"
 import GraveCard from "@/components/grave-card"
 import AppHeader from "@/components/app-header"
+import { Button } from "@/components/ui/button"
 
-// Sample data - in a real app this would come from a database
-const initialSituationships = [
-  {
-    id: "1",
-    name: "Gym Rat Greg",
-    cause: "Ghosted",
-    dates: { start: "Jan 2023", end: "Mar 2023" },
-    epitaph: "Here lies the man who said he wasn't ready for a relationship and got a girlfriend 2 weeks later.",
-    reflection: "Learned to trust my gut when someone says they're not ready for a relationship.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 3,
-      kissed: true,
-      hookup: false,
-      love: false,
-      fight: false,
-      exclusive: false,
-      duration: "2 months",
-      location: "Coffee shop, his apartment, the park",
-      redFlags: ["Always canceled last minute", "Never introduced me to friends", "Still had dating apps"],
-      lastMessage: "Hey, I'm not really feeling this anymore.",
-    },
-    revived: false,
-    createdAt: "March 15, 2023",
-  },
-  {
-    id: "2",
-    name: "Tinder Tom",
-    cause: "Breadcrumbed",
-    dates: { start: "Nov 2022", end: "Jan 2023" },
-    epitaph: "RIP to the texter who was 'just busy with work' for 8 consecutive weekends.",
-    reflection: "Actions speak louder than words. If someone keeps saying they want to meet but always has excuses, they're not actually interested.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 2,
-      kissed: true,
-      hookup: true,
-      love: false,
-      fight: false,
-      exclusive: false,
-      duration: "3 months",
-      location: "Dating app, local bar",
-      redFlags: ["Always texting but never calling", "Cancelled dates frequently", "Vague about future plans"],
-      lastMessage: "Sorry, work has been crazy. Let's catch up soon!",
-    },
-    revived: true,
-    createdAt: "January 20, 2023",
-  },
-  {
-    id: "3",
-    name: "Hinge Harry",
-    cause: "Situationship",
-    dates: { start: "May 2022", end: "Nov 2022" },
-    epitaph: "We were 'exclusive but not official' until he wasn't exclusive anymore.",
-    reflection: "Learned that 'exclusive but not official' is just a way to keep options open.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 12,
-      kissed: true,
-      hookup: true,
-      love: true,
-      fight: true,
-      exclusive: true,
-      duration: "6 months",
-      location: "Dating app, various restaurants",
-      redFlags: ["Avoided relationship talks", "Never posted about us", "Kept dating apps"],
-      lastMessage: "I think we want different things right now.",
-    },
-    revived: false,
-    createdAt: "November 10, 2022",
-  },
-  {
-    id: "4",
-    name: "Bumble Brad",
-    cause: "Slow Fade",
-    dates: { start: "Feb 2023", end: "Apr 2023" },
-    epitaph: "Texts got shorter until they stopped completely. Classic.",
-    reflection: "When someone starts becoming distant, it's better to address it directly than wait for them to disappear.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 5,
-      kissed: true,
-      hookup: false,
-      love: false,
-      fight: false,
-      exclusive: false,
-      duration: "2 months",
-      location: "Dating app, coffee shops",
-      redFlags: ["Took longer to reply each time", "Stopped initiating conversations", "Became distant"],
-      lastMessage: "Yeah",
-    },
-    revived: false,
-    createdAt: "April 5, 2023",
-  },
-  {
-    id: "5",
-    name: "Coffee Shop Crush",
-    cause: "Never Started",
-    dates: { start: "Dec 2022", end: "Dec 2022" },
-    epitaph: "We made eye contact for 3 months. I finally got their number. They never texted back.",
-    reflection: "Sometimes the fantasy is better than the reality. Not every connection needs to be pursued.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 0,
-      kissed: false,
-      hookup: false,
-      love: false,
-      fight: false,
-      exclusive: false,
-      duration: "1 day",
-      location: "Local coffee shop",
-      redFlags: ["Never responded to text", "Avoided eye contact after", "Changed coffee shop routine"],
-      lastMessage: "Hey, it's [name] from the coffee shop!",
-    },
-    revived: false,
-    createdAt: "December 12, 2022",
-  },
-  {
-    id: "6",
-    name: "Instagram Influencer",
-    cause: "Benched",
-    dates: { start: "Mar 2023", end: "May 2023" },
-    epitaph: "Kept me on the sidelines while exploring 'options'. I was never the starting player.",
-    reflection: "Being someone's backup option is never worth it. I deserve to be someone's first choice.",
-    photo: "/placeholder-user.jpg",
-    details: {
-      meetInPerson: true,
-      dateCount: 4,
-      kissed: true,
-      hookup: true,
-      love: false,
-      fight: false,
-      exclusive: false,
-      duration: "3 months",
-      location: "Instagram DMs, trendy restaurants",
-      redFlags: ["Always talking about other people", "Kept me secret", "Prioritized social media"],
-      lastMessage: "You're amazing, but I'm not ready to settle down.",
-    },
-    revived: true,
-    createdAt: "May 18, 2023",
-  },
-]
 
 // Add Situationship type
 interface Situationship {
@@ -163,18 +17,16 @@ interface Situationship {
   epitaph: string;
   reflection?: string;
   photo?: string;
+  flowers?: number;
   details: {
     meetInPerson: boolean;
     dateCount: number;
     kissed: boolean;
     hookup: boolean;
-    love: boolean;
-    fight: boolean;
     exclusive: boolean;
+    closure: boolean;
+    emotionalImpact: number;
     duration: string;
-    location: string;
-    redFlags: string[];
-    lastMessage: string;
   };
   revived: boolean;
   createdAt: string;
@@ -193,8 +45,17 @@ export default function GraveyardPage() {
       setRefreshKey((prev) => prev + 1)
     }
 
+    const handleSituationshipUpdate = () => {
+      setRefreshKey((prev) => prev + 1)
+    }
+
     window.addEventListener("focus", handleFocus)
-    return () => window.removeEventListener("focus", handleFocus)
+    window.addEventListener("situationshipUpdated", handleSituationshipUpdate)
+    
+    return () => {
+      window.removeEventListener("focus", handleFocus)
+      window.removeEventListener("situationshipUpdated", handleSituationshipUpdate)
+    }
   }, [])
 
   // Load graves from localStorage only (no bundled examples)
@@ -216,10 +77,9 @@ export default function GraveyardPage() {
         localStorage.setItem('situationships', JSON.stringify(finalGraves))
       }
       finalGraves = [...finalGraves].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
-      console.log('Graveyard data loaded:', finalGraves.length, 'graves')
       setSituationships(finalGraves as any)
     }
-  }, [])
+  }, [refreshKey])
 
   // Filter situationships based on search term and cause filter
   const filteredSituationships = situationships
@@ -295,10 +155,10 @@ export default function GraveyardPage() {
 
       <div className="px-4 py-4 space-y-4">
         {/* Search and Filters - Always visible */}
-        <div className="bg-zinc-800 p-4 rounded-lg space-y-3">
+        <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-            <div className="w-full h-11 rounded-md bg-zinc-900 pl-9 pr-3 flex items-center">
+            <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
+            <div className="w-full h-11 rounded-md bg-zinc-800 pl-9 pr-3 flex items-center border-2 border-zinc-700">
               <input
                 type="text"
                 placeholder="Search by name..."
@@ -328,18 +188,20 @@ export default function GraveyardPage() {
           )}
         </div>
 
-        {/* Results Count and Show Filters */}
+        {/* Results Count and Actions */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-zinc-400">
             {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
           </p>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="text-zinc-400 hover:text-zinc-100 text-sm flex items-center gap-2"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            {showFilters ? "Hide" : "Show"} Filters
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="text-zinc-400 hover:text-zinc-100 text-sm flex items-center gap-2"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {showFilters ? "Hide" : "Show"} Filters
+            </button>
+          </div>
         </div>
 
         {/* Graveyard Grid - 2 Columns */}

@@ -20,6 +20,7 @@ interface Situationship {
   epitaph: string;
   reflection?: string;
   photo?: string;
+  flowers?: number;
   details: {
     meetInPerson: boolean;
     dateCount: number;
@@ -35,6 +36,7 @@ interface Situationship {
     location: string;
     redFlags: string[];
     lastMessage: string;
+    flags?: string[];
   };
   revived: boolean;
   createdAt: string;
@@ -221,9 +223,12 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
     closure: false,
     emotionalImpact: 5, // Default to middle of scale
     redFlags: [] as string[],
+    flags: [] as string[],
+    flowers: 0,
   })
   const [photo, setPhoto] = useState<string | null>(null)
   const [redFlagInput, setRedFlagInput] = useState("")
+  const [flagsInput, setFlagsInput] = useState("")
   const [isUnsurePressed, setIsUnsurePressed] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -315,6 +320,8 @@ const causeOptions = [
         closure: found.details.closure || false,
         emotionalImpact: found.details.emotionalImpact || 5,
         redFlags: found.details.redFlags || [],
+        flags: found.details.flags || [],
+        flowers: found.flowers || 0,
       })
       setPhoto(found.photo || null)
       setIsUnsurePressed(found.details.dateCount == null)
@@ -431,6 +438,7 @@ const causeOptions = [
       epitaph: formData.epitaph,
       reflection: formData.reflection,
       photo: photo,
+      flowers: formData.flowers,
       details: {
         ...situationship!.details,
         meetInPerson: formData.meetInPerson,
@@ -443,6 +451,7 @@ const causeOptions = [
         closure: formData.closure,
         emotionalImpact: formData.emotionalImpact,
         redFlags: formData.redFlags,
+        flags: formData.flags,
         duration: finalDuration,
         preciseDuration: formData.preciseDuration ? `${formData.preciseDuration} ${formData.preciseDurationType}` : '',
       },
@@ -723,6 +732,114 @@ const causeOptions = [
                                   redFlags: prev.redFlags?.filter((_, i) => i !== index) || []
                                 }))}
                                 className="text-red-400 hover:text-red-300 text-xs ml-1"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Background Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">🏠</span>
+                  <h3 className="text-base font-bold">Background</h3>
+                </div>
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Add flags (countries/origins) <span className="text-zinc-400">(Optional)</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g., 🇨🇦, 🇵🇷"
+                        className="bg-zinc-800 border-zinc-700 h-10 flex-1"
+                        value={flagsInput}
+                        onChange={(e) => setFlagsInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            if (flagsInput.trim()) {
+                              // Validate that input contains exactly one flag emoji
+                              const input = flagsInput.trim()
+                              // Check for flag emojis - comprehensive list of countries
+                              const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
+                              // Count all flag emojis found in the input
+                              let flagCount = 0
+                              commonFlags.forEach(flag => {
+                                let index = input.indexOf(flag)
+                                while (index !== -1) {
+                                  flagCount++
+                                  index = input.indexOf(flag, index + 1)
+                                }
+                              })
+                              if (flagCount !== 1) {
+                                alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
+                                return
+                              }
+                              setFormData(prev => ({
+                                ...prev,
+                                flags: [...(prev.flags || []), flagsInput.trim()]
+                              }))
+                              setFlagsInput('')
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-zinc-700 bg-transparent px-3"
+                        onClick={() => {
+                          if (flagsInput.trim()) {
+                            // Validate that input contains exactly one flag emoji
+                            const input = flagsInput.trim()
+                            // Check for flag emojis - comprehensive list of countries
+                            const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
+                            // Count all flag emojis found in the input
+                            let flagCount = 0
+                            commonFlags.forEach(flag => {
+                              let index = input.indexOf(flag)
+                              while (index !== -1) {
+                                flagCount++
+                                index = input.indexOf(flag, index + 1)
+                              }
+                            })
+                            if (flagCount !== 1) {
+                              alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
+                              return
+                            }
+                            setFormData(prev => ({
+                              ...prev,
+                              flags: [...(prev.flags || []), flagsInput.trim()]
+                            }))
+                            setFlagsInput('')
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    {formData.flags && formData.flags.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs text-zinc-400">Flags collected:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.flags.map((flag, index) => (
+                            <div key={index} className="flex items-center gap-1 bg-blue-900/20 border border-blue-700/30 rounded-full px-3 py-1">
+                              <span className="text-xs text-blue-300">{flag}</span>
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  flags: prev.flags?.filter((_, i) => i !== index) || []
+                                }))}
+                                className="text-blue-400 hover:text-blue-300 text-xs ml-1"
                               >
                                 ×
                               </button>

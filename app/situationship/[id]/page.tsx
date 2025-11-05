@@ -51,6 +51,7 @@ interface Situationship {
     location: string;
     redFlags: string[];
     lastMessage: string;
+    flags?: string[];
   };
   revived: boolean;
   createdAt: string;
@@ -440,7 +441,17 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
                 })()}
               </div>
               <div className="text-center">
-                <div className="text-lg italic mb-4">"{situationship.epitaph}"</div>
+                <div className="text-lg italic mb-4">
+                  "{situationship.epitaph}"
+                  {situationship.details.flags && situationship.details.flags.length > 0 && (
+                    <span className="ml-3">
+                      {situationship.details.flags.map((flag, index) => (
+                        <span key={index} className="text-2xl">{flag}</span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                
                 <div className="grid grid-cols-1 gap-4 text-sm">
                   <div className="flex items-center gap-2 justify-center">
                     <Clock className="h-4 w-4 text-zinc-500" />

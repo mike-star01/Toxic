@@ -7,6 +7,7 @@ import { Skull, Zap, Eye, Ghost, Sandwich, Users, TrendingDown, UserX, MoreVerti
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import AnimatedRose from "@/components/animated-rose"
 
 type Situationship = {
   id: string
@@ -15,6 +16,7 @@ type Situationship = {
   dates: { start: string; end: string }
   epitaph: string
   photo?: string // Add optional photo field
+  flowers?: number // Add flowers count
   details: {
     meetInPerson: boolean
     dateCount: number
@@ -71,14 +73,13 @@ const colorThemes: Record<string, { baseColor: string; borderColor: string }> = 
   },
 }
 
-// Cause of death icons with colors - same as stats page
+// Cause of death icons with colors (normalized lowercase keys)
 const causeIcons: Record<string, { icon: any; color: string }> = {
-  Ghosted: { icon: Ghost, color: "text-purple-400" },
-  Breadcrumbed: { icon: Sandwich, color: "text-orange-400" },
-  Situationship: { icon: Users, color: "text-blue-400" },
-  "Slow Fade": { icon: TrendingDown, color: "text-green-400" },
-  Benched: { icon: UserX, color: "text-pink-400" },
-  "Never Started": { icon: UserX, color: "text-gray-400" }, // fallback
+  ghosted: { icon: Ghost, color: "text-purple-400" },
+  breadcrumbed: { icon: Sandwich, color: "text-orange-400" },
+  situationship: { icon: Users, color: "text-blue-400" },
+  "slow fade": { icon: TrendingDown, color: "text-green-400" },
+  other: { icon: UserX, color: "text-gray-400" }, // fallback
 }
 
 // Utility to detect iOS
@@ -107,34 +108,51 @@ function formatDate(dateString: string) {
   }
 }
 
-  // Emoji mapping for causes
+  // Emoji mapping for causes (single canonical lowercase keys)
   const causeEmojis: Record<string, string> = {
-    Ghosted: '👻',
-    Breadcrumbed: '🍞',
-    Fumbled: '🏀',
-    'Slow Fade': '🌅',
-    Benched: '🪑',
-    'Never Started': '❓',
-    Cheated: '💔',
-    cheated: '💔',
+    ghosted: '👻',
+    breadcrumbed: '🍞',
     fumbled: '🏀',
     'slow fade': '🌅',
-    breadcrumbed: '🍞',
-    ghosted: '👻',
-    benched: '🪑',
+    cheated: '💔',
     other: '💀',
     friendzoned: '🤝',
-    'incompatible': '🧩',
-    'incompatible': '🧩',
-    'Incompatible': '🧩',
-    'Friendzoned': '🤝',
-    'Other': '💀',
+    incompatible: '🧩',
   }
 
 export default function GraveCard({ situationship, onRevive, onBury, onDelete }: GraveCardProps) {
   const [isRevived, setIsRevived] = useState(situationship.revived)
   const [selectedColor, setSelectedColor] = useState("classic")
+  const [flowerCount, setFlowerCount] = useState<number>(situationship.flowers || 0)
   const { toast } = useToast()
+
+  // Fun banner copy pools
+  const reviveTitles: string[] = [
+    "They’re back from the dead",
+    "You up? They are now",
+    "Back on the roster. Coach approved",
+    "Plot twist: not dead",
+    "Back on the menu. Chef regrets it",
+    "hey stranger.",
+    "Returned for “research”",
+    "They're alive!"
+  ]
+
+  const buryTitles: string[] = [
+    "Bye forever",
+    "Laid to rest",
+    "Closed casket, closed DMs",
+    "Off the roster",
+    "Back to the grave",
+    "Returned to the grave"
+  ]
+
+  const pickRandom = (arr: string[]): string => arr[Math.floor(Math.random() * arr.length)]
+
+  // Sync flowerCount with prop changes
+  useEffect(() => {
+    setFlowerCount(situationship.flowers || 0)
+  }, [situationship.flowers])
 
   useEffect(() => {
     // Load saved color theme for this grave
@@ -176,7 +194,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
       }
 
       toast({
-        title: "They're alive!",
+        title: pickRandom(reviveTitles),
         description: `${situationship.name} has been revived from the dead!`,
         duration: 4000,
       })
@@ -197,11 +215,89 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
       }
 
       toast({
-        title: "Back to the grave",
+        title: pickRandom(buryTitles),
         description: `${situationship.name} has been buried again.`,
         duration: 4000,
       })
     }
+  }
+
+  const handleGiveFlowers = () => {
+    // Add haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate([50]) // Gentle vibration for flowers
+    }
+
+    // Get current situationships from localStorage
+    const situationships = JSON.parse(localStorage.getItem('situationships') || '[]')
+    let newFlowerCount = 0
+    const updatedSituationships = situationships.map((s: Situationship) => {
+      if (s.id === situationship.id) {
+        newFlowerCount = (s.flowers || 0) + 1
+        return {
+          ...s,
+          flowers: newFlowerCount
+        }
+      }
+      return s
+    })
+
+    // Save back to localStorage
+    localStorage.setItem('situationships', JSON.stringify(updatedSituationships))
+
+    // Update local state immediately
+    setFlowerCount(newFlowerCount)
+
+    // Show success toast
+    toast({
+      title: "🌸 Flowers Added!",
+      description: `You've given flowers to ${situationship.name}'s grave`,
+      duration: 2000,
+    })
+
+    // Trigger a custom event to notify the parent component
+    window.dispatchEvent(new CustomEvent('situationshipUpdated', { 
+      detail: { id: situationship.id, flowerCount: newFlowerCount }
+    }))
+  }
+
+  const handleRemoveFlowers = () => {
+    // Add haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate([50]) // Gentle vibration
+    }
+
+    // Get current situationships from localStorage
+    const situationships = JSON.parse(localStorage.getItem('situationships') || '[]')
+    let newFlowerCount = 0
+    const updatedSituationships = situationships.map((s: Situationship) => {
+      if (s.id === situationship.id) {
+        newFlowerCount = Math.max(0, (s.flowers || 0) - 1)
+        return {
+          ...s,
+          flowers: newFlowerCount
+        }
+      }
+      return s
+    })
+
+    // Save back to localStorage
+    localStorage.setItem('situationships', JSON.stringify(updatedSituationships))
+
+    // Update local state immediately
+    setFlowerCount(newFlowerCount)
+
+    // Show success toast
+    toast({
+      title: "🌹 Flowers Removed!",
+      description: `You've removed flowers from ${situationship.name}'s grave`,
+      duration: 2000,
+    })
+
+    // Trigger a custom event to notify the parent component
+    window.dispatchEvent(new CustomEvent('situationshipUpdated', { 
+      detail: { id: situationship.id, flowerCount: newFlowerCount }
+    }))
   }
 
   const handleDelete = () => {
@@ -229,7 +325,8 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
   const isPink = selectedColor === "pink"
   const isClassic = selectedColor === "classic"
   const isBlack = selectedColor === "black"
-  const causeData = causeIcons[situationship.cause] || causeIcons["Never Started"]
+  const normalizedCause = (situationship.cause || '').toLowerCase().trim()
+  const causeData = causeIcons[normalizedCause] || causeIcons["other"]
   const CauseIcon = causeData.icon
 
   return (
@@ -351,7 +448,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
           </div>
           {/* Cause of death icon - bigger and colored or emoji on iOS */}
           <div className="mt-2">
-            <span className="text-2xl">{causeEmojis[situationship.cause as keyof typeof causeEmojis] || '❓'}</span>
+            <span className="text-2xl">{causeEmojis[normalizedCause as keyof typeof causeEmojis] || '❓'}</span>
           </div>
         </div>
 
@@ -367,8 +464,12 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-zinc-200 hover:text-white hover:bg-black/30 h-8 pl-1 pr-2 flex-1"
-                style={{ fontSize: '13px' }}
+                className="text-zinc-200 hover:text-white h-8 pl-1 pr-2 flex-1"
+                style={{ 
+                  fontSize: '13px',
+                  background: `rgba(39, 39, 42, 0.8), url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="20" fill="%2327272a"/><circle cx="4" cy="6" r="0.8" fill="rgba(255,255,255,0.08)" opacity="0.6"/><circle cx="14" cy="4" r="0.6" fill="rgba(0,0,0,0.1)" opacity="0.4"/><circle cx="8" cy="12" r="0.7" fill="rgba(255,255,255,0.06)" opacity="0.5"/><circle cx="16" cy="16" r="0.5" fill="rgba(0,0,0,0.08)" opacity="0.3"/><circle cx="2" cy="14" r="0.6" fill="rgba(255,255,255,0.05)" opacity="0.4"/></svg>') repeat`,
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}
               >
                 <MoreVertical className="h-3.5 w-3.5" style={{ width: '15px', height: '15px' }} />
                 Menu
@@ -387,6 +488,23 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
                   Edit Grave
                 </Link>
               </DropdownMenuItem>
+              {flowerCount > 0 ? (
+                <DropdownMenuItem 
+                  className="flex items-center text-red-400 focus:text-red-300 py-3 px-4 text-sm"
+                  onClick={handleRemoveFlowers}
+                >
+                  <span className="mr-3 text-lg">🌹</span>
+                  Remove Flowers
+                </DropdownMenuItem>
+              ) : (
+              <DropdownMenuItem 
+                className="flex items-center text-pink-400 focus:text-pink-300 py-3 px-4 text-sm"
+                onClick={handleGiveFlowers}
+              >
+                <span className="mr-3 text-lg">🌸</span>
+                Give Flowers
+              </DropdownMenuItem>
+              )}
               <DropdownMenuItem 
                 className="flex items-center text-red-400 focus:text-red-300 py-3 px-4 text-sm"
                 onClick={handleDelete}
@@ -396,6 +514,8 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Flowers toggle button removed per user request */}
 
           {isRevived ? (
             <Button
@@ -421,15 +541,34 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
         </div>
       </div>
 
-      {/* Stone base with stronger golden glow */}
+      {/* Animated Rose Bouquet */}
+      {(flowerCount > 0) && (
+        <div className="absolute pointer-events-none z-10" style={{ bottom: '-34px', right: '-9px' }}>
+          <div
+            style={{
+              transform: 'scale(0.3)',
+              ['--rose-shift-x' as any]: '130%',
+              ['--rose-shift-y' as any]: '80%',
+              ['--rose-rotate' as any]: '25deg'
+            }}
+          >
+            <AnimatedRose />
+          </div>
+        </div>
+      )}
+
+      {/* Stone base with texture for all themes */}
       <div
         className={`w-full h-2 ${
-          isRevived ? "bg-amber-400" : "bg-zinc-600"
+          isRevived ? "bg-amber-400" : ""
         }`}
         style={
           isRevived
             ? { border: 'none' }
-            : {}
+            : {
+                backgroundColor: currentTheme.borderColor,
+                background: `${currentTheme.borderColor}, url('data:image/svg+xml;utf8,<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg"><rect width="12" height="12" fill="${currentTheme.borderColor.replace('#', '%23')}"/><circle cx="2" cy="3" r="0.4" fill="rgba(255,255,255,0.06)" opacity="0.7"/><circle cx="8" cy="2" r="0.3" fill="rgba(0,0,0,0.08)" opacity="0.5"/><circle cx="5" cy="6" r="0.35" fill="rgba(255,255,255,0.04)" opacity="0.6"/><circle cx="10" cy="9" r="0.25" fill="rgba(0,0,0,0.06)" opacity="0.4"/><circle cx="1" cy="8" r="0.3" fill="rgba(255,255,255,0.03)" opacity="0.5"/></svg>') repeat`
+              }
         }
       ></div>
     </div>

@@ -43,6 +43,7 @@ interface Situationship {
     location: string
     redFlags: string[]
     lastMessage: string
+    flags?: string[]
   }
   revived: boolean
   createdAt: string
@@ -159,6 +160,11 @@ export default function StatsPage() {
       totalReflections: 0,
       reflectionRate: 0,
     },
+    flagsStats: {
+      totalFlags: 0,
+      uniqueFlags: [] as string[],
+      flagBreakdown: [] as Array<{ flag: string; count: number }>,
+    },
   })
 
   useEffect(() => {
@@ -221,6 +227,11 @@ export default function StatsPage() {
           reflectionStats: {
             totalReflections: 0,
             reflectionRate: 0,
+          },
+          flagsStats: {
+            totalFlags: 0,
+            uniqueFlags: [],
+            flagBreakdown: [],
           },
         })
         return
@@ -390,6 +401,25 @@ export default function StatsPage() {
       const totalReflections = situationships.filter(s => s.reflection && s.reflection.trim().length > 0).length
       const reflectionRate = totalGraves > 0 ? Math.round((totalReflections / totalGraves) * 100) : 0
 
+      // Calculate flags stats
+      const allFlags: string[] = []
+      situationships.forEach(s => {
+        if (s.details.flags && s.details.flags.length > 0) {
+          allFlags.push(...s.details.flags)
+        }
+      })
+      
+      const flagCounts: Record<string, number> = {}
+      allFlags.forEach(flag => {
+        flagCounts[flag] = (flagCounts[flag] || 0) + 1
+      })
+      
+      const flagBreakdown = Object.entries(flagCounts)
+        .map(([flag, count]) => ({ flag, count }))
+        .sort((a, b) => b.count - a.count)
+      
+      const uniqueFlags = Object.keys(flagCounts)
+
       setStats({
         totalGraves,
         revived,
@@ -408,6 +438,11 @@ export default function StatsPage() {
         reflectionStats: {
           totalReflections,
           reflectionRate,
+        },
+        flagsStats: {
+          totalFlags: allFlags.length,
+          uniqueFlags,
+          flagBreakdown,
         },
       })
     } catch (error) {
@@ -592,6 +627,36 @@ export default function StatsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Flags Collected Stats */}
+        {stats.flagsStats.totalFlags > 0 && (
+          <Card className="bg-zinc-800 border-zinc-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <span className="text-2xl">🏴</span>
+                Flags Collected
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-6">
+                <span className="text-sm text-zinc-400">Total Flags: <span className="text-white font-medium">{stats.flagsStats.totalFlags}</span></span>
+                <span className="text-sm text-zinc-400">Unique Flags: <span className="text-white font-medium">{stats.flagsStats.uniqueFlags.length}</span></span>
+              </div>
+              {stats.flagsStats.flagBreakdown.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {stats.flagsStats.flagBreakdown.map((item) => (
+                      <div key={item.flag} className="flex items-center gap-1 bg-blue-900/20 border border-blue-700/30 rounded-full px-3 py-1">
+                        <span className="text-xl text-blue-300">{item.flag}</span>
+                        <span className="text-lg text-blue-400 ml-1 font-medium">({item.count})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* When You Start */}
         <Card className="bg-zinc-800 border-zinc-700">
