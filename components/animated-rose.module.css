@@ -9,7 +9,7 @@
   width: 200px;
   height: 200px;
   position: absolute;
-  left: calc(80% + var(--rose-shift-x, 0));
+  left: calc(50% + var(--rose-shift-x, 0));
   top: calc(50% + var(--rose-shift-y, 0));
   transform: translate(-50%, -50%) rotate(var(--rose-rotate, 0deg));
   display: inline-block;

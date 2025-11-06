@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Skull, Zap, Eye, Ghost, Sandwich, Users, TrendingDown, UserX, MoreVertical, Edit, Trash2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import AnimatedRose from "@/components/animated-rose"
@@ -32,6 +32,8 @@ type Situationship = {
 
 interface GraveCardProps {
   situationship: Situationship
+  initialColor?: string
+  isVisible?: boolean
   onRevive?: (id: string) => void
   onBury?: (id: string) => void
   onDelete?: (id: string) => void
@@ -120,9 +122,9 @@ function formatDate(dateString: string) {
     incompatible: '🧩',
   }
 
-export default function GraveCard({ situationship, onRevive, onBury, onDelete }: GraveCardProps) {
+function GraveCard({ situationship, initialColor = "classic", isVisible = true, onRevive, onBury, onDelete }: GraveCardProps) {
   const [isRevived, setIsRevived] = useState(situationship.revived)
-  const [selectedColor, setSelectedColor] = useState("classic")
+  const [selectedColor, setSelectedColor] = useState(initialColor)
   const [flowerCount, setFlowerCount] = useState<number>(situationship.flowers || 0)
   const { toast } = useToast()
 
@@ -154,31 +156,12 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     setFlowerCount(situationship.flowers || 0)
   }, [situationship.flowers])
 
+  // Update color when prop changes (from parent's batched localStorage read)
   useEffect(() => {
-    // Load saved color theme for this grave
-    const loadColor = () => {
-      const savedColor = localStorage.getItem(`grave-color-${situationship.id}`)
-      if (savedColor && colorThemes[savedColor]) {
-        setSelectedColor(savedColor)
-      }
+    if (initialColor && colorThemes[initialColor]) {
+      setSelectedColor(initialColor)
     }
-
-    // Load initial color
-    loadColor()
-
-    // Listen for storage changes (when color is changed in detail page)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === `grave-color-${situationship.id}`) {
-        loadColor()
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-    }
-  }, [situationship.id])
+  }, [initialColor])
 
   const handleRevive = () => {
     if (window.confirm(`✨ Resurrect ${situationship.name}?`)) {
@@ -222,7 +205,10 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     }
   }
 
-  const handleGiveFlowers = () => {
+  const handleGiveFlowers = (e?: React.MouseEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    
     // Add haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate([50]) // Gentle vibration for flowers
@@ -242,7 +228,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
       return s
     })
 
-    // Save back to localStorage
+    // Update localStorage immediately to ensure state consistency
     localStorage.setItem('situationships', JSON.stringify(updatedSituationships))
 
     // Update local state immediately
@@ -261,7 +247,10 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     }))
   }
 
-  const handleRemoveFlowers = () => {
+  const handleRemoveFlowers = (e?: React.MouseEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    
     // Add haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate([50]) // Gentle vibration
@@ -281,7 +270,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
       return s
     })
 
-    // Save back to localStorage
+    // Update localStorage immediately to ensure state consistency
     localStorage.setItem('situationships', JSON.stringify(updatedSituationships))
 
     // Update local state immediately
@@ -338,13 +327,13 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
             background: 'transparent',
             mixBlendMode: 'normal',
             boxShadow: `0 0 18px rgba(251,191,36,.42), 0 0 28px rgba(251,191,36,.28)`,
-            animation: 'outerPulse 2.2s ease-in-out infinite'
+            animation: isVisible ? 'outerPulse 2.2s ease-in-out infinite' : 'none'
           }}
         />
       )}
       {/* Tombstone with base color + gradient overlay */}
       <div
-        className="relative z-10 rounded-t-[40px] p-3 pb-3 h-[300px] flex flex-col justify-between overflow-visible"
+        className="relative z-10 rounded-t-[40px] p-3 pb-3 h-[275px] flex flex-col justify-between overflow-visible"
         style={{
           backgroundColor: (isPink || isClassic || isBlack || selectedColor === "rose" || selectedColor === "ocean") ? 'transparent' : currentTheme.baseColor,
           background: isPink
@@ -408,10 +397,14 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
             ? `inset 0 0 0 4px #fbbf24`
             : `inset 0 0 0 4px ${currentTheme.borderColor}`,
           // Revert to original classic styling without blend/offset logic
-          ...(isRevived
+          ...(isRevived && isVisible
             ? {
                 animation: 'pulseGlow 2.2s ease-in-out infinite',
-                willChange: 'filter, box-shadow'
+                willChange: 'filter'
+              }
+            : isRevived && !isVisible
+            ? {
+                animation: 'none'
               }
             : {}),
         }}
@@ -443,7 +436,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               <Skull className="h-6 w-6 text-zinc-300" />
             )}
           </div>
-          <div className="text-zinc-200 text-xs text-center font-bold">
+          <div className="text-zinc-200 text-xs text-center font-bold opacity-70">
             {formatDate(situationship.dates.start)} - {formatDate(situationship.dates.end)}
           </div>
           {/* Cause of death icon - bigger and colored or emoji on iOS */}
@@ -494,7 +487,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
                   onClick={handleRemoveFlowers}
                 >
                   <span className="mr-3 text-lg">🌹</span>
-                  Remove Flowers
+                  Remove Flower
                 </DropdownMenuItem>
               ) : (
               <DropdownMenuItem 
@@ -502,7 +495,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
                 onClick={handleGiveFlowers}
               >
                 <span className="mr-3 text-lg">🌸</span>
-                Give Flowers
+                Give Flower
               </DropdownMenuItem>
               )}
               <DropdownMenuItem 
@@ -543,7 +536,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
 
       {/* Animated Rose Bouquet */}
       {(flowerCount > 0) && (
-        <div className="absolute pointer-events-none z-10" style={{ bottom: '-34px', right: '-9px' }}>
+        <div className="absolute pointer-events-none z-10" style={{ bottom: '-34px', right: '-23px' }}>
           <div
             style={{
               transform: 'scale(0.3)',
@@ -552,7 +545,7 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
               ['--rose-rotate' as any]: '25deg'
             }}
           >
-            <AnimatedRose />
+            <AnimatedRose isVisible={isVisible} />
           </div>
         </div>
       )}
@@ -574,3 +567,21 @@ export default function GraveCard({ situationship, onRevive, onBury, onDelete }:
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+// Note: We don't check flowers in the comparison to allow immediate updates
+export default memo(GraveCard, (prevProps, nextProps) => {
+  // Return true if props are equal (skip re-render), false if different (re-render)
+  // We intentionally don't compare flowers to allow immediate state updates
+  return (
+    prevProps.situationship.id === nextProps.situationship.id &&
+    prevProps.situationship.revived === nextProps.situationship.revived &&
+    prevProps.situationship.name === nextProps.situationship.name &&
+    prevProps.situationship.cause === nextProps.situationship.cause &&
+    prevProps.situationship.dates.start === nextProps.situationship.dates.start &&
+    prevProps.situationship.dates.end === nextProps.situationship.dates.end &&
+    prevProps.onRevive === nextProps.onRevive &&
+    prevProps.onBury === nextProps.onBury &&
+    prevProps.onDelete === nextProps.onDelete
+  )
+})

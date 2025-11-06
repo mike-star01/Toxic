@@ -10,11 +10,12 @@
 7. [Data Structure & State Management](#data-structure--state-management)
 8. [Visual Design System](#visual-design-system)
 9. [User Experience & Interaction Patterns](#user-experience--interaction-patterns)
-10. [Technical Implementation Details](#technical-implementation-details)
-11. [Performance & Optimization](#performance--optimization)
-12. [Deployment & Configuration](#deployment--configuration)
-13. [Development Workflow](#development-workflow)
-14. [Future Enhancement Possibilities](#future-enhancement-possibilities)
+10. [Error Handling](#error-handling)
+11. [Technical Implementation Details](#technical-implementation-details)
+12. [Performance & Optimization](#performance--optimization)
+13. [Deployment & Configuration](#deployment--configuration)
+14. [Development Workflow](#development-workflow)
+15. [Future Enhancement Possibilities](#future-enhancement-possibilities)
 
 ---
 
@@ -143,7 +144,7 @@ RootLayout
 **Purpose**: Main dashboard displaying all buried situationships
 
 **Key Features**:
-- **Search Functionality**: Real-time search by name with borderless input
+- **Search Functionality**: Real-time search by name with styled search bar
 - **Filter System**: Toggle-able cause-of-death filters
 - **Grid Layout**: 2-column responsive grid of grave cards
 - **Data Loading**: Loads from localStorage, handles empty states
@@ -156,13 +157,18 @@ RootLayout
 - Toast notifications for user feedback
 
 **Search Bar Design**:
-- Borderless design with dark background (`bg-zinc-900`)
-- Wrapper-based styling to eliminate browser default borders
+- Styled search bar with dark background (`bg-zinc-800`)
+- Thin border (`border-2 border-zinc-700`) for definition
 - Search icon positioned absolutely within input
 - Real-time filtering as user types
+- Clean, minimal design without heavy container borders
 
 ### 3. Add Page (`/app/add/page.tsx`)
 **Purpose**: Create new situationship memorials
+
+**Header**:
+- Title: "Add a Grave" (centered)
+- Back button for navigation
 
 **Form Sections**:
 1. **Basic Information**:
@@ -292,6 +298,9 @@ RootLayout
 - **Interactive Elements**: Dropdown menu, revive/bury buttons
 - **Photo Display**: User photos with skull icon fallback
 - **Responsive Design**: Mobile-optimized touch targets
+- **Randomized Toast Messages**: Revive/bury actions show random humorous messages
+- **Animated Flower System**: Visual flower bouquets appear when flowers are added to graves
+- **Flower Positioning**: Flowers positioned at bottom-right of grave cards with custom scaling
 
 **Color System**:
 ```typescript
@@ -324,6 +333,23 @@ const colorThemes = {
 - Sticky positioning with backdrop blur
 - Responsive design
 - Navigation integration
+
+#### AnimatedRose (`components/animated-rose.tsx`)
+**Purpose**: Animated flower bouquet component displayed on graves with flowers
+
+**Key Features**:
+- **CSS Animation**: Animated rose petals with opening/closing animations
+- **Curved Stem**: Green stem using CSS border tricks with curved appearance
+- **Leaf Elements**: Two green leaves attached to stem
+- **Custom Positioning**: Positioned at bottom-right of grave cards
+- **Scale Control**: Scaled to 0.3x for appropriate sizing on cards
+- **iOS Safari Compatibility**: Optimized rendering to avoid green line artifacts
+
+**Technical Implementation**:
+- CSS Module styling (`animated-rose.module.css`)
+- Keyframe animations for petal movement
+- Transform-based positioning and rotation
+- Border-radius tricks for curved stem effect
 
 #### BottomNav (`components/bottom-nav.tsx`)
 **Purpose**: Mobile-first navigation system
@@ -365,6 +391,7 @@ interface Situationship {
   }
   epitaph: string              // Memorial text (max 500 chars)
   photo?: string               // Base64 encoded image
+  flowers?: number             // Flower count (optional, defaults to 0)
   details: {
     meetInPerson: boolean      // Did you meet in person?
     dateCount: number          // Number of dates (0-999, or null for "?")
@@ -385,9 +412,16 @@ interface Situationship {
 ```
 
 ### Local Storage Keys
-- `situationships`: Array of all situationships
+- `situationships`: Array of all situationships (includes flowers count)
 - `grave-color-${id}`: Color preference per situationship
 - Form data persistence across sessions
+
+### Flower System
+- **Flower Count**: Each situationship can have a `flowers` field (number, defaults to 0)
+- **Visual Display**: Animated flower bouquet appears on graves when `flowerCount > 0`
+- **Add/Remove**: Users can add or remove flowers via dropdown menu
+- **State Sync**: Flower count syncs between localStorage and component state
+- **Custom Events**: `situationshipUpdated` event fires when flowers change
 
 ### State Management Patterns
 - **React Hooks**: useState for local state, useEffect for side effects
@@ -458,6 +492,23 @@ interface Situationship {
 - **Swipe Gestures**: Card interactions optimized for touch
 - **Responsive Grid**: 2 columns on mobile, 3+ on desktop
 
+**Responsive Breakpoints**:
+- **Mobile**: < 768px (primary focus)
+- **Tablet**: 768px - 1024px
+- **Desktop**: > 1024px
+
+**Mobile Optimizations**:
+- Bottom navigation for thumb access
+- Large touch targets (44px minimum)
+- Swipe gestures on cards
+- Simplified layouts on small screens
+
+**Touch Interactions**:
+- Card swipes for quick actions
+- Long press for context menus
+- Tap targets properly sized
+- Hover states disabled on touch
+
 ### Interaction Patterns
 - **Toast Notifications**: 4-second duration with dismiss option
 - **Confirmation Dialogs**: For destructive actions (delete, revive/bury)
@@ -475,6 +526,30 @@ interface Situationship {
 - **Image Optimization**: Next.js Image component with WebP support
 - **State Management**: Minimal re-renders with efficient hooks
 - **Storage**: Debounced localStorage updates
+
+---
+
+## Error Handling
+
+### User-Facing Errors
+
+**Form Validation**:
+- Required field indicators
+- Date range validation (end must be after start)
+- Character limit enforcement (epitaph 500 chars max)
+- Real-time feedback via toast notifications
+
+**Network Errors**:
+- Graceful fallbacks for offline scenarios
+- Retry mechanisms for failed operations
+- User-friendly error messages
+- No backend required (fully client-side)
+
+**Data Corruption**:
+- localStorage validation on load
+- Default value fallbacks for missing data
+- Data recovery options
+- Type checking with TypeScript interfaces
 
 ---
 
@@ -520,8 +595,42 @@ const handlePhotoUpload = (file: File) => {
 - Real-time preview updates
 - Cross-tab synchronization via storage events
 
-### Toast Notification System
+### Form State Management
 **Implementation**:
+- Controlled components for all inputs
+- Real-time validation feedback
+- Debounced updates to prevent excessive re-renders
+- Form reset functionality on successful submission
+- State persistence across page refreshes
+
+### Toast Notification System
+
+**Randomized Messages**:
+- **Revive Actions**: 8 different humorous messages randomly selected:
+  - "They're back from the dead"
+  - "You up? They are now"
+  - "Back on the roster. Coach approved"
+  - "Plot twist: not dead"
+  - "Back on the menu. Chef regrets it"
+  - "hey stranger."
+  - "Returned for 'research'"
+  - "They're alive!"
+
+- **Bury Actions**: 6 different messages randomly selected:
+  - "Bye forever"
+  - "Laid to rest"
+  - "Closed casket, closed DMs"
+  - "Off the roster"
+  - "Back to the grave"
+  - "Returned to the grave"
+
+**Randomized Message Implementation**:
+- `pickRandom()` helper function selects random message from array
+- Messages rotate to keep user experience fresh and humorous
+- Toast duration: 4 seconds (4000ms)
+- Auto-dismiss with manual close option
+
+**Technical Implementation**:
 - Custom `useToast` hook
 - Radix UI toast primitives
 - 4-second auto-dismiss
@@ -657,6 +766,17 @@ const nextConfig = {
 - **Import Options**: Migrate from other dating apps
 - **Cloud Sync**: Optional cloud backup (with privacy controls)
 - **Data Analytics**: Personal insights dashboard
+
+### Visual Timeline (Gantt Chart Style)
+- **Relationship Timeline Visualization**: Interactive Gantt chart showing all situationships over time
+- **Overlapping Relationship Detection**: Visual representation of overlapping relationships
+- **Timeline Scaling**: Zoom in/out to view different time periods
+- **Color-Coded Bars**: Each situationship represented as a colored bar matching its grave color
+- **Interactive Hover**: Show details on hover (name, dates, cause of death)
+- **Time Period Filters**: Filter by year, month, or custom date range
+- **Duration Comparison**: Visual comparison of relationship lengths
+- **Gap Analysis**: Identify periods between relationships (healing time)
+- **Export Timeline**: Save timeline as image or PDF
 
 ### Technical Improvements
 - **PWA Support**: Offline functionality and app-like experience

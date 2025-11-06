@@ -648,7 +648,7 @@ export default function StatsPage() {
                     {stats.flagsStats.flagBreakdown.map((item) => (
                       <div key={item.flag} className="flex items-center gap-1 bg-blue-900/20 border border-blue-700/30 rounded-full px-3 py-1">
                         <span className="text-xl text-blue-300">{item.flag}</span>
-                        <span className="text-lg text-blue-400 ml-1 font-medium">({item.count})</span>
+                        <span className="text-lg text-blue-400 ml-1 font-medium">{item.count}</span>
                       </div>
                     ))}
                   </div>

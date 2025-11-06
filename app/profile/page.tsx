@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Settings, Share2, Heart, Download, HelpCircle, Clock, Zap, Plus, Palette } from "lucide-react"
+import { Settings, Share2, Heart, Download, HelpCircle, Clock, Zap, Plus, Palette } from "lucide-react"
 
 interface Situationship {
   id: string
@@ -61,7 +61,8 @@ export default function ProfilePage() {
   const [stats, setStats] = useState({
     totalGraves: 0,
     revived: 0,
-    avgMonths: 0
+    avgMonths: 0,
+    earliestStartDate: null as string | null
   })
 
   useEffect(() => {
@@ -108,10 +109,19 @@ export default function ProfilePage() {
         : 0
       const avgMonths = Math.round(avgMonthsRaw * 10) / 10
       
+      // Find earliest start date
+      const startDates = situationships
+        .filter(s => s.dates.start)
+        .map(s => s.dates.start)
+        .sort()
+      
+      const earliestStartDate = startDates.length > 0 ? startDates[0] : null
+      
       setStats({
         totalGraves,
         revived,
-        avgMonths: Number.isFinite(avgMonths) ? avgMonths : 0
+        avgMonths: Number.isFinite(avgMonths) ? avgMonths : 0,
+        earliestStartDate
       })
     }
 
@@ -132,10 +142,18 @@ export default function ProfilePage() {
         <Card className="bg-zinc-800 border-zinc-700">
           <CardContent className="p-6 text-center">
             <div className="w-20 h-20 bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="h-10 w-10 text-zinc-400" />
+              <span className="text-4xl">💔</span>
             </div>
             <h2 className="text-xl font-bold mb-1">Heartbreak Collector</h2>
-            <p className="text-zinc-400 text-sm">Member since March 2023</p>
+            <p className="text-zinc-400 text-sm">
+              {stats.earliestStartDate 
+                ? (() => {
+                    const [year, month] = stats.earliestStartDate.split('-')
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    return `since ${monthNames[parseInt(month) - 1]} ${year}`
+                  })()
+                : 'No graves yet'}
+            </p>
             <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-zinc-700">
               <div className="text-center">
                 <div className="text-lg font-bold text-red-400">{stats.totalGraves}</div>

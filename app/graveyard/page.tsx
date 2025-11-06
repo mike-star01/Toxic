@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, SlidersHorizontal } from "lucide-react"
-import GraveCard from "@/components/grave-card"
+import LazyGraveCard from "@/components/lazy-grave-card"
 import AppHeader from "@/components/app-header"
 import { Button } from "@/components/ui/button"
 
@@ -38,6 +38,8 @@ export default function GraveyardPage() {
   const [situationships, setSituationships] = useState<Situationship[] | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [showFireflies, setShowFireflies] = useState(false)
+  const [graveColors, setGraveColors] = useState<Record<string, string>>({})
 
   // Refresh colors when component mounts or when returning from detail page
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function GraveyardPage() {
 
     const handleSituationshipUpdate = () => {
       setRefreshKey((prev) => prev + 1)
+      // refreshKey change will trigger the useEffect that reloads colors
     }
 
     window.addEventListener("focus", handleFocus)
@@ -78,8 +81,46 @@ export default function GraveyardPage() {
       }
       finalGraves = [...finalGraves].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
       setSituationships(finalGraves as any)
+
+      // Batch read all grave colors at once
+      const colors: Record<string, string> = {}
+      finalGraves.forEach((grave: any) => {
+        const savedColor = localStorage.getItem(`grave-color-${grave.id}`)
+        if (savedColor) {
+          colors[grave.id] = savedColor
+        }
+      })
+      setGraveColors(colors)
     }
   }, [refreshKey])
+
+  // Listen for storage changes to update grave colors when changed in detail page
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith('grave-color-')) {
+        const graveId = e.key.replace('grave-color-', '')
+        if (e.newValue) {
+          setGraveColors((prev) => ({
+            ...prev,
+            [graveId]: e.newValue || 'classic'
+          }))
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  // Defer firefly animations until after initial render to improve LCP
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFireflies(true)
+    }, 200) // Small delay to let content render first
+    return () => clearTimeout(timer)
+  }, [])
 
   // Filter situationships based on search term and cause filter
   const filteredSituationships = situationships
@@ -150,15 +191,167 @@ export default function GraveyardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900">
-      <AppHeader title="The Graveyard 🪦" centered />
+    <div
+      className="min-h-screen bg-black relative overflow-hidden"
+      style={{
+        backgroundImage:
+          'radial-gradient(800px 500px at 0% 0%, rgba(59,130,246,0.18), rgba(59,130,246,0.08) 35%, rgba(0,0,0,0) 70%)',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#000'
+      }}
+    >
+      {/* Firefly Background Animation - Deferred for better LCP */}
+      {showFireflies && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" style={{ contain: 'layout style paint' }}>
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-400"
+          style={{
+            left: '10%',
+            top: '-10vh',
+            animation: 'firefly1 30s linear infinite, fireflyTwinkle 5s ease-in-out infinite',
+            animationDelay: '0s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-amber-300"
+          style={{
+            left: '90%',
+            top: '-10vh',
+            animation: 'firefly2 34s linear infinite, fireflyTwinkle 4.5s ease-in-out infinite',
+            animationDelay: '3.5s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-300"
+          style={{
+            left: '50%',
+            top: '-10vh',
+            animation: 'firefly3 36s linear infinite, fireflyTwinkle 5.5s ease-in-out infinite',
+            animationDelay: '1.5s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-400"
+          style={{
+            left: '30%',
+            top: '-10vh',
+            animation: 'firefly4 32s linear infinite, fireflyTwinkle 4s ease-in-out infinite',
+            animationDelay: '5s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-amber-400"
+          style={{
+            left: '70%',
+            top: '-10vh',
+            animation: 'firefly5 38s linear infinite, fireflyTwinkle 6s ease-in-out infinite',
+            animationDelay: '2s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-300"
+          style={{
+            left: '20%',
+            top: '-10vh',
+            animation: 'firefly6 31s linear infinite, fireflyTwinkle 4.8s ease-in-out infinite',
+            animationDelay: '4s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-400"
+          style={{
+            left: '80%',
+            top: '-10vh',
+            animation: 'firefly7 35s linear infinite, fireflyTwinkle 5.2s ease-in-out infinite',
+            animationDelay: '6s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-amber-300"
+          style={{
+            left: '60%',
+            top: '-10vh',
+            animation: 'firefly8 37s linear infinite, fireflyTwinkle 4.2s ease-in-out infinite',
+            animationDelay: '7.5s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        {/* From left entry */}
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-300"
+          style={{
+            animation: 'fireflyFromLeft 33s linear infinite, fireflyTwinkle 5s ease-in-out infinite',
+            animationDelay: '2s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        {/* From right entry diagonally left */}
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-amber-300"
+          style={{
+            animation: 'fireflyFromRight 35s linear infinite, fireflyTwinkle 5.2s ease-in-out infinite',
+            animationDelay: '4s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        {/* From bottom upward */}
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-yellow-400"
+          style={{
+            animation: 'fireflyFromBottom 33s linear infinite, fireflyTwinkle 5s ease-in-out infinite',
+            animationDelay: '3s',
+            willChange: 'transform, filter, opacity',
+            transform: 'translateZ(0)',
+            filter: 'blur(3px)',
+          }}
+        />
+        </div>
+      )}
+      
+      <div className="relative z-10">
+        <div className="relative z-50">
+          <AppHeader title="The Graveyard 🪦" centered />
+        </div>
 
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-4 space-y-4 relative">
+        {/* Crescent Moon - Top Left (behind search bar) */}
+        <div className="absolute top-4 left-7 z-0 pointer-events-none" style={{ width: '100px', height: '100px' }}>
+          <div className="crescent-moon"></div>
+        </div>
+        
+        
         {/* Search and Filters - Always visible */}
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10">
           <div className="relative">
-            <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
-            <div className="w-full h-11 rounded-md bg-zinc-800 pl-9 pr-3 flex items-center border-2 border-zinc-700">
+            <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400 z-20 pointer-events-none" />
+            <div className="w-full h-11 rounded-md bg-zinc-800/70 pl-9 pr-3 flex items-center border-2 border-zinc-700 backdrop-blur-sm">
               <input
                 type="text"
                 placeholder="Search by name..."
@@ -190,9 +383,17 @@ export default function GraveyardPage() {
 
         {/* Results Count and Actions */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-zinc-400">
-            {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
-          </p>
+          <div className="text-sm relative inline-block">
+            <span
+              className="absolute inset-0 translate-x-[1px] translate-y-[1px] text-black select-none"
+              aria-hidden="true"
+            >
+              {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
+            </span>
+            <span className="relative text-zinc-400 font-medium">
+              {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -205,12 +406,13 @@ export default function GraveyardPage() {
         </div>
 
         {/* Graveyard Grid - 2 Columns */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-5">
           {filteredSituationships.length > 0 ? (
             filteredSituationships.map((situationship) => (
-              <GraveCard
+              <LazyGraveCard
                 key={`${situationship.id}-${refreshKey}`}
                 situationship={situationship}
+                initialColor={graveColors[situationship.id] || 'classic'}
                 onRevive={() => handleRevive(situationship.id)}
                 onBury={() => handleBury(situationship.id)}
                 onDelete={() => handleDelete(situationship.id)}
@@ -223,6 +425,7 @@ export default function GraveyardPage() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   )
