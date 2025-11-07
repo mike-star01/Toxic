@@ -276,7 +276,7 @@ export default function AddSituationshipPage() {
           <CardContent className="space-y-6 overflow-x-hidden max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <form className="space-y-6 w-full max-w-full min-w-0" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }} onSubmit={handleSubmit}>
               {/* Basic Info */}
-              <div className="space-y-4">
+              <div className="space-y-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium">
                     Name or Nickname <span className="text-zinc-400">(max 32)</span>
@@ -357,45 +357,41 @@ export default function AddSituationshipPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 gap-y-4 w-full min-w-0 max-w-full" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <div className="space-y-2 min-w-0 w-full max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
-                    <label htmlFor="start-date" className="text-sm font-medium">
-                      Started
-                    </label>
-                    <Input
-                      id="start-date"
-                      type="month"
-                      className="bg-zinc-900 border-zinc-700 h-11 w-full min-w-0 max-w-full"
-                      style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
-                      value={formData.startDate}
-                      onChange={(e) => {
-                        handleChange("startDate", e.target.value)
-                        // Clear precise duration if months are different
-                        if (formData.endDate && e.target.value !== formData.endDate) {
-                          handleChange("preciseDuration", "")
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="space-y-2 min-w-0 w-full max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
-                    <label htmlFor="end-date" className="text-sm font-medium">
-                      Ended
-                    </label>
-                    <Input
-                      id="end-date"
-                      type="month"
-                      className="bg-zinc-900 border-zinc-700 h-11 w-full min-w-0 max-w-full"
-                      style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
-                      value={formData.endDate || ""}
-                      onChange={(e) => {
-                        handleChange("endDate", e.target.value)
-                        // Clear precise duration if months are different
-                        if (formData.startDate && e.target.value !== formData.startDate) {
-                          handleChange("preciseDuration", "")
-                        }
-                      }}
-                    />
-                  </div>
+                <div className="space-y-2" style={{ overflow: 'hidden' }}>
+                  <label htmlFor="start-date" className="text-sm font-medium">
+                    Started
+                  </label>
+                  <Input
+                    id="start-date"
+                    type="month"
+                    className="bg-zinc-900 border-zinc-700 h-11"
+                    value={formData.startDate}
+                    onChange={(e) => {
+                      handleChange("startDate", e.target.value)
+                      // Clear precise duration if months are different
+                      if (formData.endDate && e.target.value !== formData.endDate) {
+                        handleChange("preciseDuration", "")
+                      }
+                    }}
+                  />
+                </div>
+                <div className="space-y-2" style={{ overflow: 'hidden' }}>
+                  <label htmlFor="end-date" className="text-sm font-medium">
+                    Ended
+                  </label>
+                  <Input
+                    id="end-date"
+                    type="month"
+                    className="bg-zinc-900 border-zinc-700 h-11"
+                    value={formData.endDate || ""}
+                    onChange={(e) => {
+                      handleChange("endDate", e.target.value)
+                      // Clear precise duration if months are different
+                      if (formData.startDate && e.target.value !== formData.startDate) {
+                        handleChange("preciseDuration", "")
+                      }
+                    }}
+                  />
                 </div>
 
                 {/* Precise Duration - Only show when same month */}
@@ -440,7 +436,7 @@ export default function AddSituationshipPage() {
                   <Textarea
                     id="epitaph"
                     placeholder="Here lies the person who..."
-                    className="bg-zinc-900 border-zinc-700 min-h-[80px] resize-none"
+                    className="bg-zinc-900 border-zinc-700 min-h-[80px] resize-none w-full"
                     value={formData.epitaph}
                     onChange={(e) => handleChange("epitaph", e.target.value)}
                     maxLength={100}
