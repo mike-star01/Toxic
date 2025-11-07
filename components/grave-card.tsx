@@ -333,7 +333,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
       )}
       {/* Tombstone with base color + gradient overlay */}
       <div
-        className="relative z-10 rounded-t-[40px] p-3 pb-3 h-[275px] flex flex-col justify-between overflow-visible"
+        className="relative z-10 rounded-t-[40px] p-3 pb-3 min-h-[275px] max-h-[275px] flex flex-col justify-between overflow-hidden"
         style={{
           backgroundColor: (isPink || isClassic || isBlack || selectedColor === "rose" || selectedColor === "ocean") ? 'transparent' : currentTheme.baseColor,
           background: isPink
@@ -451,7 +451,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
         </div>
 
         {/* Bottom buttons with proper containment */}
-        <div className="flex justify-between items-center pt-2 border-t border-white/20 gap-2 w-full">
+        <div className="flex justify-between items-center pt-2 border-t border-white/20 gap-2 w-full shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
