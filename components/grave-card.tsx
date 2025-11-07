@@ -126,6 +126,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
   const [isRevived, setIsRevived] = useState(situationship.revived)
   const [selectedColor, setSelectedColor] = useState(initialColor)
   const [flowerCount, setFlowerCount] = useState<number>(situationship.flowers || 0)
+  const [menuOpen, setMenuOpen] = useState(false)
   const { toast } = useToast()
 
   // Fun banner copy pools
@@ -209,6 +210,9 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
     e?.preventDefault()
     e?.stopPropagation()
     
+    // Close the dropdown menu
+    setMenuOpen(false)
+    
     // Add haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate([50]) // Gentle vibration for flowers
@@ -250,6 +254,9 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
   const handleRemoveFlowers = (e?: React.MouseEvent) => {
     e?.preventDefault()
     e?.stopPropagation()
+    
+    // Close the dropdown menu
+    setMenuOpen(false)
     
     // Add haptic feedback
     if ('vibrate' in navigator) {
@@ -319,7 +326,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
   const CauseIcon = causeData.icon
 
   return (
-    <div className="relative">
+    <div className="relative w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
       {isRevived && (
         <div
           className="absolute -inset-0.5 rounded-t-[44px] pointer-events-none z-0"
@@ -333,8 +340,11 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
       )}
       {/* Tombstone with base color + gradient overlay */}
       <div
-        className="relative z-10 rounded-t-[40px] p-3 pb-3 min-h-[275px] max-h-[275px] flex flex-col justify-between overflow-hidden"
+        className="relative z-10 rounded-t-[40px] p-2.5 pb-2.5 min-h-[275px] max-h-[275px] flex flex-col justify-between overflow-hidden"
         style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
           backgroundColor: (isPink || isClassic || isBlack || selectedColor === "rose" || selectedColor === "ocean") ? 'transparent' : currentTheme.baseColor,
           background: isPink
             ? `linear-gradient(to bottom right, #db2777, rgba(255,255,255,0.65)), url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.2" fill="white" opacity="0.85"/><circle cx="80" cy="30" r="1.7" fill="white" opacity="0.7"/><circle cx="50" cy="70" r="2.1" fill="white" opacity="0.8"/><circle cx="70" cy="90" r="1.5" fill="white" opacity="0.7"/><circle cx="30" cy="50" r="1.8" fill="white" opacity="0.8"/><circle cx="60" cy="20" r="1.2" fill="deepskyblue" opacity="0.5"/><circle cx="90" cy="80" r="1.5" fill="deepskyblue" opacity="0.4"/><circle cx="20" cy="80" r="1.3" fill="white" opacity="0.7"/><circle cx="40" cy="90" r="1.1" fill="deepskyblue" opacity="0.5"/></svg>') repeat`
@@ -451,15 +461,19 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
         </div>
 
         {/* Bottom buttons with proper containment */}
-        <div className="flex justify-between items-center pt-2 border-t border-white/20 gap-2 w-full shrink-0">
-          <DropdownMenu>
+        <div className="flex justify-between items-center pt-2 border-t border-white/20 gap-2 w-full shrink-0 min-w-0 max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-zinc-200 hover:text-white h-8 pl-1 pr-2 flex-1"
+                className="text-zinc-200 hover:text-white h-8 pl-1 pr-2 flex-1 min-w-0 max-w-full"
                 style={{ 
                   fontSize: '13px',
+                  width: '100%',
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  boxSizing: 'border-box',
                   background: `rgba(39, 39, 42, 0.8), url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="20" fill="%2327272a"/><circle cx="4" cy="6" r="0.8" fill="rgba(255,255,255,0.08)" opacity="0.6"/><circle cx="14" cy="4" r="0.6" fill="rgba(0,0,0,0.1)" opacity="0.4"/><circle cx="8" cy="12" r="0.7" fill="rgba(255,255,255,0.06)" opacity="0.5"/><circle cx="16" cy="16" r="0.5" fill="rgba(0,0,0,0.08)" opacity="0.3"/><circle cx="2" cy="14" r="0.6" fill="rgba(255,255,255,0.05)" opacity="0.4"/></svg>') repeat`,
                   border: '1px solid rgba(255,255,255,0.1)'
                 }}
@@ -514,7 +528,8 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
             <Button
               variant="outline"
               size="sm"
-              className="border-zinc-400 text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1"
+              className="border-zinc-400 text-zinc-200 hover:bg-black/30 bg-transparent h-8 text-xs px-2 flex-1 min-w-0 max-w-full"
+              style={{ width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}
               onClick={handleBury}
             >
               <span className="mr-1">⚰️</span>
@@ -524,7 +539,8 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
             <Button
               variant="outline"
               size="sm"
-              className="border-amber-400 text-amber-300 hover:bg-amber-950/50 bg-transparent h-8 text-xs px-2 flex-1"
+              className="border-amber-400 text-amber-300 hover:bg-amber-950/50 bg-transparent h-8 text-xs px-2 flex-1 min-w-0 max-w-full"
+              style={{ width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}
               onClick={handleRevive}
             >
               <Zap className="h-3 w-3 mr-1" />

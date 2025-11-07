@@ -273,8 +273,8 @@ export default function AddSituationshipPage() {
             <CardTitle className="text-lg">New Situationship</CardTitle>
             <CardDescription>Fill out the details about your almost-relationship.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <form className="space-y-6" onSubmit={handleSubmit}>
+          <CardContent className="space-y-6 overflow-x-hidden max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+            <form className="space-y-6 w-full max-w-full min-w-0" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }} onSubmit={handleSubmit}>
               {/* Basic Info */}
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -357,15 +357,16 @@ export default function AddSituationshipPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 gap-y-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 gap-y-4 w-full min-w-0 max-w-full" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <div className="space-y-2 min-w-0 w-full max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                     <label htmlFor="start-date" className="text-sm font-medium">
                       Started
                     </label>
                     <Input
                       id="start-date"
                       type="month"
-                      className="bg-zinc-900 border-zinc-700 h-11"
+                      className="bg-zinc-900 border-zinc-700 h-11 w-full min-w-0 max-w-full"
+                      style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                       value={formData.startDate}
                       onChange={(e) => {
                         handleChange("startDate", e.target.value)
@@ -376,14 +377,15 @@ export default function AddSituationshipPage() {
                       }}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0 w-full max-w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                     <label htmlFor="end-date" className="text-sm font-medium">
                       Ended
                     </label>
                     <Input
                       id="end-date"
                       type="month"
-                      className="bg-zinc-900 border-zinc-700 h-11"
+                      className="bg-zinc-900 border-zinc-700 h-11 w-full min-w-0 max-w-full"
+                      style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                       value={formData.endDate || ""}
                       onChange={(e) => {
                         handleChange("endDate", e.target.value)

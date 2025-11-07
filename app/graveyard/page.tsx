@@ -47,9 +47,26 @@ export default function GraveyardPage() {
       setRefreshKey((prev) => prev + 1)
     }
 
-    const handleSituationshipUpdate = () => {
-      setRefreshKey((prev) => prev + 1)
-      // refreshKey change will trigger the useEffect that reloads colors
+    const handleSituationshipUpdate = (e: any) => {
+      const detail = e?.detail
+      if (detail?.id) {
+        // Update only the specific situationship instead of reloading everything
+        setSituationships((prev) => {
+          if (!prev) return prev
+          const stored = localStorage.getItem('situationships')
+          const allGraves: any[] = stored ? JSON.parse(stored) : []
+          const updatedGrave = allGraves.find((g: any) => g.id === detail.id)
+          
+          if (updatedGrave) {
+            return prev.map((s) => 
+              s.id === detail.id 
+                ? { ...s, flowers: detail.flowerCount ?? updatedGrave.flowers, revived: updatedGrave.revived ?? s.revived }
+                : s
+            )
+          }
+          return prev
+        })
+      }
     }
 
     window.addEventListener("focus", handleFocus)
@@ -192,7 +209,7 @@ export default function GraveyardPage() {
 
   return (
     <div
-      className="min-h-screen bg-black relative overflow-hidden"
+      className="min-h-screen bg-black relative overflow-x-hidden"
       style={{
         backgroundImage:
           'radial-gradient(800px 500px at 0% 0%, rgba(59,130,246,0.18), rgba(59,130,246,0.08) 35%, rgba(0,0,0,0) 70%)',
@@ -340,7 +357,7 @@ export default function GraveyardPage() {
           <AppHeader title="The Graveyard 🪦" centered />
         </div>
 
-      <div className="px-4 py-4 space-y-4 relative">
+      <div className="px-3 sm:px-4 py-4 space-y-4 relative max-w-full overflow-x-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         {/* Crescent Moon - Top Left (behind search bar) */}
         <div className="absolute top-4 left-7 z-0 pointer-events-none" style={{ width: '100px', height: '100px' }}>
           <div className="crescent-moon"></div>
@@ -406,11 +423,11 @@ export default function GraveyardPage() {
         </div>
 
         {/* Graveyard Grid - 2 Columns */}
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 w-full max-w-full" style={{ paddingBottom: '40px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {filteredSituationships.length > 0 ? (
             filteredSituationships.map((situationship) => (
               <LazyGraveCard
-                key={`${situationship.id}-${refreshKey}`}
+                key={situationship.id}
                 situationship={situationship}
                 initialColor={graveColors[situationship.id] || 'classic'}
                 onRevive={() => handleRevive(situationship.id)}
