@@ -357,7 +357,7 @@ export default function GraveyardPage() {
           <AppHeader title="The Graveyard 🪦" centered />
         </div>
 
-      <div className="px-3 sm:px-4 py-4 space-y-4 relative max-w-full overflow-x-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <div className="px-4 sm:px-6 md:px-8 py-4 space-y-4 relative max-w-full overflow-x-hidden" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         {/* Crescent Moon - Top Left (behind search bar) */}
         <div className="absolute top-4 left-7 z-0 pointer-events-none" style={{ width: '100px', height: '100px' }}>
           <div className="crescent-moon"></div>
@@ -423,7 +423,7 @@ export default function GraveyardPage() {
         </div>
 
         {/* Graveyard Grid - 2 Columns */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 w-full max-w-full" style={{ paddingBottom: '40px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-6 w-full max-w-full" style={{ paddingBottom: '40px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {filteredSituationships.length > 0 ? (
             filteredSituationships.map((situationship) => (
               <LazyGraveCard
