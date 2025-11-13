@@ -212,7 +212,7 @@ export default function GraveyardPage() {
       className="min-h-screen bg-black relative overflow-x-hidden"
       style={{
         backgroundImage:
-          'radial-gradient(800px 500px at 0% 0%, rgba(59,130,246,0.18), rgba(59,130,246,0.08) 35%, rgba(0,0,0,0) 70%)',
+          'radial-gradient(800px 500px at 0% 0%, rgba(37,99,235,0.25), rgba(37,99,235,0.12) 35%, rgba(0,0,0,0) 70%)',
         backgroundRepeat: 'no-repeat',
         backgroundColor: '#000'
       }}
@@ -230,6 +230,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -242,6 +243,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -254,6 +256,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -266,6 +269,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -278,6 +282,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -290,6 +295,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -302,6 +308,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         <div 
@@ -314,6 +321,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         {/* From left entry */}
@@ -325,6 +333,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         {/* From right entry diagonally left */}
@@ -336,6 +345,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         {/* From bottom upward */}
@@ -347,6 +357,7 @@ export default function GraveyardPage() {
             willChange: 'transform, filter, opacity',
             transform: 'translateZ(0)',
             filter: 'blur(3px)',
+            opacity: 0,
           }}
         />
         </div>

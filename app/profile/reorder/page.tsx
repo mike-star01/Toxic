@@ -141,10 +141,10 @@ export default function ReorderGravesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900">
+    <div className="min-h-screen bg-zinc-950 relative overflow-x-hidden">
       <AppHeader title="Reorder Graves" />
       <div className="px-4 py-4 space-y-4">
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardContent
             className="p-4 space-y-2 select-none"
             onTouchMove={handleTouchMove}
@@ -156,7 +156,7 @@ export default function ReorderGravesPage() {
               return (
                 <div
                   key={g.id}
-                  className={`flex items-center justify-between rounded px-4 py-4 select-none ${isActive ? 'bg-red-800' : 'bg-zinc-900'}`}
+                  className={`flex items-center justify-between rounded px-4 py-4 select-none ${isActive ? 'bg-red-800' : 'bg-zinc-950/85 border border-zinc-800/70 backdrop-blur'}`}
                   onDragEnter={() => handleDragEnter(idx)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => e.preventDefault()}

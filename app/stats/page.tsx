@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -480,24 +480,86 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900">
+    <div
+      className="min-h-screen bg-black relative overflow-x-hidden"
+      style={{
+        backgroundImage:
+          'radial-gradient(800px 500px at 0% 0%, rgba(147,51,234,0.25), rgba(147,51,234,0.12) 35%, rgba(0,0,0,0) 70%)',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#000'
+      }}
+    >
+      {/* Stars Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {useMemo(() => {
+          return Array.from({ length: 50 }).map((_, i) => {
+            const size = Math.random() * 2 + 0.5; // 0.5px to 2.5px
+            const left = Math.random() * 100;
+            const top = Math.random() * 100;
+            const opacity = Math.random() * 0.5 + 0.3; // 0.3 to 0.8
+            const isLarge = size > 1.5; // Stars larger than 1.5px get glow
+            return (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  opacity: opacity,
+                  filter: isLarge ? 'blur(0.5px)' : 'blur(0.3px)',
+                  boxShadow: isLarge ? '0 0 2px rgba(255,255,255,0.4), 0 0 4px rgba(255,255,255,0.2)' : 'none',
+                }}
+              />
+            );
+          });
+        }, [])}
+      </div>
+
       <AppHeader title="Your Stats" centered />
 
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-4 space-y-4 relative z-10">
         {/* Overview Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-zinc-800 border-zinc-700">
+          <Card 
+            className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm"
+            style={{
+              boxShadow: '0 0 8px rgba(248,113,113,0.3), 0 0 15px rgba(248,113,113,0.2), inset 0 0 10px rgba(248,113,113,0.15)',
+              borderColor: 'rgba(248,113,113,0.3)'
+            }}
+          >
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
-                {stats.totalGraves} <span role="img" aria-label="grave">🪦</span>
+                <span 
+                  style={{
+                    textShadow: '0 0 6px rgba(248,113,113,0.6), 0 0 12px rgba(248,113,113,0.4)'
+                  }}
+                >
+                  {stats.totalGraves}
+                </span>
+                <span role="img" aria-label="grave">🪦</span>
               </div>
               <div className="text-sm text-zinc-400">Total Graves</div>
             </CardContent>
           </Card>
-          <Card className="bg-zinc-800 border-zinc-700">
+          <Card 
+            className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm"
+            style={{
+              boxShadow: '0 0 8px rgba(251,191,36,0.3), 0 0 15px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.15)',
+              borderColor: 'rgba(251,191,36,0.3)'
+            }}
+          >
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-amber-400 flex items-center justify-center gap-1">
-                {stats.revived} <span role="img" aria-label="lightning">⚡️</span>
+                <span 
+                  style={{
+                    textShadow: '0 0 6px rgba(251,191,36,0.6), 0 0 12px rgba(251,191,36,0.4)'
+                  }}
+                >
+                  {stats.revived}
+                </span>
+                <span role="img" aria-label="lightning">⚡️</span>
               </div>
               <div className="text-sm text-zinc-400">Revived</div>
             </CardContent>
@@ -505,7 +567,7 @@ export default function StatsPage() {
         </div>
 
         {/* Duration Stats */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5" />
@@ -529,7 +591,7 @@ export default function StatsPage() {
         </Card>
 
         {/* Emotional Stats */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Heart className="h-5 w-5" />
@@ -538,35 +600,75 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(52,211,153,0.45)',
+                  boxShadow: '0 0 6px rgba(52,211,153,0.25), 0 0 12px rgba(52,211,153,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-green-400">{stats.emotionalStats.meetInPerson}</div>
                 <div className="text-xs text-zinc-400">Met in Person</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(244,114,182,0.45)',
+                  boxShadow: '0 0 6px rgba(244,114,182,0.25), 0 0 12px rgba(244,114,182,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-pink-400">{stats.emotionalStats.kissed}</div>
                 <div className="text-xs text-zinc-400">Kissed</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(168,85,247,0.45)',
+                  boxShadow: '0 0 6px rgba(168,85,247,0.25), 0 0 12px rgba(168,85,247,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-purple-400">{stats.emotionalStats.hookup}</div>
                 <div className="text-xs text-zinc-400">Hooked Up</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(248,113,113,0.45)',
+                  boxShadow: '0 0 6px rgba(248,113,113,0.25), 0 0 12px rgba(248,113,113,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-red-400">{stats.emotionalStats.love}</div>
                 <div className="text-xs text-zinc-400">Fell in Love</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(250,204,21,0.45)',
+                  boxShadow: '0 0 6px rgba(250,204,21,0.25), 0 0 12px rgba(250,204,21,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-yellow-400">{stats.emotionalStats.fight}</div>
                 <div className="text-xs text-zinc-400">Had Fights</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(96,165,250,0.45)',
+                  boxShadow: '0 0 6px rgba(96,165,250,0.25), 0 0 12px rgba(96,165,250,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-blue-400">{stats.emotionalStats.exclusive}</div>
                 <div className="text-xs text-zinc-400">Exclusive</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(45,212,191,0.45)',
+                  boxShadow: '0 0 6px rgba(45,212,191,0.25), 0 0 12px rgba(45,212,191,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-teal-400">{stats.emotionalStats.closure}</div>
                 <div className="text-xs text-zinc-400">Got Closure</div>
               </div>
-              <div className="text-center p-2 bg-zinc-900 rounded">
+              <div className="text-center p-2 rounded border border-zinc-800/60 bg-black/80 backdrop-blur-sm"
+                style={{
+                  borderColor: 'rgba(251,146,60,0.45)',
+                  boxShadow: '0 0 6px rgba(251,146,60,0.25), 0 0 12px rgba(251,146,60,0.14)'
+                }}
+              >
                 <div className="text-lg font-bold text-orange-400">{stats.emotionalStats.avgEmotionalImpact}</div>
                 <div className="text-xs text-zinc-400">Avg Emotional Impact</div>
               </div>
@@ -576,7 +678,7 @@ export default function StatsPage() {
 
         {/* Cause Breakdown */}
         {stats.causeBreakdown.length > 0 && (
-          <Card className="bg-zinc-800 border-zinc-700">
+          <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Target className="h-5 w-5" />
@@ -606,7 +708,7 @@ export default function StatsPage() {
         )}
 
         {/* Reflection Stats */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <span className="text-2xl">💭</span>
@@ -630,7 +732,7 @@ export default function StatsPage() {
 
         {/* Flags Collected Stats */}
         {stats.flagsStats.totalFlags > 0 && (
-          <Card className="bg-zinc-800 border-zinc-700">
+          <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <span className="text-2xl">🏴</span>
@@ -659,7 +761,7 @@ export default function StatsPage() {
         )}
 
         {/* When You Start */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -670,7 +772,7 @@ export default function StatsPage() {
             <div className="grid grid-cols-6 gap-2">
               {stats.startMonths.map((month) => (
                 <div key={month.month} className="text-center">
-                  <div className="bg-zinc-900 rounded p-2 mb-1">
+                  <div className="rounded p-2 mb-1 border border-zinc-800/60 bg-black/80 backdrop-blur-sm">
                     <div className="text-lg font-bold text-green-400">{month.count}</div>
                   </div>
                   <div className="text-xs text-zinc-400">{month.month}</div>
@@ -681,7 +783,7 @@ export default function StatsPage() {
         </Card>
 
         {/* When They End */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
@@ -692,7 +794,7 @@ export default function StatsPage() {
             <div className="grid grid-cols-6 gap-2">
               {stats.endMonths.map((month) => (
                 <div key={month.month} className="text-center">
-                  <div className="bg-zinc-900 rounded p-2 mb-1">
+                  <div className="rounded p-2 mb-1 border border-zinc-800/60 bg-black/80 backdrop-blur-sm">
                     <div className="text-lg font-bold text-red-400">{month.count}</div>
                   </div>
                   <div className="text-xs text-zinc-400">{month.month}</div>

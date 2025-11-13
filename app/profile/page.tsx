@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -134,14 +135,14 @@ export default function ProfilePage() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
   return (
-    <div className="min-h-screen bg-zinc-900">
+    <div className="min-h-screen bg-zinc-950 relative overflow-x-hidden">
       <AppHeader title="Profile" showProfile={false} />
 
       <div className="px-4 py-4 space-y-4">
         {/* Profile Header */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardContent className="p-6 text-center">
-            <div className="w-20 h-20 bg-zinc-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-black/70 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">💔</span>
             </div>
             <h2 className="text-xl font-bold mb-1">Heartbreak Collector</h2>
@@ -154,7 +155,7 @@ export default function ProfilePage() {
                   })()
                 : 'No graves yet'}
             </p>
-            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-zinc-700">
+            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-zinc-800/60">
               <div className="text-center">
                 <div className="text-lg font-bold text-red-400">{stats.totalGraves}</div>
                 <div className="text-xs text-zinc-400">Graves</div>
@@ -176,7 +177,7 @@ export default function ProfilePage() {
 
 
         {/* Settings */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -186,21 +187,21 @@ export default function ProfilePage() {
           <CardContent className="space-y-3">
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
+              className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Notifications
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
+              className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Theme Preferences
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
+              className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
               onClick={() => { window.location.href = '/profile/reorder' }}
             >
               Reorder Graves
@@ -209,7 +210,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* Support */}
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl flex items-center gap-2">
               <HelpCircle className="h-5 w-5" />
@@ -226,7 +227,16 @@ export default function ProfilePage() {
             </Button>
             <Button 
               variant="ghost" 
-              className="w-full justify-start h-12 active:bg-zinc-700 text-base"
+              className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
+              asChild
+            >
+              <Link href="/privacy">
+                Privacy Policy
+              </Link>
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
               onClick={() => alert('Coming soon 🦦')}
             >
               Rate the App
