@@ -408,13 +408,13 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
   )
 
   return (
-    <div className="min-h-screen bg-zinc-900">
+    <div className="min-h-screen bg-zinc-950 relative overflow-x-hidden">
       <AppHeader title={situationship.name} showBack />
 
       <div className="px-4 py-4 space-y-4">
 
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader className="bg-zinc-900 border-b border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
+          <CardHeader className="bg-zinc-900/70 border-b border-zinc-700/70">
             <CardTitle>Memorial 🕯️</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -465,7 +465,7 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
 
         </Card>
 
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardHeader>
             <CardTitle>Autopsy 🔍</CardTitle>
             <CardDescription>The details of what happened between you 💔</CardDescription>
@@ -543,14 +543,14 @@ export default function SituationshipDetailPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-800 border-zinc-700">
+        <Card className="bg-zinc-900/70 border-zinc-700/70 backdrop-blur">
           <CardHeader>
             <CardTitle>Reflection 💭</CardTitle>
             <CardDescription>What you learned from this experience 🥀</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             {situationship.reflection ? (
-              <div className="bg-zinc-900 p-4 rounded-lg text-zinc-300 leading-relaxed">
+              <div className="bg-zinc-900 p-4 rounded-lg text-white leading-relaxed">
                 "{situationship.reflection}"
               </div>
             ) : (

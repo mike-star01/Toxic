@@ -165,6 +165,13 @@ export default function StatsPage() {
       uniqueFlags: [] as string[],
       flagBreakdown: [] as Array<{ flag: string; count: number }>,
     },
+    insights: {
+      recoveryTime: null as string | null,
+      patternAlert: null as string | null,
+      closureImpact: null as string | null,
+      loveDuration: null as string | null,
+      highestImpactFlag: null as string | null,
+    },
   })
 
   useEffect(() => {
@@ -232,6 +239,13 @@ export default function StatsPage() {
             totalFlags: 0,
             uniqueFlags: [],
             flagBreakdown: [],
+          },
+          insights: {
+            recoveryTime: null,
+            patternAlert: null,
+            closureImpact: null,
+            loveDuration: null,
+            highestImpactFlag: null,
           },
         })
         return
@@ -420,6 +434,163 @@ export default function StatsPage() {
       
       const uniqueFlags = Object.keys(flagCounts)
 
+      // Calculate insights
+      // Recovery Time - average time between situationships ending and new ones starting
+      const sortedByEnd = situationships
+        .filter(s => s.dates.end)
+        .map(s => {
+          const endParts = s.dates.end.split('-')
+          return { endYear: parseInt(endParts[0]), endMonth: parseInt(endParts[1]), id: s.id }
+        })
+        .sort((a, b) => {
+          if (a.endYear !== b.endYear) return a.endYear - b.endYear
+          return a.endMonth - b.endMonth
+        })
+
+      const sortedByStart = situationships
+        .filter(s => s.dates.start)
+        .map(s => {
+          const startParts = s.dates.start.split('-')
+          return { startYear: parseInt(startParts[0]), startMonth: parseInt(startParts[1]), id: s.id }
+        })
+        .sort((a, b) => {
+          if (a.startYear !== b.startYear) return a.startYear - b.startYear
+          return a.startMonth - b.startMonth
+        })
+
+      let recoveryDays: number[] = []
+      for (let i = 0; i < sortedByEnd.length - 1; i++) {
+        const end = sortedByEnd[i]
+        const nextStart = sortedByStart.find(s => 
+          s.startYear > end.endYear || (s.startYear === end.endYear && s.startMonth > end.endMonth)
+        )
+        if (nextStart) {
+          const monthsDiff = (nextStart.startYear - end.endYear) * 12 + (nextStart.startMonth - end.endMonth)
+          if (monthsDiff > 0) {
+            recoveryDays.push(monthsDiff * 30.44)
+          }
+        }
+      }
+
+      const recoveryTime = recoveryDays.length > 0
+        ? formatDuration(recoveryDays.reduce((a, b) => a + b, 0) / recoveryDays.length)
+        : null
+
+      // Pattern Alert - if one cause dominates (>50% or significantly higher)
+      const patternAlert = (() => {
+        if (causeBreakdown.length === 0) return null
+        const topCause = causeBreakdown[0]
+        const secondCause = causeBreakdown[1]
+        
+        if (topCause.percentage >= 50) {
+          return `${topCause.cause} accounts for ${topCause.percentage}% of your endings`
+        }
+        if (secondCause && topCause.percentage >= secondCause.percentage * 2) {
+          return `${topCause.cause} is ${Math.round(topCause.percentage / secondCause.percentage)}x more common than ${secondCause.cause}`
+        }
+        return null
+      })()
+
+      // Closure Impact - avg emotional impact with vs without closure
+      const closureImpact = (() => {
+        const withClosure = situationships
+          .filter(s => s.details.closure && typeof s.details.emotionalImpact === 'number')
+          .map(s => s.details.emotionalImpact)
+        const withoutClosure = situationships
+          .filter(s => !s.details.closure && typeof s.details.emotionalImpact === 'number')
+          .map(s => s.details.emotionalImpact)
+        
+        if (withClosure.length === 0 || withoutClosure.length === 0) return null
+        
+        const avgWith = withClosure.reduce((a, b) => a + b, 0) / withClosure.length
+        const avgWithout = withoutClosure.reduce((a, b) => a + b, 0) / withoutClosure.length
+        const diff = avgWith - avgWithout
+        
+        if (Math.abs(diff) < 0.5) return null // Not significant enough
+        
+        if (diff < 0) {
+          return `Closure reduces emotional impact by ${Math.abs(diff).toFixed(1)} points`
+        } else {
+          return `Closure increases emotional impact by ${diff.toFixed(1)} points`
+        }
+      })()
+
+      // Love & Duration - avg duration with vs without love
+      const loveDuration = (() => {
+        const withLove = situationships
+          .filter(s => s.details.love)
+          .map(s => {
+            if (s.details?.duration) return parseDurationToDays(s.details.duration)
+            if (s.dates.start && s.dates.end) {
+              const startParts = s.dates.start.split('-')
+              const endParts = s.dates.end.split('-')
+              if (startParts.length === 2 && endParts.length === 2) {
+                const monthsDiff = (parseInt(endParts[0]) - parseInt(startParts[0])) * 12 + 
+                                  (parseInt(endParts[1]) - parseInt(startParts[1]))
+                return monthsDiff * 30.44
+              }
+            }
+            return 0
+          })
+          .filter(d => d > 0)
+        
+        const withoutLove = situationships
+          .filter(s => !s.details.love)
+          .map(s => {
+            if (s.details?.duration) return parseDurationToDays(s.details.duration)
+            if (s.dates.start && s.dates.end) {
+              const startParts = s.dates.start.split('-')
+              const endParts = s.dates.end.split('-')
+              if (startParts.length === 2 && endParts.length === 2) {
+                const monthsDiff = (parseInt(endParts[0]) - parseInt(startParts[0])) * 12 + 
+                                  (parseInt(endParts[1]) - parseInt(startParts[1]))
+                return monthsDiff * 30.44
+              }
+            }
+            return 0
+          })
+          .filter(d => d > 0)
+        
+        if (withLove.length === 0 || withoutLove.length === 0) return null
+        
+        const avgWith = withLove.reduce((a, b) => a + b, 0) / withLove.length
+        const avgWithout = withoutLove.reduce((a, b) => a + b, 0) / withoutLove.length
+        
+        if (avgWith > avgWithout * 1.2) {
+          return `Love situationships last ${formatDuration(avgWith)} on average (${formatDuration(avgWithout)} without)`
+        } else if (avgWithout > avgWith * 1.2) {
+          return `Non-love situationships last ${formatDuration(avgWithout)} on average`
+        }
+        return null
+      })()
+
+      // Flag with highest avg emotional impact
+      const highestImpactFlag = (() => {
+        const flagImpacts: Record<string, number[]> = {}
+        
+        situationships.forEach(s => {
+          if (s.details.flags && s.details.flags.length > 0 && typeof s.details.emotionalImpact === 'number') {
+            s.details.flags.forEach(flag => {
+              if (!flagImpacts[flag]) flagImpacts[flag] = []
+              flagImpacts[flag].push(s.details.emotionalImpact)
+            })
+          }
+        })
+        
+        const flagAverages = Object.entries(flagImpacts)
+          .map(([flag, impacts]) => ({
+            flag,
+            avg: impacts.reduce((a, b) => a + b, 0) / impacts.length,
+            count: impacts.length
+          }))
+          .filter(f => f.count >= 2) // Only flags that appear at least twice
+        
+        if (flagAverages.length === 0) return null
+        
+        const highest = flagAverages.sort((a, b) => b.avg - a.avg)[0]
+        return `${highest.flag} has the highest avg emotional impact (${highest.avg.toFixed(1)})`
+      })()
+
       setStats({
         totalGraves,
         revived,
@@ -443,6 +614,13 @@ export default function StatsPage() {
           totalFlags: allFlags.length,
           uniqueFlags,
           flagBreakdown,
+        },
+        insights: {
+          recoveryTime,
+          patternAlert,
+          closureImpact,
+          loveDuration,
+          highestImpactFlag,
         },
       })
     } catch (error) {
@@ -477,6 +655,78 @@ export default function StatsPage() {
   const getRevivalRate = () => {
     if (stats.totalGraves === 0) return 0
     return Math.round((stats.revived / stats.totalGraves) * 100)
+  }
+
+  // Select top 3 insights based on Option 3 priority:
+  // 1. Pattern Alert (if exists) - most actionable
+  // 2. Recovery Time (if available) - always useful
+  // 3. Most significant correlation (Closure Impact, Love & Duration, or Flag Impact)
+  const getTopInsights = () => {
+    const selected: Array<{ type: string; value: string; icon: any; color: string; title: string }> = []
+    
+    // Priority 1: Pattern Alert (if exists)
+    if (stats.insights.patternAlert) {
+      selected.push({
+        type: 'patternAlert',
+        value: stats.insights.patternAlert,
+        icon: Target,
+        color: 'text-orange-400',
+        title: 'Pattern Alert'
+      })
+    }
+    
+    // Priority 2: Recovery Time (if available)
+    if (stats.insights.recoveryTime) {
+      selected.push({
+        type: 'recoveryTime',
+        value: stats.insights.recoveryTime,
+        icon: Clock,
+        color: 'text-blue-400',
+        title: 'Recovery Time'
+      })
+    }
+    
+    // Priority 3: Most significant correlation
+    // Rank correlations by significance (all have similar priority, pick first available)
+    const correlations = [
+      {
+        type: 'closureImpact',
+        value: stats.insights.closureImpact,
+        icon: Heart,
+        color: 'text-purple-400',
+        title: 'Closure Impact'
+      },
+      {
+        type: 'loveDuration',
+        value: stats.insights.loveDuration,
+        icon: Heart,
+        color: 'text-pink-400',
+        title: 'Love & Duration'
+      },
+      {
+        type: 'highestImpactFlag',
+        value: stats.insights.highestImpactFlag,
+        icon: null, // Will use emoji
+        color: 'text-blue-400',
+        title: 'Flag Impact'
+      }
+    ]
+    
+    // Add first available correlation until we have 3 total
+    for (const correlation of correlations) {
+      if (selected.length >= 3) break
+      if (correlation.value) {
+        selected.push({
+          type: correlation.type,
+          value: correlation.value,
+          icon: correlation.icon,
+          color: correlation.color,
+          title: correlation.title
+        })
+      }
+    }
+    
+    return selected
   }
 
   return (
@@ -523,7 +773,7 @@ export default function StatsPage() {
         {/* Overview Cards */}
         <div className="grid grid-cols-2 gap-4">
           <Card 
-            className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm"
+            className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
             style={{
               boxShadow: '0 0 8px rgba(248,113,113,0.3), 0 0 15px rgba(248,113,113,0.2), inset 0 0 10px rgba(248,113,113,0.15)',
               borderColor: 'rgba(248,113,113,0.3)'
@@ -544,7 +794,7 @@ export default function StatsPage() {
             </CardContent>
           </Card>
           <Card 
-            className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm"
+            className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
             style={{
               boxShadow: '0 0 8px rgba(251,191,36,0.3), 0 0 15px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.15)',
               borderColor: 'rgba(251,191,36,0.3)'
@@ -567,7 +817,7 @@ export default function StatsPage() {
         </div>
 
         {/* Duration Stats */}
-        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+        <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5" />
@@ -591,7 +841,7 @@ export default function StatsPage() {
         </Card>
 
         {/* Emotional Stats */}
-        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+        <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Heart className="h-5 w-5" />
@@ -678,7 +928,7 @@ export default function StatsPage() {
 
         {/* Cause Breakdown */}
         {stats.causeBreakdown.length > 0 && (
-          <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+          <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Target className="h-5 w-5" />
@@ -708,7 +958,7 @@ export default function StatsPage() {
         )}
 
         {/* Reflection Stats */}
-        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+        <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <span className="text-2xl">💭</span>
@@ -732,7 +982,7 @@ export default function StatsPage() {
 
         {/* Flags Collected Stats */}
         {stats.flagsStats.totalFlags > 0 && (
-          <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+          <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <span className="text-2xl">🏴</span>
@@ -761,7 +1011,7 @@ export default function StatsPage() {
         )}
 
         {/* When You Start */}
-        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+        <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -783,7 +1033,7 @@ export default function StatsPage() {
         </Card>
 
         {/* When They End */}
-        <Card className="bg-zinc-900/60 border-zinc-800/70 backdrop-blur-sm">
+        <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
@@ -805,41 +1055,67 @@ export default function StatsPage() {
         </Card>
 
         {/* Insights */}
-        <Card className="bg-gradient-to-r from-zinc-800 to-zinc-700 border-zinc-600">
-          <CardHeader className="pb-3">
+        <Card 
+          className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(39, 39, 42, 0.4) 0%, rgba(24, 24, 27, 0.35) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <CardHeader className="pb-3 relative z-10">
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
               Insights
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start gap-3">
-              <Heart className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="font-medium">Most Common Ending</div>
-                <div className="text-sm text-zinc-300">
-                  {stats.mostCommonCause} is your most frequent cause of death
+          <CardContent className="space-y-3 relative z-10">
+            {(() => {
+              const topInsights = getTopInsights()
+              if (topInsights.length === 0) {
+                return (
+                  <div className="text-sm text-zinc-400 text-center py-4">
+                    Add more situationships to unlock insights
+                  </div>
+                )
+              }
+              return topInsights.map((insight, index) => {
+                // Get glow color based on insight type
+                const getGlowStyle = () => {
+                  switch (insight.type) {
+                    case 'patternAlert':
+                      return { filter: 'drop-shadow(0 0 6px rgba(251, 146, 60, 0.6)) drop-shadow(0 0 12px rgba(251, 146, 60, 0.4))' }
+                    case 'recoveryTime':
+                      return { filter: 'drop-shadow(0 0 6px rgba(96, 165, 250, 0.6)) drop-shadow(0 0 12px rgba(96, 165, 250, 0.4))' }
+                    case 'closureImpact':
+                      return { filter: 'drop-shadow(0 0 6px rgba(168, 85, 247, 0.6)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4))' }
+                    case 'loveDuration':
+                      return { filter: 'drop-shadow(0 0 6px rgba(244, 114, 182, 0.6)) drop-shadow(0 0 12px rgba(244, 114, 182, 0.4))' }
+                    case 'highestImpactFlag':
+                      return { filter: 'drop-shadow(0 0 6px rgba(96, 165, 250, 0.6)) drop-shadow(0 0 12px rgba(96, 165, 250, 0.4))', textShadow: '0 0 6px rgba(96, 165, 250, 0.6), 0 0 12px rgba(96, 165, 250, 0.4)' }
+                    default:
+                      return {}
+                  }
+                }
+                
+                return (
+                <div key={insight.type || index} className="flex items-start gap-3">
+                  {insight.icon ? (
+                    <insight.icon className={`h-5 w-5 ${insight.color} mt-0.5 flex-shrink-0`} style={getGlowStyle()} />
+                  ) : (
+                    <span className="text-2xl mt-0.5 flex-shrink-0" style={getGlowStyle()}>🏴</span>
+                  )}
+                  <div>
+                    <div className="font-medium">{insight.title}</div>
+                    <div className="text-sm text-zinc-300">
+                      {insight.type === 'recoveryTime' 
+                        ? `Average ${insight.value} between situationships`
+                        : insight.value
+                      }
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Zap className="h-5 w-5 text-amber-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="font-medium">Revival Rate</div>
-                <div className="text-sm text-zinc-300">
-                  You've revived {getRevivalRate()}% of your situationships
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="font-medium">This Month</div>
-                <div className="text-sm text-zinc-300">
-                  You've added {stats.thisMonth} new graves to your collection
-                </div>
-              </div>
-            </div>
+              )})
+            })()}
           </CardContent>
         </Card>
 

@@ -379,7 +379,7 @@ export default function GraveyardPage() {
         <div className="space-y-3 relative z-10">
           <div className="relative">
             <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400 z-20 pointer-events-none" />
-            <div className="w-full h-11 rounded-md bg-zinc-800/70 pl-9 pr-3 flex items-center border-2 border-zinc-700 backdrop-blur-sm">
+            <div className="w-full h-11 rounded-md bg-zinc-800/40 pl-9 pr-3 flex items-center border-2 border-zinc-700/50 backdrop-blur-sm">
               <input
                 type="text"
                 placeholder="Search by name..."

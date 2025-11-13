@@ -296,7 +296,7 @@ export default function AddSituationshipPage() {
                   <Input
                     id="name"
                     placeholder="e.g., Gym Rat Greg, Tinder Tom"
-                    className="bg-zinc-900 border-zinc-700 h-11"
+                    className="bg-zinc-900 border-zinc-700 h-11 placeholder:text-zinc-600"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                     maxLength={30}
@@ -314,7 +314,7 @@ export default function AddSituationshipPage() {
                         className={`flex flex-col items-center justify-center rounded-lg p-3 h-20 transition-all
                           ${formData.cause === cause
                             ? 'bg-red-600 text-white border-transparent shadow-md scale-105'
-                            : 'bg-zinc-700 text-zinc-200 border border-zinc-600 hover:bg-zinc-600'}
+                            : 'bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700'}
                         `}
                         onClick={() => handleChange('cause', cause)}
                       >
@@ -376,7 +376,7 @@ export default function AddSituationshipPage() {
                   <Input
                     id="start-date"
                     type="month"
-                    className="bg-zinc-900 border-zinc-700 h-11"
+                    className="bg-zinc-900 border-zinc-700 h-11 placeholder:text-zinc-600"
                     value={formData.startDate}
                     onChange={(e) => {
                       handleChange("startDate", e.target.value)
@@ -394,7 +394,7 @@ export default function AddSituationshipPage() {
                   <Input
                     id="end-date"
                     type="month"
-                    className="bg-zinc-900 border-zinc-700 h-11"
+                    className="bg-zinc-900 border-zinc-700 h-11 placeholder:text-zinc-600"
                     value={formData.endDate || ""}
                     onChange={(e) => {
                       handleChange("endDate", e.target.value)
@@ -419,7 +419,7 @@ export default function AddSituationshipPage() {
                         min="1"
                         max="31"
                         placeholder="Days"
-                        className="bg-zinc-900 border-zinc-700 h-11"
+                        className="bg-zinc-900 border-zinc-700 h-11 placeholder:text-zinc-600"
                         value={formData.preciseDuration || ""}
                         onChange={(e) => handleChange("preciseDuration", e.target.value)}
                       />
@@ -448,7 +448,7 @@ export default function AddSituationshipPage() {
                   <Textarea
                     id="epitaph"
                     placeholder="Here lies the person who..."
-                    className="bg-zinc-900 border-zinc-700 min-h-[80px] resize-none w-full"
+                    className="bg-zinc-900 border-zinc-700 min-h-[80px] resize-none w-full placeholder:text-zinc-600"
                     value={formData.epitaph}
                     onChange={(e) => handleChange("epitaph", e.target.value)}
                     maxLength={100}
@@ -594,7 +594,7 @@ export default function AddSituationshipPage() {
                     <div className="flex gap-2">
                       <Input
                         placeholder="e.g., Always canceled last minute"
-                        className="bg-zinc-800 border-zinc-700 h-10 flex-1"
+                        className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
                         value={redFlagInput}
                         onChange={(e) => setRedFlagInput(e.target.value)}
                         onKeyPress={(e) => {
@@ -668,7 +668,7 @@ export default function AddSituationshipPage() {
                     <div className="flex gap-2">
                       <Input
                         placeholder="e.g., 🇨🇦, 🇵🇷"
-                        className="bg-zinc-800 border-zinc-700 h-10 flex-1"
+                        className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
                         value={flagsInput}
                         onChange={(e) => setFlagsInput(e.target.value)}
                         onKeyPress={(e) => {
@@ -776,7 +776,8 @@ export default function AddSituationshipPage() {
                     <Textarea
                       id="reflection"
                       placeholder="Reflect on what you learned or how you grew from this experience..."
-                      className="bg-zinc-800 border-zinc-700 min-h-[100px] resize-none"
+                      className="bg-zinc-900 border-zinc-700 min-h-[100px] resize-none placeholder:text-zinc-600 text-white"
+                      style={{ color: '#ffffff' }}
                       value={formData.reflection}
                       onChange={(e) => handleChange("reflection", e.target.value)}
                       maxLength={500}
@@ -859,7 +860,7 @@ export default function AddSituationshipPage() {
                         type="number"
                         min="0"
                         placeholder="0"
-                        className="bg-zinc-800 border-zinc-700 h-9 w-28 text-right"
+                        className="bg-zinc-900 border-zinc-700 h-9 w-28 text-right placeholder:text-zinc-600"
                         value={formData.dateCount}
                         onChange={(e) => {
                           const value = e.target.value.replace(/[^0-9]/g, '');
