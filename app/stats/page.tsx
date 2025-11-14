@@ -1119,7 +1119,20 @@ export default function StatsPage() {
           </CardContent>
         </Card>
 
-        {/* Manual refresh button removed per request */}
+        {/* Coming Soon Section */}
+        <Card
+          className="backdrop-blur-sm mt-6 border border-yellow-300/40"
+          style={{
+            background: 'linear-gradient(135deg, rgba(250,204,21,0.15) 0%, rgba(250,204,21,0.05) 100%)',
+            boxShadow: '0 0 18px rgba(250,204,21,0.25), inset 0 0 12px rgba(250,204,21,0.15)',
+          }}
+        >
+          <CardContent className="p-4">
+            <div className="text-sm text-yellow-50 text-center">
+              Coming soon: Gravekeeper, graveyard timeline, advanced insights, new grave colors, backgrounds, skins, and more+ ❗🤫
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
