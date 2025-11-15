@@ -104,23 +104,20 @@
 
 .stem {
   width: 240px;
-  height: 40px;
-  background: transparent;
-  border: 8px solid #8ac78a;
-  border-color: #77a377 transparent transparent transparent;
-  border-radius: 50% 50%;
+  height: 8px;
+  background: #77a377;
+  border: none;
+  border-radius: 0;
   transform: rotate(100deg) translateZ(0);
   -webkit-transform: rotate(100deg) translateZ(0);
   position: relative;
   top: 0px;
-  left: -4px;
+  left: 13px;
   /* Fix iOS Safari rendering artifacts */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   will-change: transform;
-  /* Force new rendering layer to reduce artifacts */
   isolation: isolate;
-  /* Remove mask since we're using overflow hidden on parent */
 }
 
 .leafs {
