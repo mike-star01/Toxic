@@ -484,13 +484,13 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-40 bg-zinc-900 border-zinc-700">
               <DropdownMenuItem asChild className="py-3 px-4 text-sm">
-                <Link href={`/situationship/${situationship.id}`} className="flex items-center w-full">
+                <Link href={`/situationship?id=${situationship.id}`} className="flex items-center w-full">
                   <span className="mr-3 text-lg">👁️</span>
                   View Details
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="py-3 px-4 text-sm">
-                <Link href={`/edit/${situationship.id}`} className="flex items-center w-full">
+                <Link href={`/edit?id=${situationship.id}`} className="flex items-center w-full">
                   <span className="mr-3 text-lg">✏️</span>
                   Edit Grave
                 </Link>

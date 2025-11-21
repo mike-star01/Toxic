@@ -1,11 +1,10 @@
 "use client"
-import React, { useState, useEffect, use } from "react"
-import { useRouter } from "next/navigation"
+import React, { useEffect, useRef, useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skull, Upload } from "lucide-react"
@@ -198,9 +197,10 @@ const situationshipsData: Record<string, Situationship> = {
   },
 }
 
-export default function EditSituationshipPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+function EditSituationshipPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id") || ""
   const { toast } = useToast()
   const [situationship, setSituationship] = useState<Situationship | null>(null)
   const [selectedColor, setSelectedColor] = useState("classic")
@@ -230,7 +230,7 @@ export default function EditSituationshipPage({ params }: { params: Promise<{ id
   const [redFlagInput, setRedFlagInput] = useState("")
   const [flagsInput, setFlagsInput] = useState("")
   const [isUnsurePressed, setIsUnsurePressed] = useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Color themes for graves
   const colorThemes = [
@@ -280,6 +280,11 @@ const causeOptions = [
 
 
   useEffect(() => {
+    if (!id) {
+      setSituationship(null)
+      return
+    }
+
     // Try to get the situationship from localStorage first
     let found: Situationship | null = null
     if (typeof window !== 'undefined') {
@@ -375,6 +380,14 @@ const causeOptions = [
       console.error('Error calculating duration:', error)
       return ''
     }
+  }
+
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-zinc-400">Missing grave ID</div>
+      </div>
+    )
   }
 
   if (!situationship) {
@@ -1136,4 +1149,17 @@ const causeOptions = [
       </div>
     </div>
   )
-} 
+}
+
+export default function EditSituationshipPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-zinc-400">Loading...</div>
+      </div>
+    }>
+      <EditSituationshipPageContent />
+    </Suspense>
+  )
+}
+

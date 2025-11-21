@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 
 import AppHeader from "@/components/app-header"
 import { Skull } from "lucide-react"
@@ -261,7 +261,7 @@ const colorThemes: { name: string; value: string; baseColor: string; borderColor
   },
 ]
 
-export default function SituationshipDetailPage() {
+function SituationshipDetailPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get("id") || ""
@@ -304,7 +304,6 @@ export default function SituationshipDetailPage() {
       }
     }
   }, [id])
-
 
 
 
@@ -589,3 +588,16 @@ export default function SituationshipDetailPage() {
     </div>
   )
 }
+
+export default function SituationshipDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-zinc-400">Loading...</div>
+      </div>
+    }>
+      <SituationshipDetailPageContent />
+    </Suspense>
+  )
+}
+

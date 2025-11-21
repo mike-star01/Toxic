@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candle Animation</title>
+  <style>
+    .container {
+      display: none;
+    }
+
+    .holder {
+      margin: 12rem auto 0;
+      width: 150px;
+      height: 200px;
+      position: relative;
+    }
+
+    .holder *, .holder *:before, .holder *:after {
+      position: absolute;
+      content: "";
+    }
+
+    .candle {
+      bottom: 0;
+      width: 150px;
+      height: 300px;
+      border-radius: 150px / 40px;
+      box-shadow: inset 20px -30px 50px 0 rgba(0, 0, 0, 0.4), inset -20px 0 50px 0 rgba(0, 0, 0, 0.4);
+      background: linear-gradient(#e48825, #e78e0e, #833c03, #4c1a03 50%, #1c0900);
+    }
+
+    .candle:before {
+      width: 100%;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #d47401;
+      background: radial-gradient(#eaa121, #8e4901 45%, #b86409 80%);
+    }
+
+    .candle:after {
+      width: 34px;
+      height: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      top: 14px;
+      box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+      background: radial-gradient(rgba(0, 0, 0, 0.6), transparent 45%);
+    }
+
+    .thread {
+      width: 6px;
+      height: 36px;
+      top: -17px;
+      left: 50%;
+      z-index: 1;
+      border-radius: 40% 40% 0 0;
+      transform: translateX(-50%);
+      background: linear-gradient(#d6994a, #4b232c, #121212, black, #e8bb31 90%);
+    }
+
+    .flame {
+      width: 24px;
+      height: 120px;
+      left: 50%;
+      transform-origin: 50% 100%;
+      transform: translateX(-50%);
+      bottom: 100%;
+      border-radius: 50% 50% 20% 20%;
+      background: linear-gradient(white 80%, transparent);
+      animation: moveFlame 6s linear infinite, enlargeFlame 5s linear infinite;
+    }
+
+    .flame:before {
+      width: 100%;
+      height: 100%;
+      border-radius: 50% 50% 20% 20%;
+      box-shadow: 0 0 15px 0 rgba(247, 93, 0, .4), 0 -6px 4px 0 rgba(247, 128, 0, .7);
+    }
+
+    @keyframes moveFlame {
+      0%, 100% {
+        transform: translateX(-50%) rotate(-2deg);
+      }
+      50% {
+        transform: translateX(-50%) rotate(2deg);
+      }
+    }
+
+    @keyframes enlargeFlame {
+      0%, 100% {
+        height: 120px;
+      }
+      50% {
+        height: 140px;
+      }
+    }
+
+    .glow {
+      width: 26px;
+      height: 60px;
+      border-radius: 50% 50% 35% 35%;
+      left: 50%;
+      top: -48px;
+      transform: translateX(-50%);
+      background: rgba(0, 133, 255, .7);
+      box-shadow: 0 -40px 30px 0 #dc8a0c, 0 40px 50px 0 #dc8a0c, inset 3px 0 2px 0 rgba(0, 133, 255, .6), inset -3px 0 2px 0 rgba(0, 133, 255, .6);
+    }
+
+    .glow:before {
+      width: 70%;
+      height: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .blinking-glow {
+      width: 100px;
+      height: 180px;
+      left: 50%;
+      top: -55%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: #ff6000;
+      filter: blur(60px);
+      animation: blinkIt .1s infinite;
+    }
+
+    @keyframes blinkIt {
+      50% {
+        opacity: .8;
+      }
+    }
+
+    button {
+      display: block;
+      margin: 2rem auto;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      background: #e78e0e;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #cf7a0a;
+    }
+  </style>
+</head>
+<body>
+  <div class="holder">
+    <div class="candle">
+      <div class="blinking-glow container"></div>
+      <div class="glow container"></div>
+      <div class="flame container"></div>
+      <div class="thread"></div>
+    </div>
+  </div>
+  <button id="toggle-btn">Light Candle</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const containers = document.querySelectorAll(".container");
+      const toggleBtn = document.getElementById("toggle-btn");
+
+      function toggleContainers() {
+        let isLit = false;
+
+        containers.forEach(container => {
+          if (container.style.display === "none" || container.style.display === "") {
+            container.style.display = "block";
+            isLit = true;
+          } else {
+            container.style.display = "none";
+          }
+        });
+
+        toggleBtn.textContent = isLit ? "Blow Out Candle" : "Light Candle";
+      }
+
+      toggleBtn.addEventListener("click", toggleContainers);
+    });
+  </script>
+</body>
+</html>

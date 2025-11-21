@@ -307,7 +307,7 @@ export default function TimelinePage() {
                       backgroundColor: graveColor.baseColor,
                       borderColor: graveColor.borderColor,
                     }}
-                    onClick={() => window.location.href = `/situationship/${item.situationship.id}`}
+                    onClick={() => window.location.href = `/situationship?id=${item.situationship.id}`}
                   >
                     <div className="flex items-center justify-between h-full">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
