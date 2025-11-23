@@ -26,7 +26,7 @@ export default function AppHeader({
 
   if (centered) {
     return (
-      <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 overflow-hidden">
+      <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center justify-center px-4 py-4 relative">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           {showProfile && (
@@ -47,7 +47,7 @@ export default function AppHeader({
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 overflow-hidden">
+    <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
           {showBack && (
