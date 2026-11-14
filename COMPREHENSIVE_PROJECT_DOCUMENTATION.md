@@ -10,809 +10,597 @@
 7. [Data Structure & State Management](#data-structure--state-management)
 8. [Visual Design System](#visual-design-system)
 9. [User Experience & Interaction Patterns](#user-experience--interaction-patterns)
-10. [Error Handling](#error-handling)
-11. [Technical Implementation Details](#technical-implementation-details)
-12. [Performance & Optimization](#performance--optimization)
-13. [Deployment & Configuration](#deployment--configuration)
-14. [Development Workflow](#development-workflow)
-15. [Future Enhancement Possibilities](#future-enhancement-possibilities)
+10. [Privacy & Data Handling](#privacy--data-handling)
+11. [Error Handling](#error-handling)
+12. [Technical Implementation Details](#technical-implementation-details)
+13. [Mobile & App Store Packaging](#mobile--app-store-packaging)
+14. [Deployment & Configuration](#deployment--configuration)
+15. [Development Workflow](#development-workflow)
+16. [Future Enhancement Possibilities](#future-enhancement-possibilities)
+17. [Marketing & Positioning Notes](#marketing--positioning-notes)
 
 ---
 
 ## Project Overview
 
-**Situationship Graveyard** is a Next.js 15 web application that provides a unique, dark-humored approach to processing and documenting failed relationships, flings, and almost-relationships. The app treats these experiences as "deceased situationships" that users can memorialize in a virtual graveyard with customizable tombstones, detailed "autopsies," and emotional processing tools.
+**Situationship Graveyard** is a Next.js 15 web + iOS (Capacitor) application that provides a dark-humored way to process and document failed relationships, flings, and almost-relationships. Users memorialise these experiences as “deceased situationships” in a virtual graveyard with customisable tombstones, emotional “autopsies,” stats, and a relationship timeline.
 
-### Key Statistics
-- **Framework**: Next.js 15.2.4 with App Router
-- **Language**: TypeScript (97.5% of codebase)
-- **Styling**: Tailwind CSS with custom dark theme
-- **UI Components**: 24 shadcn/ui components built on Radix UI primitives
-- **State Management**: React hooks + localStorage persistence
-- **Deployment**: Vercel-ready with GitHub integration
+The product is being prepared for **Apple App Store** distribution as a native iOS shell around a static Next.js export. There is **no backend**. All user data stays on-device in `localStorage`.
 
-### Live Application
-- **GitHub Repository**: https://github.com/mike-star01/Toxic
-- **Live Demo**: https://toxic-neon.vercel.app
+### Key Facts
+- **Product name (user-facing)**: Situationship Graveyard
+- **iOS display name** (`Info.plist`): Situationship Graveyard
+- **Capacitor `appName` / bundle**: `Gravely` / `com.troid.gravely` (internal packaging identifiers; not the primary marketing name)
+- **Framework**: Next.js 15.2.4 (App Router) with `output: 'export'` for static hosting / Capacitor
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS with a custom dark theme
+- **UI kit**: shadcn/ui on Radix UI (~21 components in `components/ui`)
+- **State**: React hooks + `localStorage`
+- **Mobile**: Capacitor 7 (iOS), `@capacitor/status-bar`, Expo present in dependencies
 - **Version**: 1.0.0
+- **Support email**: toxicos@gmail.com
+
+### Live / Source
+- **GitHub**: https://github.com/mike-star01/Toxic
+- **Web demo**: https://toxic-neon.vercel.app
 
 ---
 
 ## Core Concept & Philosophy
 
 ### The Graveyard Metaphor
-The app uses a graveyard metaphor to help users process relationship endings in a healthy, humorous way:
+- **Situationships as graves**: Each failed or unfinished relationship becomes a grave with a tombstone
+- **Memorialisation**: Epitaphs, photos, cause of death, and autopsy details
+- **Revive / bury**: Relationships can be marked revived (rekindled) or buried again
+- **Personalisation**: 8 tombstone colour themes (classic + textured variants)
+- **Emotional processing**: Forms and stats encourage reflection without a clinical tone
 
-- **Situationships as Graves**: Each failed relationship becomes a "grave" with its own tombstone
-- **Memorialization**: Users create detailed memorials with epitaphs, photos, and "autopsy" information
-- **Revival System**: Graves can be "revived" (relationship rekindled) or "buried" (relationship ended)
-- **Color Customization**: 8 different tombstone colors/themes for personalization
-- **Emotional Processing**: Detailed forms help users reflect on what happened and learn from experiences
-
-### Psychological Benefits
-- **Cathartic Release**: Humorous approach to processing painful experiences
-- **Pattern Recognition**: Stats page helps identify dating patterns and red flags
-- **Closure**: Formal "burial" process provides psychological closure
-- **Growth Tracking**: Detailed analytics help users see personal growth over time
+### Psychological Framing (for product / marketing)
+- Catharsis through humour instead of shame
+- Pattern recognition via Stats and Timeline
+- Closure through a formal “burial” ritual
+- Private journaling — no accounts, no social feed, no server sync
 
 ---
 
 ## Technology Stack
 
-### Core Framework
-- **Next.js 15.2.4**: Latest version with App Router for file-based routing
-- **React 19**: Latest React with concurrent features
-- **TypeScript 5**: Full type safety throughout the application
+### Core
+- **Next.js 15.2.4** — App Router, static export
+- **React 19**
+- **TypeScript 5**
 
 ### Styling & UI
-- **Tailwind CSS 3.4.17**: Utility-first CSS framework
-- **Radix UI**: Headless UI primitives for accessibility
-- **shadcn/ui**: Pre-built component library (24 components)
-- **Lucide React**: Icon library with 20+ icons used
-- **Custom CSS**: Keyframe animations for revival effects
+- **Tailwind CSS 3.4.17**
+- **Radix UI** + **shadcn/ui**
+- **Lucide React** icons
+- Custom CSS / CSS Modules (e.g. revival glow, animated rose, add-page candles)
 
-### State Management & Data
-- **React Hooks**: useState, useEffect, custom hooks
-- **localStorage**: Client-side persistence (no backend required)
-- **React Hook Form**: Form state management with validation
-- **Zod**: Schema validation for form data
+### Forms & Validation Libraries Present
+- **React Hook Form**, **Zod**, `@hookform/resolvers` are installed
+- Primary add/edit flows use controlled React state + toast validation (not a single shared Zod schema across the app)
 
-### Development Tools
-- **ESLint**: Code linting (disabled during builds for flexibility)
-- **TypeScript**: Type checking (errors ignored during builds)
-- **PostCSS**: CSS processing with Autoprefixer
-- **Vercel**: Deployment platform with GitHub integration
+### Mobile
+- **Capacitor Core / CLI / iOS** `^7.4.4`
+- **@capacitor/status-bar** for native status bar behaviour
+- Scripts: `build:mobile`, `sync:ios`, `open:ios`
+
+### Data
+- **Client-only** — `localStorage` keys such as `situationships` and `grave-color-${id}`
+- No auth, no API routes, no analytics SDK
+
+### Tooling Notes
+- ESLint and TypeScript errors are **ignored during builds** (`next.config.mjs`) for shipping flexibility
+- Images are **unoptimized** (`images.unoptimized: true`) because of static export constraints
 
 ---
 
 ## Application Architecture
 
-### File Structure
+### File Structure (accurate)
 ```
-situationship-graveyard/
-├── app/                          # Next.js App Router pages
-│   ├── add/                      # Add new situationship
-│   ├── edit/[id]/               # Edit existing situationship
-│   ├── graveyard/               # Main graveyard view
-│   ├── situationship/[id]/      # Individual situationship details
-│   ├── stats/                   # Analytics and insights
-│   ├── profile/                 # User profile and settings
-│   │   └── reorder/            # Drag-and-drop grave reordering
-│   ├── layout.tsx              # Root layout with navigation
-│   ├── page.tsx                # Home page (redirects to graveyard)
-│   └── globals.css             # Global styles and animations
-├── components/                   # Reusable components
-│   ├── ui/                     # shadcn/ui components (24 files)
-│   ├── app-header.tsx          # Consistent header component
-│   ├── bottom-nav.tsx          # Mobile navigation
-│   ├── grave-card.tsx          # Individual tombstone display
-│   └── theme-provider.tsx      # Dark theme enforcement
-├── hooks/                       # Custom React hooks
-├── lib/                         # Utility functions
-├── public/                      # Static assets
-└── Configuration files
+Toxic/
+├── app/
+│   ├── add/                      # Create situationship
+│   ├── edit/                     # Edit via ?id= query param
+│   ├── graveyard/                # Main grave grid (+ loading.tsx)
+│   ├── situationship/            # Detail via ?id= query param
+│   ├── stats/                    # Analytics
+│   ├── timeline/                 # Gantt-style relationship timeline
+│   ├── privacy/                  # In-app privacy policy
+│   ├── profile/
+│   │   ├── page.tsx              # Profile / settings
+│   │   └── reorder/              # Drag-and-drop grave order
+│   ├── layout.tsx                # Root layout, BottomNav, Toaster, StatusBar
+│   ├── page.tsx                  # Redirects to /graveyard
+│   └── globals.css
+├── components/
+│   ├── ui/                       # shadcn primitives
+│   ├── app-header.tsx
+│   ├── bottom-nav.tsx
+│   ├── grave-card.tsx
+│   ├── lazy-grave-card.tsx       # IntersectionObserver lazy mount
+│   ├── animated-rose.tsx (+ CSS module)
+│   ├── status-bar-init.tsx       # Capacitor StatusBar
+│   └── theme-provider.tsx
+├── hooks/
+│   └── use-toast.ts
+├── lib/
+│   └── utils.ts
+├── ios/                          # Capacitor iOS native project
+├── capacitor.config.ts
+├── next.config.mjs               # output: 'export'
+├── vercel.json
+└── package.json
 ```
 
-### Routing System
-- **App Router**: File-based routing with dynamic segments
-- **Dynamic Routes**: `/edit/[id]` and `/situationship/[id]` for individual items
-- **Nested Routes**: `/profile/reorder` for sub-pages
-- **Redirects**: Home page automatically redirects to `/graveyard`
+### Routing (important correction)
+Dynamic folder segments like `/edit/[id]` are **not** used. IDs are passed as **query parameters**:
+
+| Page | Path |
+|------|------|
+| Home | `/` → redirects to `/graveyard` |
+| Graveyard | `/graveyard` |
+| Add | `/add` |
+| Edit | `/edit?id={id}` |
+| Detail | `/situationship?id={id}` |
+| Stats | `/stats` |
+| Timeline | `/timeline` |
+| Profile | `/profile` |
+| Reorder | `/profile/reorder` |
+| Privacy | `/privacy` |
+
+> Note: `/timeline` is implemented. As of this writing it is not wired into the bottom nav; entry may be via direct URL or future nav link.
 
 ### Component Hierarchy
 ```
 RootLayout
-├── ThemeProvider (dark theme only)
-├── AppHeader (conditional)
-├── Page Content
-├── BottomNav (mobile navigation)
-└── Toaster (notifications)
+├── StatusBarInit (Capacitor)
+├── ThemeProvider (dark)
+├── Page content (pb-16 for bottom nav clearance)
+├── BottomNav (Graveyard / Add / Stats)
+└── Toaster
 ```
+
+Profile is reached from the header (not the bottom nav).
 
 ---
 
 ## Page-by-Page Analysis
 
-### 1. Home Page (`/app/page.tsx`)
-**Purpose**: Entry point that redirects to graveyard
-**Implementation**: 
-- Uses `useRouter` and `useEffect` to redirect to `/graveyard`
-- Returns `null` (no visible content)
-- Ensures graveyard is always the default landing page
+### 1. Home (`/app/page.tsx`)
+- Client redirect with `router.replace("/graveyard")`
+- No visible UI
 
-### 2. Graveyard Page (`/app/graveyard/page.tsx`)
-**Purpose**: Main dashboard displaying all buried situationships
-
-**Key Features**:
-- **Search Functionality**: Real-time search by name with styled search bar
-- **Filter System**: Toggle-able cause-of-death filters
-- **Grid Layout**: 2-column responsive grid of grave cards
-- **Data Loading**: Loads from localStorage, handles empty states
-- **Actions**: Revive, bury, edit, delete functionality
-
-**Technical Implementation**:
-- Uses `useState` for search term and filter state
-- `useEffect` for data loading and storage event listening
-- Custom filtering logic for search and cause filters
-- Toast notifications for user feedback
-
-**Search Bar Design**:
-- Styled search bar with dark background (`bg-zinc-800`)
-- Thin border (`border-2 border-zinc-700`) for definition
-- Search icon positioned absolutely within input
-- Real-time filtering as user types
-- Clean, minimal design without heavy container borders
-
-### 3. Add Page (`/app/add/page.tsx`)
-**Purpose**: Create new situationship memorials
-
-**Header**:
-- Title: "Add a Grave" (centered)
-- Back button for navigation
-
-**Form Sections**:
-1. **Basic Information**:
-   - Name (required text input)
-   - Start/End dates (HTML date inputs with validation)
-   - Cause of death (dropdown with 8 options + emojis)
-   - Epitaph (textarea, 500 character limit)
-
-2. **Photo Upload**:
-   - Drag-and-drop interface
-   - File validation (images only, 5MB max)
-   - Base64 encoding for localStorage storage
-   - Fallback to skull icon if no photo
-
-3. **Grave Color Selection**:
-   - 8 color options with real-time preview
-   - Unique textures for classic gray and pink themes
-   - Color persistence per situationship
-
-4. **Emotional Autopsy**:
-   - Boolean toggles: met in person, kissed, hooked up, fell in love, had fights, were exclusive
-   - Number input: "Dates went on" (0-999, with "?" option for unsure)
-   - Text fields: location, red flags, last message
-
-**Validation System**:
-- Required field validation with toast notifications
-- Date range validation (end must be after start)
-- Character limits enforced
-- Real-time form state management
-
-### 4. Edit Page (`/app/edit/[id]/page.tsx`)
-**Purpose**: Modify existing situationship data
-
-**Key Differences from Add**:
-- Pre-populates form with existing data on mount
-- Updates existing record instead of creating new one
-- Maintains original creation date and ID
-- Same form structure and validation as Add page
-
-**Data Loading**:
-- Uses dynamic route parameter `[id]`
-- `useEffect` loads data from localStorage on mount
-- Handles missing data gracefully with fallbacks
-
-### 5. Situationship Detail Page (`/app/situationship/[id]/page.tsx`)
-**Purpose**: Comprehensive view of individual situationship
-
-**Layout Sections**:
-1. **Header**: Back navigation, situationship name, profile icon
-2. **Status Badges**: Cause of death and revival status
-3. **Memorial Section**: Mini tombstone, full epitaph, duration
-4. **Color Customization**: Real-time color picker with preview
-5. **Emotional Autopsy**: Detailed relationship metrics in grid layout
-6. **Actions**: Revive/bury buttons, edit navigation
-
-**Interactive Features**:
-- Color picker with immediate preview updates
-- Toast notifications for color changes
-- Toggle revival status with visual effects
-- Navigation to edit page
-
-### 6. Stats Page (`/app/stats/page.tsx`)
-**Purpose**: Analytics and insights about dating history
-
-**Metrics Calculated**:
-- **Overview Stats**: Total graves, revived count, average duration
-- **Cause Breakdown**: Frequency analysis with emojis and percentages
-- **Timeline Analysis**: "When You Begin" and "When You End" monthly breakdowns
-- **Emotional Insights**: Percentage breakdowns of relationship experiences
-- **Reflection Stats**: Closure rates, emotional impact analysis
-
-**Visual Elements**:
-- Progress bars for percentage data
-- Grid layouts for monthly breakdowns
-- Color-coded statistics
-- Emoji integration for cause visualization
-
-**Data Processing**:
-- Complex duration parsing (handles "2 months 3 weeks" format)
-- Date range calculations
-- Statistical analysis and percentage calculations
-- Emoji mapping with normalization for variations
-
-### 7. Profile Page (`/app/profile/page.tsx`)
-**Purpose**: User profile, settings, and app management
-
-**Sections**:
-1. **Profile Header**: User avatar, stats summary (graves, revived, avg months)
-2. **Settings**: Notifications, theme preferences, grave reordering
-3. **Support**: Contact support, rate app
-4. **Danger Zone**: Delete all data with confirmation
-5. **App Info**: Version and branding
+### 2. Graveyard (`/app/graveyard/page.tsx`)
+**Main dashboard** for all graves.
 
 **Features**:
-- Real-time stats calculation from localStorage
-- Storage event listening for live updates
-- Confirmation dialogs for destructive actions
-- External links (email support)
+- Search by name
+- Optional cause-of-death filter panel
+- Responsive grid of tombstones via `LazyGraveCard`
+- Loads / syncs from `localStorage`
+- Listens for `situationshipUpdated` custom events (e.g. flower / revive updates)
+- Empty and filtered empty states
+- Atmospheric extras (e.g. fireflies toggle/state in page)
 
-### 8. Reorder Graves Page (`/app/profile/reorder/page.tsx`)
-**Purpose**: Drag-and-drop interface for reordering graves
+**Actions on cards** (via `GraveCard`): view, edit, delete, revive/bury, add/remove flowers
 
-**Implementation**:
-- **Touch Support**: Mobile-optimized drag and drop
-- **Visual Feedback**: Haptic vibration on drag start
-- **Order Persistence**: Saves order to localStorage
-- **Responsive Design**: Works on both mobile and desktop
+### 3. Add (`/app/add/page.tsx`)
+**Create a new memorial.**
 
-**Technical Details**:
-- Custom drag and drop logic (no external libraries)
-- Touch event handling for mobile devices
-- Order field management and persistence
-- Dirty state tracking for save button
+**Header**: “Add a Grave” with back navigation
+
+**Form areas**:
+1. **Basics** — name (required), start/end dates (required), cause of death, epitaph
+2. **Precise duration** — when start/end share the same month, optional days/weeks precision
+3. **Photo** — file picker, image validation, Base64 into `localStorage` (size limit ~5MB)
+4. **Grave colour** — 8 themes with live preview
+5. **Emotional autopsy** — toggles for met in person, kissed, hookup, love, fights, exclusive, closure; date count (number or “?”); emotional impact scale; reflection text; red flags / flags lists
+6. **Flowers** — initial flower count supported
+
+**Causes of death (current options)**:
+| Key | Label | Emoji |
+|-----|-------|-------|
+| ghosted | Ghosted | 👻 |
+| breadcrumbed | Breadcrumbed | 🍞 |
+| fumbled | Fumbled | 🏀 |
+| friendzoned | Friendzoned | 🤝 |
+| incompatible | Incompatible | 🧩 |
+| slow fade | Slow Fade | 🌅 |
+| cheated | Cheated | 💔 |
+| other | Other | 💀 |
+
+Stored `cause` values are **display labels** (e.g. `"Ghosted"`), not always the slug keys.
+
+**Validation**: required name/cause/dates via toasts; end after start; epitaph length constraints as implemented in UI.
+
+`location` and `lastMessage` fields exist on the data model and are currently saved as empty strings from Add (legacy / reserved).
+
+### 4. Edit (`/app/edit/page.tsx`)
+- Same general form model as Add
+- Loads target grave with `useSearchParams().get("id")`
+- Updates the existing record (keeps id / original identity)
+- Graceful handling when id is missing
+
+### 5. Detail (`/app/situationship/page.tsx`)
+- Loads by `?id=`
+- Status badges, memorial summary, epitaph, duration
+- Colour customisation with persistence to `grave-color-${id}`
+- Autopsy metrics display
+- Revive/bury and navigate to edit
+
+### 6. Stats (`/app/stats/page.tsx`)
+**Insights from local data**:
+- Totals, revived count, average duration
+- Cause breakdown with emoji normalisation (handles label variants)
+- Monthly begin/end patterns
+- Emotional / closure style percentages
+- Progress bars and grid layouts
+
+### 7. Timeline (`/app/timeline/page.tsx`)
+**Gantt-style visualisation**:
+- Bars for each situationship over time
+- Lane packing for overlapping relationships
+- Colours match grave themes when available
+- Tap/click navigates to `/situationship?id=...`
+- Parses both `YYYY-MM` and `"Month YYYY"` date formats
+
+### 8. Profile (`/app/profile/page.tsx`)
+- Persona header (“Heartbreak Collector”) with graves / revived / avg months
+- **Settings**: Notifications (coming soon), Theme Preferences (coming soon), Reorder Graves (live)
+- **Support**: Contact Support (`mailto:toxicos@gmail.com`), Privacy Policy link, Rate the App (coming soon)
+- **Danger zone**: Delete All Data (`localStorage.clear()` + reload)
+- Version label 1.0.0
+
+### 9. Reorder (`/app/profile/reorder/page.tsx`)
+- Custom drag-and-drop (no DnD library)
+- Touch + mouse support
+- Optional haptic vibration via `navigator.vibrate`
+- Persists `order` on situationship records
+
+### 10. Privacy (`/app/privacy/page.tsx`)
+In-app privacy policy for App Store review and user trust:
+- Local-only storage
+- No tracking / analytics / ads / third-party data sharing
+- User can delete individual graves or all data
+- Children’s privacy section and contact path via support email
 
 ---
 
 ## Component Architecture
 
-### Core Components
+### `GraveCard` (`components/grave-card.tsx`)
+- 8 colour themes; classic + pink have special textures
+- Amber revival glow animation
+- Photo or skull fallback
+- Dropdown: view, edit, delete, flowers
+- Randomised humorous toasts on revive/bury
+- Haptic vibration where supported
+- Animated rose bouquet when `flowers > 0`
 
-#### GraveCard (`components/grave-card.tsx`)
-**Purpose**: Individual tombstone display component
+### `LazyGraveCard` (`components/lazy-grave-card.tsx`)
+- Mounts `GraveCard` when near viewport (`IntersectionObserver`) for list performance
 
-**Key Features**:
-- **Color Themes**: 8 different color options with unique textures
-- **Revival Effects**: Amber glow animation for revived graves
-- **Interactive Elements**: Dropdown menu, revive/bury buttons
-- **Photo Display**: User photos with skull icon fallback
-- **Responsive Design**: Mobile-optimized touch targets
-- **Randomized Toast Messages**: Revive/bury actions show random humorous messages
-- **Animated Flower System**: Visual flower bouquets appear when flowers are added to graves
-- **Flower Positioning**: Flowers positioned at bottom-right of grave cards with custom scaling
+### `AnimatedRose` (`components/animated-rose.tsx`)
+- CSS Module petal/stem animation
+- Scaled for card corner placement
+- iOS Safari-oriented rendering tweaks
 
-**Color System**:
-```typescript
-const colorThemes = {
-  classic: { baseColor: "#3f3f46", borderColor: "#52525b" },
-  rose: { baseColor: "#7f1d1d", borderColor: "#b91c1c" },
-  ocean: { baseColor: "#1e3a8a", borderColor: "#1d4ed8" },
-  forest: { baseColor: "#14532d", borderColor: "#15803d" },
-  sunset: { baseColor: "#7c2d12", borderColor: "#c2410c" },
-  purple: { baseColor: "#581c87", borderColor: "#7c3aed" },
-  pink: { baseColor: "#db2777", borderColor: "#be185d" },
-  black: { baseColor: "#18181b", borderColor: "#27272a" }
-}
-```
+### `AppHeader` (`components/app-header.tsx`)
+- Sticky, blurred header
+- Variants with back button / profile affordance
 
-**Texture Implementation**:
-- **Classic Gray**: SVG pattern with rocky texture
-- **Pink**: Circle pattern with white and blue accents
-- **Other Colors**: Standard gradient overlays
+### `BottomNav` (`components/bottom-nav.tsx`)
+- Fixed tabs: **Graveyard**, **Add** (red CTA), **Stats**
+- Safe-area padding for notched iPhones (`env(safe-area-inset-bottom)`)
 
-#### AppHeader (`components/app-header.tsx`)
-**Purpose**: Consistent header across all pages
+### `StatusBarInit`
+- On Capacitor: `StatusBar.setOverlaysWebView({ overlay: false })`
 
-**Variants**:
-- **Centered**: For main pages (graveyard, stats)
-- **Left-aligned**: For detail/edit pages with back button
-- **Conditional Elements**: Back button, more menu, profile icon
-
-**Features**:
-- Sticky positioning with backdrop blur
-- Responsive design
-- Navigation integration
-
-#### AnimatedRose (`components/animated-rose.tsx`)
-**Purpose**: Animated flower bouquet component displayed on graves with flowers
-
-**Key Features**:
-- **CSS Animation**: Animated rose petals with opening/closing animations
-- **Curved Stem**: Green stem using CSS border tricks with curved appearance
-- **Leaf Elements**: Two green leaves attached to stem
-- **Custom Positioning**: Positioned at bottom-right of grave cards
-- **Scale Control**: Scaled to 0.3x for appropriate sizing on cards
-- **iOS Safari Compatibility**: Optimized rendering to avoid green line artifacts
-
-**Technical Implementation**:
-- CSS Module styling (`animated-rose.module.css`)
-- Keyframe animations for petal movement
-- Transform-based positioning and rotation
-- Border-radius tricks for curved stem effect
-
-#### BottomNav (`components/bottom-nav.tsx`)
-**Purpose**: Mobile-first navigation system
-
-**Navigation Items**:
-- **Graveyard**: Main dashboard (skull icon)
-- **Add**: Create new situationship (plus icon, red background)
-- **Stats**: Analytics page (bar chart icon)
-
-**Design**:
-- Fixed bottom positioning
-- Active state indicators
-- Touch-optimized sizing
-- Backdrop blur effect
-
-### UI Components (shadcn/ui)
-**24 Components Available**:
-- **Form Elements**: Input, Textarea, Select, Checkbox, RadioGroup, Switch
-- **Layout**: Card, Separator, Sheet
-- **Navigation**: DropdownMenu, Dialog
-- **Feedback**: Toast, Progress, Badge
-- **Data Display**: Calendar, Skeleton
-- **Interactive**: Button, Slider, Toggle
-- **Utility**: Label, Form, Sonner
+### UI library
+Present under `components/ui`: button, input, textarea, select, checkbox, radio-group, switch, slider, card, badge, dialog, sheet, dropdown-menu, toast/toaster, progress, separator, skeleton, calendar, label, form.
 
 ---
 
 ## Data Structure & State Management
 
-### Situationship Interface
+### Situationship shape (canonical / as used in Add)
 ```typescript
 interface Situationship {
-  id: string                    // Unique identifier
-  name: string                  // Person's name
-  cause: string                 // Cause of death (ghosted, breadcrumbed, etc.)
-  dates: { 
-    start: string              // Start date (YYYY-MM format)
-    end: string                // End date (YYYY-MM format)
-  }
-  epitaph: string              // Memorial text (max 500 chars)
-  photo?: string               // Base64 encoded image
-  flowers?: number             // Flower count (optional, defaults to 0)
+  id: string
+  name: string
+  cause: string                    // Display label, e.g. "Ghosted"
+  dates: { start: string; end: string }  // Typically YYYY-MM
+  epitaph: string
+  reflection?: string
+  photo?: string                   // Base64 data URL
+  flowers?: number
   details: {
-    meetInPerson: boolean      // Did you meet in person?
-    dateCount: number          // Number of dates (0-999, or null for "?")
-    kissed: boolean           // Did you kiss?
-    hookup: boolean           // Did you hook up?
-    exclusive: boolean        // Were you exclusive?
-    closure: boolean          // Did you get closure?
-    emotionalImpact: number   // 1-10 scale
-    duration: string          // Human-readable duration
-    location: string          // Where you met/hung out
-    redFlags: string[]        // Array of red flags
-    lastMessage: string       // Last message exchanged
+    meetInPerson: boolean
+    dateCount: number | null       // null when user chose "?"
+    kissed: boolean
+    hookup: boolean
+    love: boolean
+    fight: boolean
+    exclusive: boolean
+    closure: boolean
+    emotionalImpact: number        // ~1–10
+    duration: string               // Human-readable, may be compound
+    preciseDuration?: string       // e.g. "3 weeks" for same-month cases
+    location: string               // Currently often ""
+    redFlags: string[]
+    lastMessage: string            // Currently often ""
+    flags?: string[]
   }
-  revived: boolean            // Is this relationship revived?
-  createdAt: string           // When the grave was created
-  order?: number              // Display order (for reordering)
+  revived: boolean
+  createdAt: string
+  order?: number
 }
 ```
 
-### Local Storage Keys
-- `situationships`: Array of all situationships (includes flowers count)
-- `grave-color-${id}`: Color preference per situationship
-- Form data persistence across sessions
+Interfaces are **duplicated per page** (not yet a shared `types` module). Some older sample/fallback objects in detail/edit still show legacy demo data when an id is missing.
 
-### Flower System
-- **Flower Count**: Each situationship can have a `flowers` field (number, defaults to 0)
-- **Visual Display**: Animated flower bouquet appears on graves when `flowerCount > 0`
-- **Add/Remove**: Users can add or remove flowers via dropdown menu
-- **State Sync**: Flower count syncs between localStorage and component state
-- **Custom Events**: `situationshipUpdated` event fires when flowers change
+### Storage keys
+- `situationships` — JSON array of all graves
+- `grave-color-${id}` — colour theme key per grave
 
-### State Management Patterns
-- **React Hooks**: useState for local state, useEffect for side effects
-- **Custom Hooks**: useToast for notifications, useMobile for device detection
-- **Event Listeners**: Storage events for cross-tab synchronization
-- **Form State**: React Hook Form for complex form management
+### Events
+- `storage` — cross-tab sync where applicable
+- `situationshipUpdated` — in-app updates (flowers / revive) without full reload
+
+### Hooks
+- `useToast` — primary custom hook
+- There is **no** `useMobile` hook in the repo currently
 
 ---
 
 ## Visual Design System
 
-### Color Palette
-**Primary Colors**:
-- **Background**: `#18181b` (zinc-900) - Deep dark gray
-- **Surface**: `#27272a` (zinc-800) - Slightly lighter gray
-- **Text**: `#fafafa` (zinc-50) - Near white
-- **Accent**: `#dc2626` (red-600) - Red for highlights
+### Palette
+- Background: near-black / zinc-900–950
+- Surfaces: zinc-800/900
+- Text: zinc-50 / zinc-100
+- Accent: red-600/800 (Add CTA, destructive actions)
+- Revival accent: amber glow
 
-**Grave Colors**:
-- **Classic**: `#3f3f46` with rocky texture
-- **Rose**: `#7f1d1d` with standard gradient
-- **Ocean**: `#1e3a8a` with blue gradient
-- **Forest**: `#14532d` with green gradient
-- **Sunset**: `#7c2d12` with orange gradient
-- **Purple**: `#581c87` with purple gradient
-- **Pink**: `#db2777` with circle pattern
-- **Black**: `#18181b` with subtle gradients
+### Grave colours
+classic, rose, ocean, forest, sunset, purple, pink, black — hex themes defined in `grave-card.tsx` / add form.
 
 ### Typography
-- **Font Family**: Inter (Google Fonts)
-- **Font Stack**: System fonts with emoji support
-- **Sizes**: Responsive scaling from 12px to 24px
-- **Weights**: 400 (normal), 600 (semibold), 700 (bold)
+- **Inter** via `next/font/google` in `app/layout.tsx`
 
-### Spacing System
-- **Base Unit**: 4px (Tailwind's default)
-- **Common Spacing**: 4px, 8px, 12px, 16px, 24px, 32px
-- **Container Padding**: 16px (px-4) on mobile, 24px on desktop
-- **Card Spacing**: 16px between cards, 12px internal padding
-
-### Animation System
-**Keyframe Animations**:
-```css
-@keyframes pulseGlow {
-  0%   { filter: drop-shadow(0 0 0 rgba(251,191,36,0)); }
-  40%  { filter: drop-shadow(0 0 10px rgba(251,191,36,.35)); }
-  60%  { filter: drop-shadow(0 0 14px rgba(251,191,36,.45)); }
-  100% { filter: drop-shadow(0 0 0 rgba(251,191,36,0)); }
-}
-
-@keyframes outerPulse {
-  0%   { opacity: 0; }
-  40%  { opacity: .45; }
-  60%  { opacity: .55; }
-  100% { opacity: 0; }
-}
-```
-
-**Usage**: Applied to revived graves for visual feedback
+### Motion
+- Revival `pulseGlow` / `outerPulse` keyframes
+- Animated rose bouquet
+- Add-page candle flame decorations
+- Toast feedback (~4s)
 
 ---
 
 ## User Experience & Interaction Patterns
 
-### Mobile-First Design
-- **Bottom Navigation**: Thumb-accessible navigation
-- **Touch Targets**: Minimum 44px for all interactive elements
-- **Swipe Gestures**: Card interactions optimized for touch
-- **Responsive Grid**: 2 columns on mobile, 3+ on desktop
+### Mobile-first (App Store primary surface)
+- Bottom navigation with large touch targets
+- Safe-area insets for home indicator
+- Portrait-first; iOS project also declares landscape orientations in `Info.plist`
+- Haptics on revive/bury/flowers/reorder where `navigator.vibrate` exists
 
-**Responsive Breakpoints**:
-- **Mobile**: < 768px (primary focus)
-- **Tablet**: 768px - 1024px
-- **Desktop**: > 1024px
+### Actual interaction patterns
+- Tap cards / menus (dropdown), not documented swipe actions
+- Confirm dialogs for destructive clears / deletes
+- Toast feedback with randomised copy for revive/bury
+- Progressive disclosure for graveyard filters
 
-**Mobile Optimizations**:
-- Bottom navigation for thumb access
-- Large touch targets (44px minimum)
-- Swipe gestures on cards
-- Simplified layouts on small screens
+### Accessibility (honest status)
+Semantic HTML and Radix primitives help. Claims of full WCAG AA compliance should **not** be treated as verified audit results until tested.
 
-**Touch Interactions**:
-- Card swipes for quick actions
-- Long press for context menus
-- Tap targets properly sized
-- Hover states disabled on touch
+---
 
-### Interaction Patterns
-- **Toast Notifications**: 4-second duration with dismiss option
-- **Confirmation Dialogs**: For destructive actions (delete, revive/bury)
-- **Real-time Preview**: Color changes and form updates
-- **Progressive Disclosure**: Filters hidden by default, revealed on demand
+## Privacy & Data Handling
 
-### Accessibility Features
-- **Keyboard Navigation**: Full keyboard support
-- **Screen Reader**: Semantic HTML and ARIA labels
-- **Color Contrast**: WCAG AA compliant ratios
-- **Focus Management**: Visible focus indicators
+Critical for App Store review and marketing trust:
 
-### Performance Optimizations
-- **Code Splitting**: Page-based lazy loading
-- **Image Optimization**: Next.js Image component with WebP support
-- **State Management**: Minimal re-renders with efficient hooks
-- **Storage**: Debounced localStorage updates
+| Topic | Behaviour |
+|-------|-----------|
+| Accounts | None |
+| Backend | None |
+| Analytics | None integrated |
+| Ads | None |
+| Data location | On-device `localStorage` only |
+| Photos | Stored as Base64 locally with the grave |
+| Delete | Per-grave delete + Profile “Delete All Data” |
+| Policy | In-app at `/privacy` |
+
+**App Store implication**: Privacy Nutrition Labels should reflect no data collection / data not linked to user, aligned with the in-app policy. Keep policy URL / in-app page current before submission.
 
 ---
 
 ## Error Handling
 
-### User-Facing Errors
-
-**Form Validation**:
-- Required field indicators
-- Date range validation (end must be after start)
-- Character limit enforcement (epitaph 500 chars max)
-- Real-time feedback via toast notifications
-
-**Network Errors**:
-- Graceful fallbacks for offline scenarios
-- Retry mechanisms for failed operations
-- User-friendly error messages
-- No backend required (fully client-side)
-
-**Data Corruption**:
-- localStorage validation on load
-- Default value fallbacks for missing data
-- Data recovery options
-- Type checking with TypeScript interfaces
+- Form validation via toasts (required fields, dates, file size/type)
+- Missing `id` on edit/detail: fallbacks / empty handling (some pages still contain demo seed objects for missing ids — worth cleaning before store launch)
+- Offline-first by design (no network dependency for core journaling)
+- Capacitor plugins fail gracefully in browser (StatusBar try/catch)
 
 ---
 
 ## Technical Implementation Details
 
-### Photo Upload System
-**Implementation**:
-- HTML5 File API for file selection
-- Client-side image processing
-- Base64 encoding for localStorage storage
-- File validation (type, size limits)
-- Fallback to placeholder images
+### Static export for Capacitor
+`next.config.mjs` sets `output: 'export'`, producing a static site Capacitor loads from `webDir: 'out'`.
 
-**Technical Details**:
-```typescript
-const handlePhotoUpload = (file: File) => {
-  if (file.size > 5 * 1024 * 1024) { // 5MB limit
-    toast({ title: "File too large", variant: "destructive" })
-    return
-  }
-  
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    setPhoto(e.target?.result as string)
-  }
-  reader.readAsDataURL(file)
-}
-```
+### Photo upload
+FileReader → Data URL → stored on the situationship object in `localStorage`. Large photo sets can grow storage usage; worth monitoring for App Store QA devices.
 
-### Date Handling System
-**Implementation**:
-- HTML date inputs for user-friendly selection
-- Date validation (end must be after start)
-- Duration calculation in months/days
-- ISO string format for storage
-- Human-readable formatting for display
+### Colour persistence
+`localStorage.setItem(`grave-color-${id}`, themeKey)` with classic fallback.
 
-### Color Persistence System
-**Implementation**:
-- Individual color preferences per situationship
-- localStorage key format: `grave-color-${situationshipId}`
-- Fallback to classic gray if no preference
-- Real-time preview updates
-- Cross-tab synchronization via storage events
+### Toast copy (randomised)
+**Revive examples**: “They're back from the dead”, “You up? They are now”, “Plot twist: not dead”, etc.  
+**Bury examples**: “Bye forever”, “Closed casket, closed DMs”, “Off the roster”, etc.
 
-### Form State Management
-**Implementation**:
-- Controlled components for all inputs
-- Real-time validation feedback
-- Debounced updates to prevent excessive re-renders
-- Form reset functionality on successful submission
-- State persistence across page refreshes
-
-### Toast Notification System
-
-**Randomized Messages**:
-- **Revive Actions**: 8 different humorous messages randomly selected:
-  - "They're back from the dead"
-  - "You up? They are now"
-  - "Back on the roster. Coach approved"
-  - "Plot twist: not dead"
-  - "Back on the menu. Chef regrets it"
-  - "hey stranger."
-  - "Returned for 'research'"
-  - "They're alive!"
-
-- **Bury Actions**: 6 different messages randomly selected:
-  - "Bye forever"
-  - "Laid to rest"
-  - "Closed casket, closed DMs"
-  - "Off the roster"
-  - "Back to the grave"
-  - "Returned to the grave"
-
-**Randomized Message Implementation**:
-- `pickRandom()` helper function selects random message from array
-- Messages rotate to keep user experience fresh and humorous
-- Toast duration: 4 seconds (4000ms)
-- Auto-dismiss with manual close option
-
-**Technical Implementation**:
-- Custom `useToast` hook
-- Radix UI toast primitives
-- 4-second auto-dismiss
-- Manual dismissal option
-- Memory leak prevention with cleanup
+### Duration parsing
+Stats/profile parse human strings including compound forms like `"2 months 3 weeks"` and year/month/week/day units.
 
 ---
 
-## Performance & Optimization
+## Mobile & App Store Packaging
 
-### Code Splitting Strategy
-- **Page-based**: Each route loads only necessary code
-- **Component-based**: Heavy components loaded on demand
-- **Dynamic Imports**: For non-critical features
+### Capacitor config (`capacitor.config.ts`)
+```ts
+{
+  appId: 'com.troid.gravely',
+  appName: 'Gravely',
+  webDir: 'out',
+  server: { androidScheme: 'https' }
+}
+```
 
-### Image Optimization
-- **Next.js Image**: Automatic optimization and lazy loading
-- **WebP Support**: Modern format with fallbacks
-- **Responsive Sizing**: Multiple sizes for different screens
-- **Base64 Storage**: Client-side images for offline capability
+### iOS project
+- Native project under `ios/`
+- Display name: **Situationship Graveyard**
+- Scripts:
+  - `npm run build:mobile` → `next build && npx cap sync ios`
+  - `npm run sync:ios`
+  - `npm run open:ios`
 
-### State Management Optimization
-- **Minimal Re-renders**: Efficient hook usage
-- **Debounced Updates**: Prevents excessive localStorage writes
-- **Event Cleanup**: Prevents memory leaks
-- **Optimized Selectors**: Efficient data filtering
+### App Store readiness checklist (product docs)
+- [ ] Align marketing name everywhere (store listing vs Capacitor `appName` vs website)
+- [ ] Final App Icon / splash assets in `ios/App/App/Assets.xcassets`
+- [ ] Privacy Policy reachable in-app (done: `/privacy`) and hosted URL for App Store Connect
+- [ ] Age rating / content questionnaire (dating + dark humour; no UGC network)
+- [ ] Test on physical devices (safe areas, status bar, localStorage persistence, photo size limits)
+- [ ] “Rate the App” should deep-link to App Store review URL when live
+- [ ] Confirm landscape support intentional or lock to portrait for v1
+- [ ] Remove or gate any demo/fallback fake situationship data before review
+- [ ] Decide Android timeline (Capacitor Android scheme already foreshadowed; not the current packaging focus)
 
-### Bundle Analysis
-- **TypeScript**: 97.5% of codebase
-- **JavaScript**: 1.4% (configuration files)
-- **CSS**: 1.1% (Tailwind + custom styles)
-- **Total Size**: Optimized for mobile networks
+### Positioning for store listing
+- Category fit: Lifestyle / Health & Fitness / Entertainment (humour + reflection)
+- Differentiator: private graveyard metaphor, not another dating app
+- Privacy headline: “Your heartbreak stays on your phone”
 
 ---
 
 ## Deployment & Configuration
 
-### Vercel Configuration (`vercel.json`)
-```json
+### Web (Vercel)
+`vercel.json` targets Next.js with region `iad1`. Live demo: https://toxic-neon.vercel.app
+
+### Next config highlights
+```js
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "regions": ["iad1"],
-  "functions": {
-    "app/**/*.tsx": {
-      "maxDuration": 30
-    }
-  }
+  output: 'export',
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  images: { unoptimized: true }
 }
 ```
 
-### Next.js Configuration (`next.config.mjs`)
-```javascript
-const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
-```
+### Scripts
+| Script | Purpose |
+|--------|---------|
+| `npm run dev` | Local Next dev server |
+| `npm run build` | Production / static export build |
+| `npm start` | Next start (web) |
+| `npm run deploy` | Helper via `deploy.js` |
+| `npm run build:mobile` | Export + Capacitor iOS sync |
+| `npm run open:ios` | Open Xcode workspace |
 
-### Build Process
-- **Development**: `npm run dev` - Hot reload development server
-- **Production**: `npm run build` - Optimized production build
-- **Start**: `npm start` - Production server
-- **Deploy**: `npm run deploy` - Custom deployment script
-
-### Environment Setup
-- **No Environment Variables**: App works entirely client-side
-- **Local Storage**: All data persisted locally
-- **No Backend Required**: Fully static deployment possible
+### Environment variables
+None required for core app behaviour.
 
 ---
 
 ## Development Workflow
 
-### Code Organization
-- **Feature-based Structure**: Pages organized by functionality
-- **Component Reusability**: Shared components in `/components`
-- **Type Safety**: Full TypeScript coverage
-- **Consistent Naming**: Clear, descriptive file and variable names
-
-### Development Tools
-- **ESLint**: Code quality (disabled during builds for flexibility)
-- **TypeScript**: Type checking (errors ignored during builds)
-- **Tailwind CSS**: Utility-first styling
-- **Hot Reload**: Fast development iteration
-
-### Testing Strategy
-- **Manual Testing**: User flow validation
-- **Cross-browser**: Chrome, Firefox, Safari testing
-- **Mobile Testing**: iOS and Android device testing
-- **Performance**: Lighthouse audits
-
-### Git Workflow
-- **Main Branch**: Production-ready code
-- **Feature Branches**: For new features
-- **GitHub Integration**: Automatic Vercel deployments
-- **Commit Messages**: Clear, descriptive commit history
+- Feature pages under `app/`, shared UI under `components/`
+- Manual QA focus: iOS Safari + Capacitor WebView, Chrome desktop
+- No automated test suite currently
+- GitHub → Vercel for web; Xcode Archive → App Store Connect for iOS
 
 ---
 
 ## Future Enhancement Possibilities
 
-### Social Features
-- **Anonymous Sharing**: Share situationships without revealing identity
-- **Community Insights**: Aggregate, anonymous dating statistics
-- **Support Groups**: Connect users with similar experiences
-- **Dating Advice**: AI-powered insights based on patterns
+*(Items already shipped are removed from “future”.)*
 
-### Advanced Analytics
-- **Pattern Recognition**: Identify recurring relationship issues
-- **Personal Growth Tracking**: Monitor emotional development over time
-- **Dating Success Metrics**: Track improvement in relationship outcomes
-- **Predictive Insights**: Suggest areas for personal development
+### Near-term (store polish)
+- Wire Timeline into navigation (Stats or Profile)
+- Shared TypeScript types module
+- App Store rating prompt / link
+- Portrait lock if landscape is unused
+- Export / backup (JSON or PDF memorial) without cloud accounts
+- Hardening storage quotas for many Base64 photos
 
-### Enhanced Customization
-- **Custom Grave Shapes**: Beyond rectangular tombstones
-- **Personal Themes**: User-created color schemes
-- **Epitaph Templates**: Pre-written options for common situations
-- **Photo Filters**: Apply effects to uploaded images
+### Product
+- Optional iCloud / encrypted backup (opt-in only — keep privacy story intact)
+- Epitaph templates
+- Deeper pattern insights / “red flag report”
+- Widgets or shareable tombstone images (privacy-preserving)
 
-### Data Management
-- **Export Features**: PDF memorials, data backup
-- **Import Options**: Migrate from other dating apps
-- **Cloud Sync**: Optional cloud backup (with privacy controls)
-- **Data Analytics**: Personal insights dashboard
+### Platform
+- Android Capacitor build
+- PWA install path for web users
+- Push reminders only if clearly valuable and privacy-safe (currently Notifications = coming soon)
 
-### Visual Timeline (Gantt Chart Style)
-- **Relationship Timeline Visualization**: Interactive Gantt chart showing all situationships over time
-- **Overlapping Relationship Detection**: Visual representation of overlapping relationships
-- **Timeline Scaling**: Zoom in/out to view different time periods
-- **Color-Coded Bars**: Each situationship represented as a colored bar matching its grave color
-- **Interactive Hover**: Show details on hover (name, dates, cause of death)
-- **Time Period Filters**: Filter by year, month, or custom date range
-- **Duration Comparison**: Visual comparison of relationship lengths
-- **Gap Analysis**: Identify periods between relationships (healing time)
-- **Export Timeline**: Save timeline as image or PDF
+---
 
-### Technical Improvements
-- **PWA Support**: Offline functionality and app-like experience
-- **Push Notifications**: Reminders for reflection or closure
-- **Voice Input**: Dictate epitaphs and reflections
-- **AI Integration**: Smart suggestions for cause of death and insights
+## Marketing & Positioning Notes
 
-### Privacy & Security
-- **End-to-End Encryption**: Secure data storage
-- **Data Anonymization**: Remove identifying information
-- **Privacy Controls**: Granular data sharing settings
-- **GDPR Compliance**: European data protection compliance
+Use this section when briefing another chatbot or marketer.
+
+### One-liner
+A private, darkly funny graveyard for situationships — bury the almosts, track the patterns, keep the receipts on your phone.
+
+### Audience
+- Gen Z / millennials who date via apps
+- People processing ghosting, breadcrumbing, slow fades
+- Users who want journaling without therapy-app seriousness or public oversharing
+
+### Tone
+- Dark humour, gothic-cute, emotionally literate
+- Never cruel toward the user; punch up at situationship culture
+- Private by default — privacy is a feature, not a footnote
+
+### Channels that fit
+- TikTok / Reels tombstone aesthetic demos
+- App Store screenshots: Graveyard grid, Add autopsy, Stats patterns, Privacy promise
+- Influencer “bury him” meme formats
+- Avoid positioning as a dating marketplace competitor
+
+### Do not claim
+- Clinical mental-health treatment
+- Cloud sync / social network (unless built)
+- Verified WCAG certification without an audit
+- Backend AI features that do not exist yet
+
+### Strengths to emphasise
+- Unique metaphor
+- Fully private / local-first
+- Beautiful dark UI + playful revival/flower rituals
+- Stats + timeline for pattern recognition
+- Coming to the App Store as a focused iOS experience
 
 ---
 
 ## Conclusion
 
-Situationship Graveyard represents a unique approach to processing relationship experiences through technology. The application successfully combines humor, functionality, and emotional processing in a dark, gothic aesthetic that makes difficult experiences more manageable.
+Situationship Graveyard is a **local-first, mobile-bound** journaling product wrapped in a graveyard metaphor. Technically it is a static Next.js 15 app packaged with Capacitor for iOS. Product-wise it combines humour, memorialisation, and light analytics to help users process unfinished relationships without giving their data to a server.
 
-### Key Strengths
-- **Unique Concept**: Novel approach to relationship processing
-- **Technical Excellence**: Modern React/Next.js implementation
-- **User Experience**: Intuitive, mobile-first design
-- **Emotional Intelligence**: Thoughtful approach to sensitive topics
-- **Performance**: Optimized for mobile devices and slow networks
+### Current strengths
+- Distinct concept and voice
+- Solid mobile-first UX with native packaging path
+- Privacy story aligned with App Store expectations for on-device apps
+- Feature set beyond a simple list: colours, flowers, revive, stats, timeline, reorder
 
-### Technical Achievements
-- **Full TypeScript Coverage**: Type safety throughout
-- **Responsive Design**: Works seamlessly across devices
-- **Offline Capability**: No backend required
-- **Performance Optimized**: Fast loading and smooth interactions
-- **Accessibility**: WCAG compliant design
-
-The application demonstrates how technology can be used to address emotional needs in a creative, respectful way while maintaining high technical standards and user experience quality.
+### Known doc/code hygiene for launch
+- Unify branding identifiers (`Gravely` vs Situationship Graveyard) in store materials
+- Link Timeline in UI
+- Clear demo fallbacks before review
+- Finish “coming soon” profile actions or hide them for v1
 
 ---
 
-*This documentation provides a comprehensive overview of the Situationship Graveyard application. For specific implementation details, refer to the source code in the GitHub repository: https://github.com/mike-star01/Toxic*
-
+*Source of truth for behaviour is the repository. Cross-check this file after large feature changes. GitHub: https://github.com/mike-star01/Toxic*

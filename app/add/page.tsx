@@ -1,5 +1,6 @@
 "use client"
 
+import { AutopsyDisclosure, GraveFormBackground } from '@/components/grave-form-background'
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -47,18 +48,6 @@ const causeOptions = [
   'cheated',
   'other',
 ]
-
-const Candle = ({ className = "", scale = 1 }: { className?: string; scale?: number }) => (
-  <div className={`add-candle-holder ${className}`} style={{ transform: `scale(${scale})` }}>
-    <div className="add-candle">
-      <div className="add-candle-blinking"></div>
-      <div className="add-candle-glow"></div>
-      <div className="add-candle-flame"></div>
-      <div className="add-candle-thread"></div>
-    </div>
-  </div>
-)
-
 
 export default function AddSituationshipPage() {
   const router = useRouter()
@@ -268,15 +257,7 @@ export default function AddSituationshipPage() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-black relative overflow-x-hidden"
-      style={{
-        backgroundImage:
-          'radial-gradient(800px 500px at 0% 0%, rgba(220,38,38,0.25), rgba(220,38,38,0.12) 35%, rgba(0,0,0,0) 70%)',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#000'
-      }}
-    >
+    <GraveFormBackground>
       <AppHeader title="Add a Grave" showBack centered />
 
       <div className="px-4 py-4 relative z-10">
@@ -580,318 +561,318 @@ export default function AddSituationshipPage() {
                 </div>
               </div>
 
-              {/* Red Flags Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">🚩</span>
-                  <h3 className="text-base font-bold">Red Flags</h3>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Add red flags you noticed <span className="text-zinc-400">(Optional)</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="e.g., Always canceled last minute"
-                        className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
-                        value={redFlagInput}
-                        onChange={(e) => setRedFlagInput(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            if (redFlagInput.trim()) {
-                              setFormData(prev => ({
-                                ...prev,
-                                redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
-                              }))
-                              setRedFlagInput('')
-                            }
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="border-zinc-700 bg-transparent px-3"
-                        onClick={() => {
-                          if (redFlagInput.trim()) {
-                            setFormData(prev => ({
-                              ...prev,
-                              redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
-                            }))
-                            setRedFlagInput('')
-                          }
-                        }}
-                      >
-                        Add
-                      </Button>
+              <AutopsyDisclosure>
+                  {/* Red Flags Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">🚩</span>
+                      <h3 className="text-base font-bold">Red Flags</h3>
                     </div>
-                    {formData.redFlags && formData.redFlags.length > 0 && (
+                    <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
                       <div className="space-y-2">
-                        <div className="text-xs text-zinc-400">Red flags:</div>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.redFlags.map((flag, index) => (
-                            <div key={index} className="flex items-center gap-1 bg-red-900/20 border border-red-700/30 rounded-full px-3 py-1">
-                              <span className="text-xs text-red-300">{flag}</span>
-                              <button
-                                type="button"
-                                onClick={() => setFormData(prev => ({
-                                  ...prev,
-                                  redFlags: prev.redFlags?.filter((_, i) => i !== index) || []
-                                }))}
-                                className="text-red-400 hover:text-red-300 text-xs ml-1"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Background Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">🏠</span>
-                  <h3 className="text-base font-bold">Background</h3>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Add flags (countries/origins) <span className="text-zinc-400">(Optional)</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="e.g., 🇨🇦, 🇵🇷"
-                        className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
-                        value={flagsInput}
-                        onChange={(e) => setFlagsInput(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            if (flagsInput.trim()) {
-                              // Validate that input contains exactly one flag emoji
-                              const input = flagsInput.trim()
-                              // Check for flag emojis - comprehensive list of countries
-                              const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
-                              // Count all flag emojis found in the input
-                              let flagCount = 0
-                              commonFlags.forEach(flag => {
-                                let index = input.indexOf(flag)
-                                while (index !== -1) {
-                                  flagCount++
-                                  index = input.indexOf(flag, index + 1)
+                        <label className="text-sm font-medium">
+                          Add red flags you noticed <span className="text-zinc-400">(Optional)</span>
+                        </label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="e.g., Always canceled last minute"
+                            className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
+                            value={redFlagInput}
+                            onChange={(e) => setRedFlagInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                if (redFlagInput.trim()) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                                  }))
+                                  setRedFlagInput('')
                                 }
-                              })
-                              if (flagCount !== 1) {
-                                alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
-                                return
                               }
-                              setFormData(prev => ({
-                                ...prev,
-                                flags: [...(prev.flags || []), flagsInput.trim()]
-                              }))
-                              setFlagsInput('')
-                            }
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="border-zinc-700 bg-transparent px-3"
-                        onClick={() => {
-                          if (flagsInput.trim()) {
-                            // Validate that input contains exactly one flag emoji
-                            const input = flagsInput.trim()
-                            // Check for flag emojis - comprehensive list of countries
-                            const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
-                            // Count all flag emojis found in the input
-                            let flagCount = 0
-                            commonFlags.forEach(flag => {
-                              let index = input.indexOf(flag)
-                              while (index !== -1) {
-                                flagCount++
-                                index = input.indexOf(flag, index + 1)
-                              }
-                            })
-                            if (flagCount !== 1) {
-                              alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
-                              return
-                            }
-                            setFormData(prev => ({
-                              ...prev,
-                              flags: [...(prev.flags || []), flagsInput.trim()]
-                            }))
-                            setFlagsInput('')
-                          }
-                        }}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                    {formData.flags && formData.flags.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="text-xs text-zinc-400">Flags collected:</div>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.flags.map((flag, index) => (
-                            <div key={index} className="flex items-center gap-1 bg-blue-900/20 border border-blue-700/30 rounded-full px-3 py-1">
-                              <span className="text-xs text-blue-300">{flag}</span>
-                              <button
-                                type="button"
-                                onClick={() => setFormData(prev => ({
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-zinc-700 bg-transparent px-3"
+                            onClick={() => {
+                              if (redFlagInput.trim()) {
+                                setFormData(prev => ({
                                   ...prev,
-                                  flags: prev.flags?.filter((_, i) => i !== index) || []
-                                }))}
-                                className="text-blue-400 hover:text-blue-300 text-xs ml-1"
-                              >
-                                ×
-                              </button>
+                                  redFlags: [...(prev.redFlags || []), redFlagInput.trim()]
+                                }))
+                                setRedFlagInput('')
+                              }
+                            }}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                        {formData.redFlags && formData.redFlags.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-xs text-zinc-400">Red flags:</div>
+                            <div className="flex flex-wrap gap-2">
+                              {formData.redFlags.map((flag, index) => (
+                                <div key={index} className="flex items-center gap-1 bg-red-900/20 border border-red-700/30 rounded-full px-3 py-1">
+                                  <span className="text-xs text-red-300">{flag}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({
+                                      ...prev,
+                                      redFlags: prev.redFlags?.filter((_, i) => i !== index) || []
+                                    }))}
+                                    className="text-red-400 hover:text-red-300 text-xs ml-1"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Background Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">🏠</span>
+                      <h3 className="text-base font-bold">Background</h3>
+                    </div>
+                    <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Add flags (countries/origins) <span className="text-zinc-400">(Optional)</span>
+                        </label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="e.g., 🇨🇦, 🇵🇷"
+                            className="bg-zinc-900 border-zinc-700 h-10 flex-1 placeholder:text-zinc-600"
+                            value={flagsInput}
+                            onChange={(e) => setFlagsInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                if (flagsInput.trim()) {
+                                  // Validate that input contains exactly one flag emoji
+                                  const input = flagsInput.trim()
+                                  // Check for flag emojis - comprehensive list of countries
+                                  const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
+                                  // Count all flag emojis found in the input
+                                  let flagCount = 0
+                                  commonFlags.forEach(flag => {
+                                    let index = input.indexOf(flag)
+                                    while (index !== -1) {
+                                      flagCount++
+                                      index = input.indexOf(flag, index + 1)
+                                    }
+                                  })
+                                  if (flagCount !== 1) {
+                                    alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
+                                    return
+                                  }
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    flags: [...(prev.flags || []), flagsInput.trim()]
+                                  }))
+                                  setFlagsInput('')
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-zinc-700 bg-transparent px-3"
+                            onClick={() => {
+                              if (flagsInput.trim()) {
+                                // Validate that input contains exactly one flag emoji
+                                const input = flagsInput.trim()
+                                // Check for flag emojis - comprehensive list of countries
+                                const commonFlags = ['🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼']
+                                // Count all flag emojis found in the input
+                                let flagCount = 0
+                                commonFlags.forEach(flag => {
+                                  let index = input.indexOf(flag)
+                                  while (index !== -1) {
+                                    flagCount++
+                                    index = input.indexOf(flag, index + 1)
+                                  }
+                                })
+                                if (flagCount !== 1) {
+                                  alert('Please enter one flag emoji (🇨🇦, 🇵🇷)')
+                                  return
+                                }
+                                setFormData(prev => ({
+                                  ...prev,
+                                  flags: [...(prev.flags || []), flagsInput.trim()]
+                                }))
+                                setFlagsInput('')
+                              }
+                            }}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                        {formData.flags && formData.flags.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-xs text-zinc-400">Flags collected:</div>
+                            <div className="flex flex-wrap gap-2">
+                              {formData.flags.map((flag, index) => (
+                                <div key={index} className="flex items-center gap-1 bg-blue-900/20 border border-blue-700/30 rounded-full px-3 py-1">
+                                  <span className="text-xs text-blue-300">{flag}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({
+                                      ...prev,
+                                      flags: prev.flags?.filter((_, i) => i !== index) || []
+                                    }))}
+                                    className="text-blue-400 hover:text-blue-300 text-xs ml-1"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reflection Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">💭</span>
+                      <h3 className="text-base font-bold">Personal Reflection</h3>
+                    </div>
+                    <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                      <div className="space-y-2">
+                        <label htmlFor="reflection" className="text-sm font-medium">
+                          What did you learn? <span className="text-zinc-400">(Optional)</span>
+                        </label>
+                        <Textarea
+                          id="reflection"
+                          placeholder="Reflect on what you learned or how you grew from this experience..."
+                          className="bg-zinc-900 border-zinc-700 min-h-[100px] resize-none placeholder:text-zinc-600 text-white"
+                          style={{ color: '#ffffff' }}
+                          value={formData.reflection}
+                          onChange={(e) => handleChange("reflection", e.target.value)}
+                          maxLength={500}
+                        />
+                        <div className="flex justify-end text-xs text-zinc-400">
+                          <span>{formData.reflection.length}/500</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Reflection Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">💭</span>
-                  <h3 className="text-base font-bold">Personal Reflection</h3>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="reflection" className="text-sm font-medium">
-                      What did you learn? <span className="text-zinc-400">(Optional)</span>
-                    </label>
-                    <Textarea
-                      id="reflection"
-                      placeholder="Reflect on what you learned or how you grew from this experience..."
-                      className="bg-zinc-900 border-zinc-700 min-h-[100px] resize-none placeholder:text-zinc-600 text-white"
-                      style={{ color: '#ffffff' }}
-                      value={formData.reflection}
-                      onChange={(e) => handleChange("reflection", e.target.value)}
-                      maxLength={500}
-                    />
-                    <div className="flex justify-end text-xs text-zinc-400">
-                      <span>{formData.reflection.length}/500</span>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Emotional Logging */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">📊</span>
-                  <h3 className="text-base font-bold">Emotional Autopsy</h3>
-                </div>
-                <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Did you meet in person?</span>
-                    <Switch
-                      checked={formData.meetInPerson}
-                      onCheckedChange={(checked) => handleChange("meetInPerson", checked)}
-                      id="meetInPerson"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Kissed?</span>
-                    <Switch
-                      checked={formData.kissed}
-                      onCheckedChange={(checked) => handleChange("kissed", checked)}
-                      id="kissed"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Hooked up?</span>
-                    <Switch
-                      checked={formData.hookup}
-                      onCheckedChange={(checked) => handleChange("hookup", checked)}
-                      id="hookup"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Fell in love?</span>
-                    <Switch
-                      checked={formData.love}
-                      onCheckedChange={(checked) => handleChange("love", checked)}
-                      id="love"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Had fights?</span>
-                    <Switch
-                      checked={formData.fight}
-                      onCheckedChange={(checked) => handleChange("fight", checked)}
-                      id="fight"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Were exclusive?</span>
-                    <Switch
-                      checked={formData.exclusive}
-                      onCheckedChange={(checked) => handleChange("exclusive", checked)}
-                      id="exclusive"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Got closure?</span>
-                    <Switch
-                      checked={formData.closure}
-                      onCheckedChange={(checked) => handleChange("closure", checked)}
-                      id="closure"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
-                    <span className="text-sm font-medium">Dates went on</span>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="date-count"
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        className="bg-zinc-900 border-zinc-700 h-9 w-28 text-right placeholder:text-zinc-600"
-                        value={formData.dateCount}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          handleChange("dateCount", value);
-                          if (value && isUnsurePressed) {
-                            setIsUnsurePressed(false);
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className={`h-9 px-3 text-base border rounded focus:outline-none focus:ring-0 active:outline-none touch-manipulation ${
-                          isUnsurePressed 
-                            ? 'text-white border-red-800 bg-red-800 focus:bg-red-800 active:bg-red-800 hover:bg-red-800' 
-                            : 'text-zinc-200 border-zinc-600 bg-transparent focus:bg-transparent active:bg-transparent hover:bg-transparent'
-                        }`}
-                        onClick={() => {
-                          handleChange("dateCount", "?");
-                          setIsUnsurePressed(!isUnsurePressed);
-                        }}
-                        title="Unsure"
-                      >
-                        ?
-                      </Button>
+                  {/* Emotional Logging */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">📊</span>
+                      <h3 className="text-base font-bold">Emotional Autopsy</h3>
+                    </div>
+                    <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Did you meet in person?</span>
+                        <Switch
+                          checked={formData.meetInPerson}
+                          onCheckedChange={(checked) => handleChange("meetInPerson", checked)}
+                          id="meetInPerson"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Kissed?</span>
+                        <Switch
+                          checked={formData.kissed}
+                          onCheckedChange={(checked) => handleChange("kissed", checked)}
+                          id="kissed"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Hooked up?</span>
+                        <Switch
+                          checked={formData.hookup}
+                          onCheckedChange={(checked) => handleChange("hookup", checked)}
+                          id="hookup"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Fell in love?</span>
+                        <Switch
+                          checked={formData.love}
+                          onCheckedChange={(checked) => handleChange("love", checked)}
+                          id="love"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Had fights?</span>
+                        <Switch
+                          checked={formData.fight}
+                          onCheckedChange={(checked) => handleChange("fight", checked)}
+                          id="fight"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Were exclusive?</span>
+                        <Switch
+                          checked={formData.exclusive}
+                          onCheckedChange={(checked) => handleChange("exclusive", checked)}
+                          id="exclusive"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Got closure?</span>
+                        <Switch
+                          checked={formData.closure}
+                          onCheckedChange={(checked) => handleChange("closure", checked)}
+                          id="closure"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-b-0">
+                        <span className="text-sm font-medium">Dates went on</span>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="date-count"
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            className="bg-zinc-900 border-zinc-700 h-9 w-28 text-right placeholder:text-zinc-600"
+                            value={formData.dateCount}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '');
+                              handleChange("dateCount", value);
+                              if (value && isUnsurePressed) {
+                                setIsUnsurePressed(false);
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className={`h-9 px-3 text-base border rounded focus:outline-none focus:ring-0 active:outline-none touch-manipulation ${
+                              isUnsurePressed 
+                                ? 'text-white border-red-800 bg-red-800 focus:bg-red-800 active:bg-red-800 hover:bg-red-800' 
+                                : 'text-zinc-200 border-zinc-600 bg-transparent focus:bg-transparent active:bg-transparent hover:bg-transparent'
+                            }`}
+                            onClick={() => {
+                              handleChange("dateCount", "?");
+                              setIsUnsurePressed(!isUnsurePressed);
+                            }}
+                            title="Unsure"
+                          >
+                            ?
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              
+              </AutopsyDisclosure>
 
               {/* Submit Button */}
               <div className="pt-4 space-y-2">
@@ -956,184 +937,6 @@ export default function AddSituationshipPage() {
           </CardContent>
         </Card>
       </div>
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-0 flex justify-between px-8 pb-6">
-        <div className="relative flex items-end mb-4">
-          <Candle className="candle-variant-a" />
-          <Candle className="candle-variant-b -ml-8 mb-4" scale={0.82} />
-        </div>
-        <div className="mb-6">
-          <Candle className="candle-variant-c" scale={0.9} />
-        </div>
-      </div>
-      <style jsx global>{`
-        .add-candle-holder {
-          position: relative;
-          width: 90px;
-          height: 160px;
-          transform-origin: bottom center;
-          filter: blur(1.6px);
-        }
-
-        .add-candle-holder *,
-        .add-candle-holder *::before,
-        .add-candle-holder *::after {
-          position: absolute;
-          content: "";
-        }
-
-        .add-candle {
-          bottom: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 90px / 32px;
-          box-shadow: inset 14px -20px 40px 0 rgba(0, 0, 0, 0.45), inset -12px 0 35px 0 rgba(0, 0, 0, 0.35);
-          background: linear-gradient(#f4a531, #ee8f12, #8a4107, #4c1a03 55%, #1b0901);
-        }
-
-        .add-candle::before {
-          width: 100%;
-          height: 34px;
-          border-radius: 50%;
-          border: 2px solid #d47401;
-          background: radial-gradient(#f2b246, #9c4d05 45%, #c66f0f 80%);
-        }
-
-        .add-candle::after {
-          width: 26px;
-          height: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          border-radius: 50%;
-          top: 12px;
-          box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.45);
-          background: radial-gradient(rgba(0, 0, 0, 0.55), transparent 45%);
-        }
-
-        .add-candle-thread {
-          width: 4px;
-          height: 32px;
-          top: -14px;
-          left: 50%;
-          z-index: 2;
-          border-radius: 40% 40% 0 0;
-          transform: translateX(-50%);
-          background: linear-gradient(#dda251, #4b232c, #111, black, #f2c64d 90%);
-        }
-
-        .add-candle-flame {
-          width: 18px;
-          height: 96px;
-          left: 50%;
-          transform-origin: 50% 100%;
-          transform: translateX(-50%);
-          bottom: 100%;
-          border-radius: 50% 50% 22% 22%;
-          background: linear-gradient(white 78%, transparent);
-          animation: add-moveFlame 6s linear infinite, add-enlargeFlame 5s linear infinite;
-        }
-
-        .add-candle-flame::before {
-          width: 100%;
-          height: 100%;
-          border-radius: 50% 50% 22% 22%;
-          box-shadow: 0 0 16px 0 rgba(247, 93, 0, 0.55), 0 -8px 6px 0 rgba(247, 128, 0, 0.75);
-        }
-
-        .add-candle-glow {
-          width: 20px;
-          height: 52px;
-          border-radius: 50% 50% 35% 35%;
-          left: 50%;
-          top: -40px;
-          transform: translateX(-50%);
-          background: rgba(255, 195, 102, 0.68);
-          box-shadow: 0 -40px 40px 0 rgba(255, 174, 66, 0.9), 0 36px 55px 0 rgba(255, 139, 0, 0.75), inset 3px 0 3px 0 rgba(255, 214, 153, 0.6), inset -3px 0 3px 0 rgba(255, 214, 153, 0.6);
-        }
-
-        .add-candle-glow::before {
-          width: 72%;
-          height: 60%;
-          left: 50%;
-          transform: translateX(-50%);
-          bottom: 0;
-          border-radius: 50%;
-          background: rgba(0, 0, 0, 0.24);
-        }
-
-        .add-candle-blinking {
-          width: 76px;
-          height: 140px;
-          left: 50%;
-          top: -52%;
-          transform: translateX(-50%);
-          border-radius: 50%;
-          background: rgba(255, 150, 40, 0.6);
-          filter: blur(55px);
-          animation: add-blinkIt 2.8s infinite;
-        }
-
-        @keyframes add-moveFlame {
-          0%, 100% {
-            transform: translateX(-50%) rotate(-2deg);
-          }
-          50% {
-            transform: translateX(-50%) rotate(2deg);
-          }
-        }
-
-        @keyframes add-enlargeFlame {
-          0%, 100% {
-            height: 96px;
-          }
-          50% {
-            height: 112px;
-          }
-        }
-
-        @keyframes add-blinkIt {
-          0%, 62% { opacity: 0.94; }
-          64% { opacity: 0.38; }
-          66% { opacity: 0.95; }
-          68% { opacity: 0.42; }
-          70% { opacity: 0.92; }
-          72% { opacity: 0.4; }
-          74% { opacity: 0.94; }
-          76% { opacity: 0.37; }
-          78% { opacity: 0.9; }
-          80% { opacity: 0.45; }
-          82% { opacity: 0.93; }
-          84% { opacity: 0.4; }
-          86% { opacity: 0.9; }
-          100% { opacity: 0.94; }
-        }
-
-        .add-candle-holder.candle-variant-a .add-candle-blinking {
-          animation-duration: 3.4s;
-          animation-delay: 0.3s;
-        }
-
-        .add-candle-holder.candle-variant-a .add-candle-flame {
-          animation: add-moveFlame 6.2s linear infinite, add-enlargeFlame 5.4s linear infinite;
-        }
-
-        .add-candle-holder.candle-variant-b .add-candle-blinking {
-          animation-duration: 2.6s;
-          animation-delay: -0.9s;
-        }
-
-        .add-candle-holder.candle-variant-b .add-candle-flame {
-          animation: add-moveFlame 5.6s linear infinite, add-enlargeFlame 4.6s linear infinite;
-        }
-
-        .add-candle-holder.candle-variant-c .add-candle-blinking {
-          animation-duration: 3.1s;
-          animation-delay: 0.6s;
-        }
-
-        .add-candle-holder.candle-variant-c .add-candle-flame {
-          animation: add-moveFlame 6.8s linear infinite, add-enlargeFlame 5.8s linear infinite;
-        }
-      `}</style>
-    </div>
+    </GraveFormBackground>
   )
 }
