@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 
 const Candle = ({ className = "", scale = 1 }: { className?: string; scale?: number }) => (
   <div className={`add-candle-holder ${className}`} style={{ transform: `scale(${scale})` }}>
@@ -209,15 +209,33 @@ export function GraveFormBackground({ children }: { children: ReactNode }) {
 }
 
 export function AutopsyDisclosure({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false)
+  const panelId = useId()
+
   return (
-    <details className="group rounded-lg border border-zinc-700 bg-zinc-900/50">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 [&::-webkit-details-marker]:hidden">
+    <div className="rounded-lg border border-zinc-700 bg-zinc-900/50">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen(value => !value)}
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+      >
         <span>In-Depth Autopsy <span className="font-normal text-zinc-400">(Optional)</span></span>
-        <span aria-hidden="true" className="size-2 shrink-0 rotate-45 border-b-2 border-r-2 border-zinc-400 group-open:rotate-[225deg]" />
-      </summary>
-      <div className="space-y-6 px-4 pb-4 pt-2">
-        {children}
+        <span aria-hidden="true" className={`size-2 shrink-0 border-b-2 border-r-2 border-zinc-400 motion-safe:transition-transform motion-safe:duration-200 ${open ? "rotate-[225deg]" : "rotate-45"}`} />
+      </button>
+      <div
+        id={panelId}
+        inert={!open}
+        data-open={open}
+        className="autopsy-panel"
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="autopsy-panel-content space-y-6 px-4 pb-4 pt-2">
+            {children}
+          </div>
+        </div>
       </div>
-    </details>
+    </div>
   )
 }

@@ -36,7 +36,7 @@ interface GraveCardProps {
   isVisible?: boolean
   onRevive?: (id: string) => void
   onBury?: (id: string) => void
-  onDelete?: (id: string) => void
+  onDelete?: (id: string) => boolean
 }
 
 // Color themes for graves - base colors with gradient overlay
@@ -297,13 +297,16 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
   }
 
   const handleDelete = () => {
+    try {
+      if (!onDelete?.(situationship.id)) return
+    } catch {
+      toast({ title: "Couldn’t delete grave", description: "Please try again.", variant: "destructive" })
+      return
+    }
+
     // Add haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate([100, 50, 100]) // Longer vibration for delete
-    }
-
-    if (onDelete) {
-      onDelete(situationship.id)
     }
 
     toast({
@@ -457,7 +460,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
 
         {/* Epitaph - fixed height container */}
         <div className="flex-1 flex items-center justify-center mb-3 px-1 min-h-0">
-          <p className="text-zinc-100 italic text-xs text-center leading-relaxed">"{limitedEpitaph}"</p>
+          {limitedEpitaph.trim() && <p className="text-zinc-100 italic text-xs text-center leading-relaxed">"{limitedEpitaph}"</p>}
         </div>
 
         {/* Bottom buttons with proper containment */}
@@ -482,7 +485,7 @@ function GraveCard({ situationship, initialColor = "classic", isVisible = true, 
                 Menu
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-40 bg-zinc-900 border-zinc-700">
+            <DropdownMenuContent align="start" className="grave-actions-menu w-40 bg-zinc-900 border-zinc-700">
               <DropdownMenuItem asChild className="py-3 px-4 text-sm">
                 <Link href={`/situationship?id=${situationship.id}`} className="flex items-center w-full">
                   <span className="mr-3 text-lg">👁️</span>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, SlidersHorizontal } from "lucide-react"
 import LazyGraveCard from "@/components/lazy-grave-card"
@@ -180,20 +181,15 @@ export default function GraveyardPage() {
     })
   }
 
-  // Handle delete functionality
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this grave? This action cannot be undone.')) {
-      setSituationships((prev) => {
-        const updated = (prev ?? []).filter((situationship: Situationship) => situationship.id !== id)
-        
-        // Save to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('situationships', JSON.stringify(updated))
-        }
-        
-        return updated
-      })
+    if (!window.confirm('Are you sure you want to delete this grave? This action cannot be undone.')) {
+      return false
     }
+
+    const updated = (situationships ?? []).filter(grave => grave.id !== id)
+    localStorage.setItem('situationships', JSON.stringify(updated))
+    setSituationships(updated)
+    return true
   }
 
   if (situationships === null) {
@@ -375,84 +371,101 @@ export default function GraveyardPage() {
         </div>
         
         
-        {/* Search and Filters - Always visible */}
-        <div className="space-y-3 relative z-10">
-          <div className="relative">
-            <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400 z-20 pointer-events-none" />
-            <div className="w-full h-11 rounded-md bg-zinc-800/40 pl-9 pr-3 flex items-center border-2 border-zinc-700/50 backdrop-blur-sm">
-              <input
-                type="text"
-                placeholder="Search by name..."
-                className="w-full bg-transparent border-0 outline-none ring-0 shadow-none text-white placeholder-zinc-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+        {situationships.length === 0 ? (
+          <section aria-labelledby="empty-graveyard-title" className="relative z-10 mx-auto flex max-w-sm flex-col items-center px-4 pb-12 pt-24 text-center sm:pt-28">
+            <span aria-hidden="true" className="mb-5 grid size-16 place-items-center rounded-full border border-slate-700/70 bg-slate-900/70 text-3xl shadow-[0_0_28px_rgba(147,197,253,0.12)]">🪦</span>
+            <h2 id="empty-graveyard-title" className="text-xl font-semibold text-white">Quiet in the Graveyard</h2>
+            <p className="mt-2 text-sm leading-relaxed text-zinc-300">Give that almost-relationship a place to rest...</p>
+            <Button asChild className="mt-6 min-h-11 bg-red-800 px-5 text-white hover:bg-red-900">
+              <Link href="/add">Bury your first situationship</Link>
+            </Button>
+          </section>
+        ) : (
+          <>
+            <div className="space-y-3 relative z-10">
+              <div className="relative">
+                <Search className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400 z-20 pointer-events-none" />
+                <div className="w-full h-11 rounded-md bg-zinc-800/40 pl-9 pr-3 flex items-center border-2 border-zinc-700/50 backdrop-blur-sm">
+                  <input
+                    type="text"
+                    placeholder="Search by name..."
+                    className="w-full bg-transparent border-0 outline-none ring-0 shadow-none text-white placeholder-zinc-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div
+                id="graveyard-filters"
+                inert={!showFilters}
+                className={`grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-200 motion-safe:ease-out ${showFilters ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+              >
+                <div className="min-h-0 overflow-hidden">
+                  <Select value={causeFilter} onValueChange={setCauseFilter}>
+                    <SelectTrigger className="bg-zinc-900 border-zinc-700 h-11 text-white">
+                      <SelectValue placeholder="All Causes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Causes</SelectItem>
+                      <SelectItem value="ghosted">Ghosted</SelectItem>
+                      <SelectItem value="breadcrumbed">Breadcrumbed</SelectItem>
+                      <SelectItem value="fumbled">Fumbled</SelectItem>
+                      <SelectItem value="friendzoned">Friendzoned</SelectItem>
+                      <SelectItem value="incompatible">Incompatible</SelectItem>
+                      <SelectItem value="slow fade">Slow Fade</SelectItem>
+                      <SelectItem value="cheated">Cheated</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-          </div>
-          {showFilters && (
-            <Select value={causeFilter} onValueChange={setCauseFilter}>
-              <SelectTrigger className="bg-zinc-900 border-zinc-700 h-11 text-white">
-                <SelectValue placeholder="All Causes" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Causes</SelectItem>
-                <SelectItem value="ghosted">Ghosted</SelectItem>
-                <SelectItem value="breadcrumbed">Breadcrumbed</SelectItem>
-                <SelectItem value="fumbled">Fumbled</SelectItem>
-                <SelectItem value="friendzoned">Friendzoned</SelectItem>
-                <SelectItem value="incompatible">Incompatible</SelectItem>
-                <SelectItem value="slow fade">Slow Fade</SelectItem>
-                <SelectItem value="cheated">Cheated</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        </div>
 
-        {/* Results Count and Actions */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm relative inline-block">
-            <span
-              className="absolute inset-0 translate-x-[1px] translate-y-[1px] text-black select-none"
-              aria-hidden="true"
-            >
-              {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
-            </span>
-            <span className="relative text-zinc-400 font-medium">
-              {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="text-zinc-400 hover:text-zinc-100 text-sm flex items-center gap-2"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              {showFilters ? "Hide" : "Show"} Filters
-            </button>
-          </div>
-        </div>
-
-        {/* Graveyard Grid - 2 Columns */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-6 w-full max-w-full" style={{ paddingBottom: '40px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
-          {filteredSituationships.length > 0 ? (
-            filteredSituationships.map((situationship) => (
-              <LazyGraveCard
-                key={situationship.id}
-                situationship={situationship}
-                initialColor={graveColors[situationship.id] || 'classic'}
-                onRevive={() => handleRevive(situationship.id)}
-                onBury={() => handleBury(situationship.id)}
-                onDelete={() => handleDelete(situationship.id)}
-              />
-            ))
-          ) : (
-            <div className="col-span-2 text-center py-12">
-              <p className="text-zinc-400 text-lg">No situationships found</p>
-              <p className="text-zinc-500 mt-2">Try adjusting your search or filter criteria.</p>
+            {/* Results Count and Actions */}
+            <div className="flex items-center justify-between">
+              <p className="relative z-10 text-sm font-semibold text-zinc-100" style={{ WebkitTextStroke: '2px #000', paintOrder: 'stroke fill', textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000, 0 0 5px #000' }}>
+                {filteredSituationships.length} {filteredSituationships.length === 1 ? "grave" : "graves"} found
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  aria-expanded={showFilters}
+                  aria-controls="graveyard-filters"
+                  onClick={() => setShowFilters(open => !open)}
+                  className="text-zinc-400 hover:text-zinc-100 text-sm flex items-center gap-2"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  {showFilters ? "Hide" : "Show"} Filters
+                  {!showFilters && causeFilter !== "all" && (
+                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-200">1 active</span>
+                  )}
+                  <span aria-hidden="true" className={`size-2 border-b-2 border-r-2 border-current motion-safe:transition-transform motion-safe:duration-200 ${showFilters ? "rotate-[225deg]" : "rotate-45"}`} />
+                </button>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Graveyard Grid - 2 Columns */}
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-6 w-full max-w-full" style={{ paddingBottom: '40px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              {filteredSituationships.length > 0 ? (
+                filteredSituationships.map((situationship) => (
+                  <LazyGraveCard
+                    key={situationship.id}
+                    situationship={situationship}
+                    initialColor={graveColors[situationship.id] || 'classic'}
+                    onRevive={() => handleRevive(situationship.id)}
+                    onBury={() => handleBury(situationship.id)}
+                    onDelete={() => handleDelete(situationship.id)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-12">
+                  <p className="text-zinc-400 text-lg">No situationships found</p>
+                  <p className="text-zinc-500 mt-2">Try adjusting your search or filter criteria.</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
       </div>
     </div>

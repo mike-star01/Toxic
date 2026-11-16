@@ -8,7 +8,7 @@ interface LazyGraveCardProps {
   initialColor?: string
   onRevive?: (id: string) => void
   onBury?: (id: string) => void
-  onDelete?: (id: string) => void
+  onDelete?: (id: string) => boolean
 }
 
 export default function LazyGraveCard({

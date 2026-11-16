@@ -543,3 +543,58 @@ input[type="month"] {
   -webkit-appearance: none !important;
   appearance: none !important;
 }
+
+.autopsy-panel {
+  display: grid;
+  grid-template-rows: minmax(0, 0fr);
+  opacity: 0;
+}
+
+.autopsy-panel[data-open="true"] {
+  grid-template-rows: minmax(0, 1fr);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grave-actions-menu[data-state="open"] {
+    /* Radix disables animation while positioning. Hold the first frame briefly so its entrance stays visible. */
+    animation: grave-menu-open 220ms cubic-bezier(0.2, 0.75, 0.25, 1) 35ms both !important;
+  }
+
+  .grave-actions-menu[data-state="closed"] {
+    animation: grave-menu-close 160ms ease-in both;
+  }
+
+  .autopsy-panel {
+    transition: grid-template-rows 240ms ease-in-out, opacity 180ms ease;
+  }
+
+  .autopsy-panel-content {
+    transform: translateY(-6px);
+    transition: transform 280ms ease;
+  }
+
+  .autopsy-panel[data-open="true"] {
+    transition: grid-template-rows 320ms ease-in-out, opacity 240ms ease 35ms;
+  }
+
+  .autopsy-panel[data-open="true"] .autopsy-panel-content {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grave-actions-menu[data-state] {
+    animation: none;
+  }
+}
+
+@keyframes grave-menu-open {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes grave-menu-close {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.96); }
+}

@@ -729,6 +729,9 @@ export default function StatsPage() {
     return selected
   }
 
+  const recordedCauses = stats.causeBreakdown.filter(({ cause }) => cause?.trim())
+  const leadingCauses = recordedCauses.filter(({ count }) => count === recordedCauses[0]?.count)
+
   return (
     <div
       className="min-h-screen bg-black relative overflow-x-hidden"
@@ -742,22 +745,31 @@ export default function StatsPage() {
       {/* Stars Background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {useMemo(() => {
+          // Use the same star positions on the server and in the browser.
+          let seed = 42
+          const nextStarValue = () => {
+            seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+            return seed / 4294967296
+          }
+
           return Array.from({ length: 50 }).map((_, i) => {
-            const size = Math.random() * 2 + 0.5; // 0.5px to 2.5px
-            const left = Math.random() * 100;
-            const top = Math.random() * 100;
-            const opacity = Math.random() * 0.5 + 0.3; // 0.3 to 0.8
+            const size = nextStarValue() * 2 + 0.5;
+            const left = nextStarValue() * 100;
+            const top = nextStarValue() * 100;
+            const opacity = nextStarValue() * 0.5 + 0.3;
             const isLarge = size > 1.5; // Stars larger than 1.5px get glow
             return (
               <div
                 key={i}
-                className="absolute rounded-full bg-white"
+                className="stats-star absolute rounded-full bg-white"
                 style={{
                   width: `${size}px`,
                   height: `${size}px`,
                   left: `${left}%`,
                   top: `${top}%`,
-                  opacity: opacity,
+                  opacity,
+                  animationDuration: (3 + (i % 7) * 0.5) + "s",
+                  animationDelay: -(i * 0.73 % 6) + "s",
                   filter: isLarge ? 'blur(0.5px)' : 'blur(0.3px)',
                   boxShadow: isLarge ? '0 0 2px rgba(255,255,255,0.4), 0 0 4px rgba(255,255,255,0.2)' : 'none',
                 }}
@@ -767,54 +779,86 @@ export default function StatsPage() {
         }, [])}
       </div>
 
+      <style jsx>{`
+        @media (prefers-reduced-motion: no-preference) {
+          .stats-star {
+            animation-name: stats-star-twinkle;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+          }
+        }
+
+        @keyframes stats-star-twinkle {
+          0%, 36%, 68%, 100% { opacity: 0.2; transform: scale(0.85); }
+          48% {
+            opacity: 1;
+            transform: scale(1.5);
+            box-shadow: 0 0 3px #fff, 0 0 7px rgba(224, 205, 255, 0.85);
+          }
+        }
+      `}</style>
+
       <AppHeader title="Your Stats" centered />
 
       <div className="px-4 py-4 space-y-4 relative z-10">
-        {/* Overview Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card 
-            className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
-            style={{
-              boxShadow: '0 0 8px rgba(248,113,113,0.3), 0 0 15px rgba(248,113,113,0.2), inset 0 0 10px rgba(248,113,113,0.15)',
-              borderColor: 'rgba(248,113,113,0.3)'
-            }}
-          >
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
-                <span 
-                  style={{
-                    textShadow: '0 0 6px rgba(248,113,113,0.6), 0 0 12px rgba(248,113,113,0.4)'
-                  }}
-                >
-                  {stats.totalGraves}
-                </span>
-                <span role="img" aria-label="grave">🪦</span>
-              </div>
-              <div className="text-sm text-zinc-400">Total Graves</div>
-            </CardContent>
-          </Card>
-          <Card 
-            className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
-            style={{
-              boxShadow: '0 0 8px rgba(251,191,36,0.3), 0 0 15px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.15)',
-              borderColor: 'rgba(251,191,36,0.3)'
-            }}
-          >
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-amber-400 flex items-center justify-center gap-1">
-                <span 
-                  style={{
-                    textShadow: '0 0 6px rgba(251,191,36,0.6), 0 0 12px rgba(251,191,36,0.4)'
-                  }}
-                >
-                  {stats.revived}
-                </span>
-                <span role="img" aria-label="lightning">⚡️</span>
-              </div>
-              <div className="text-sm text-zinc-400">Revived</div>
-            </CardContent>
-          </Card>
-        </div>
+        <section aria-labelledby="dating-autopsy-title" className="rounded-xl border border-zinc-800/70 bg-zinc-900/35 p-4 text-center backdrop-blur-sm">
+          <h2 id="dating-autopsy-title" className="mb-4 text-lg font-semibold">
+            Your Dating Autopsy <span aria-hidden="true">💀</span>
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <Card
+              className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
+              style={{
+                boxShadow: '0 0 8px rgba(248,113,113,0.3), 0 0 15px rgba(248,113,113,0.2), inset 0 0 10px rgba(248,113,113,0.15)',
+                borderColor: 'rgba(248,113,113,0.3)'
+              }}
+            >
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
+                  <span
+                    style={{
+                      textShadow: '0 0 6px rgba(248,113,113,0.6), 0 0 12px rgba(248,113,113,0.4)'
+                    }}
+                  >
+                    {stats.totalGraves}
+                  </span>
+                  <span role="img" aria-label="grave">🪦</span>
+                </div>
+                <div className="text-sm text-zinc-400">Total Graves</div>
+              </CardContent>
+            </Card>
+            <Card
+              className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm"
+              style={{
+                boxShadow: '0 0 8px rgba(251,191,36,0.3), 0 0 15px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.15)',
+                borderColor: 'rgba(251,191,36,0.3)'
+              }}
+            >
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-amber-400 flex items-center justify-center gap-1">
+                  <span
+                    style={{
+                      textShadow: '0 0 6px rgba(251,191,36,0.6), 0 0 12px rgba(251,191,36,0.4)'
+                    }}
+                  >
+                    {stats.revived}
+                  </span>
+                  <span role="img" aria-label="lightning">⚡️</span>
+                </div>
+                <div className="text-sm text-zinc-400">Revived</div>
+              </CardContent>
+            </Card>
+          </div>
+          {leadingCauses.length > 0 && (
+            <div className="mt-4 border-t border-zinc-800 pt-3">
+              <p className="text-xs text-zinc-300">{leadingCauses.length === 1 ? "Most common cause" : "Most common causes (tied)"}</p>
+              <p className="mt-1 break-words text-lg font-semibold capitalize text-zinc-100">{leadingCauses.map(({ cause }) => cause === "ghosted" ? "Ghosted 👻" : cause).join(" · ")}</p>
+            </div>
+          )}
+          {stats.totalGraves === 0 && (
+            <p className="mt-4 text-sm text-zinc-400">Bury your first situationship to start your autopsy.</p>
+          )}
+        </section>
 
         {/* Duration Stats */}
         <Card className="bg-zinc-900/35 border-zinc-800/50 backdrop-blur-sm">

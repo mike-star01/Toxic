@@ -251,9 +251,15 @@ export default function ProfilePage() {
           onClick={() => {
             if (confirm('Delete ALL local data? This cannot be undone.')) {
               try {
-                // Clear all app data in localStorage
-                localStorage.clear()
-              } catch (e) {}
+                const graveColorKeys = Object.keys(localStorage).filter(key => key.startsWith('grave-color-'))
+                for (const key of graveColorKeys) {
+                  localStorage.removeItem(key)
+                }
+                localStorage.removeItem('situationships')
+              } catch {
+                alert('Could not delete all grave data. Please try again.')
+                return
+              }
               alert('All data deleted')
               window.location.reload()
             }
