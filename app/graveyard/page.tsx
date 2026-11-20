@@ -1,5 +1,6 @@
 "use client"
 
+import { notifyGravesChanged } from "@/lib/notifications"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -188,6 +189,7 @@ export default function GraveyardPage() {
 
     const updated = (situationships ?? []).filter(grave => grave.id !== id)
     localStorage.setItem('situationships', JSON.stringify(updated))
+    notifyGravesChanged()
     setSituationships(updated)
     return true
   }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { remindersEnabled, setRemindersEnabled, supportsReminders } from "@/lib/notifications"
 import AppHeader from "@/components/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -136,7 +137,7 @@ export default function ProfilePage() {
   }, [])
   return (
     <div className="min-h-screen bg-zinc-950 relative overflow-x-hidden">
-      <AppHeader title="Profile" showProfile={false} />
+      <AppHeader title="Profile" showProfile={false} centered />
 
       <div className="px-4 py-4 space-y-4">
         {/* Profile Header */}
@@ -188,7 +189,20 @@ export default function ProfilePage() {
             <Button
               variant="ghost"
               className="w-full justify-start h-12 active:bg-zinc-800/70 text-base"
-              onClick={() => alert('Coming soon 🦦')}
+              onClick={async () => {
+                if (!supportsReminders()) {
+                  alert('Reminders are available in the installed iPhone app.')
+                  return
+                }
+                const enabled = remindersEnabled()
+                if (!confirm(enabled ? 'Turn off notifications?' : 'Turn on notifications?')) return
+                try {
+                  await setRemindersEnabled(!enabled)
+                  alert(enabled ? 'Notifications turned off.' : 'Notifications turned on.')
+                } catch (error) {
+                  alert(error instanceof Error ? error.message : 'Could not update notifications. Please try again.')
+                }
+              }}
             >
               Notifications
             </Button>
@@ -248,9 +262,10 @@ export default function ProfilePage() {
       <div className="px-4 pb-2">
         <Button
           className="w-full bg-red-800 hover:bg-red-900 h-11 text-white"
-          onClick={() => {
+          onClick={async () => {
             if (confirm('Delete ALL local data? This cannot be undone.')) {
               try {
+                if (supportsReminders()) await setRemindersEnabled(false)
                 const graveColorKeys = Object.keys(localStorage).filter(key => key.startsWith('grave-color-'))
                 for (const key of graveColorKeys) {
                   localStorage.removeItem(key)

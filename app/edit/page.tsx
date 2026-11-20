@@ -1,4 +1,5 @@
 "use client"
+import { formAutopsyComplete, notifyGravesChanged } from "@/lib/notifications"
 import { AutopsyDisclosure, GraveFormBackground } from '@/components/grave-form-background'
 import React, { useEffect, useRef, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -443,6 +444,7 @@ const causeOptions = [
     // Update the situationship
     const updatedSituationship = {
       ...situationship!,
+      autopsyComplete: formAutopsyComplete(formData, photo),
       name: formData.name,
       cause: causeLabels[formData.cause] || formData.cause,
       dates: {
@@ -484,6 +486,7 @@ const causeOptions = [
         graves.push(updatedSituationship)
       }
       localStorage.setItem('situationships', JSON.stringify(graves))
+      notifyGravesChanged()
       
       // Save color theme
       localStorage.setItem(`grave-color-${id}`, selectedColor)
@@ -1137,6 +1140,7 @@ const causeOptions = [
                           let graves = stored ? JSON.parse(stored) : []
                           graves = graves.filter((g: any) => g.id !== id)
                           localStorage.setItem('situationships', JSON.stringify(graves))
+      notifyGravesChanged()
                         }
                         router.push('/graveyard')
                       }

@@ -39,7 +39,7 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 min-w-[80px] h-[60px]",
+                "pressable flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 min-w-[80px] h-[60px]",
                 item.isSpecial
                   ? "bg-red-800 hover:bg-red-900 text-white"
                   : isActive

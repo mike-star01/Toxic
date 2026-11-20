@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Skull, Upload } from "lucide-react"
+import { firstGraveSaved, formAutopsyComplete } from "@/lib/notifications"
 import { useToast } from "@/hooks/use-toast"
 import AppHeader from "@/components/app-header"
 import { Switch } from "@/components/ui/switch"
@@ -196,6 +197,8 @@ export default function AddSituationshipPage() {
     // Build new grave object
     const newGrave = {
       id: Date.now().toString(),
+      notificationDueAt: Date.now() + 24 * 60 * 60 * 1000,
+      autopsyComplete: formAutopsyComplete(formData, photo),
       name: formData.name,
       cause: causeLabels[formData.cause] || formData.cause,
       dates: {
@@ -243,6 +246,7 @@ export default function AddSituationshipPage() {
       graves = stored ? JSON.parse(stored) : []
       graves.push(newGrave)
       localStorage.setItem('situationships', JSON.stringify(graves))
+      firstGraveSaved(graves.length - 1)
     }
 
     setTimeout(() => {
@@ -922,6 +926,7 @@ export default function AddSituationshipPage() {
                     const graves = stored ? JSON.parse(stored) : []
                     graves.push(testGrave)
                     localStorage.setItem('situationships', JSON.stringify(graves))
+      firstGraveSaved(graves.length - 1)
                     localStorage.setItem(`grave-color-${testId}`, 'black')
                     // Go to graveyard
                     router.push('/graveyard')

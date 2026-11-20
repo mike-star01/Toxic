@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import NotificationSetup from "@/components/notification-setup"
 import BottomNav from "@/components/bottom-nav"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
@@ -31,6 +32,7 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="pb-16">{children}</div>
           <BottomNav />
+          <NotificationSetup />
           <Toaster />
         </ThemeProvider>
       </body>

@@ -34,10 +34,10 @@ export default function AppHeader({
               variant="ghost"
               size="lg"
               asChild
-              className="absolute right-4 p-2 hover:bg-zinc-800 w-12 h-12 rounded-full flex items-center justify-center"
+              className="absolute right-4 p-2 w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center hover:border-zinc-500 hover:bg-zinc-800 active:bg-zinc-700 motion-safe:transition-colors motion-safe:duration-150"
             >
-              <Link href="/profile">
-                <User className="w-6 h-6 text-white" />
+              <Link href="/profile" aria-label="Open profile">
+                <User aria-hidden="true" className="w-6 h-6 text-white" />
               </Link>
             </Button>
           )}
@@ -69,10 +69,10 @@ export default function AppHeader({
               variant="ghost"
               size="lg"
               asChild
-              className="p-2 hover:bg-zinc-800 w-12 h-12 rounded-full flex items-center justify-center"
+              className="p-2 w-12 h-12 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center hover:border-zinc-500 hover:bg-zinc-800 active:bg-zinc-700 motion-safe:transition-colors motion-safe:duration-150"
             >
-              <Link href="/profile">
-                <User className="w-6 h-6 text-white" />
+              <Link href="/profile" aria-label="Open profile">
+                <User aria-hidden="true" className="w-6 h-6 text-white" />
               </Link>
             </Button>
           )}
